@@ -164,7 +164,7 @@ msgid "Do you have an OMDb API key? It adds IMDb, Rotten Tomatoes and Metacritic
 msgstr ""
 
 msgctxt "#30066"
-msgid "SpongeTV needs a TMDB API key for titles and artwork. Enter one now?"
+msgid "SpongeTV needs your own free TMDB API key for titles, plots and artwork. To get one, sign up at themoviedb.org, then open Settings, API and copy the short \"API Key\" (not the long Read Access Token)."
 msgstr ""
 
 msgctxt "#30067"
@@ -181,6 +181,26 @@ msgstr ""
 
 msgctxt "#30070"
 msgid "No"
+msgstr ""
+
+msgctxt "#30071"
+msgid "Enter your TMDB API key"
+msgstr ""
+
+msgctxt "#30072"
+msgid "TMDB didn't accept that key. Check it and try again."
+msgstr ""
+
+msgctxt "#30073"
+msgid "That looks like the long Read Access Token. Please copy the shorter \"API Key\" instead."
+msgstr ""
+
+msgctxt "#30074"
+msgid "Couldn't reach TMDB to check the key, so it has been saved unchecked."
+msgstr ""
+
+msgctxt "#30075"
+msgid "No TMDB key saved. Films and TV won't load until you add one in Settings, Accounts, or run the setup wizard again from Tools."
 msgstr ""
 
 msgctxt "#30080"

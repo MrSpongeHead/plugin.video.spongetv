@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 MrSpongeHead
-"""Builds an installable zip in dist/, adding built-in API keys from keys.local.json.
+"""Builds an installable zip in dist/.
 
-keys.local.json (never committed) looks like: {"tmdb": "...", "fanart": "", "omdb": ""}
+The zip contains no API keys: users enter their own in the setup wizard.
+For private testing only, `--with-keys` adds keys from keys.local.json (never committed),
+which looks like: {"tmdb": "...", "fanart": "", "omdb": ""}. Never publish a zip built that way.
 """
 
 import json
@@ -37,10 +39,12 @@ def files():
                 yield os.path.join(folder, name)
 
 
-def main():
+def main(with_keys=False):
     keys_path = os.path.join(ROOT, "keys.local.json")
     keys = {}
-    if os.path.exists(keys_path):
+    if not with_keys:
+        pass
+    elif os.path.exists(keys_path):
         with open(keys_path, encoding="utf-8") as handle:
             keys = {k: v for k, v in json.load(handle).items() if v}
     else:
@@ -58,4 +62,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(0 if main() else 1)
+    sys.exit(0 if main(with_keys="--with-keys" in sys.argv[1:]) else 1)

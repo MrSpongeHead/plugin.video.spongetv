@@ -31,7 +31,7 @@ SpongeTV does not include any providers. It can install provider packages you su
 ## Developing
 
 - Tests: `python3 -m pytest tests` (no Kodi or network needed).
-- Build a zip: `python3 tools/build.py` (writes to `dist/`). Built-in API keys are read from
-  `keys.local.json`, which is not stored in this repository.
+- Build a zip: `python3 tools/build.py` (writes to `dist/`). The zip contains no API keys;
+  each user enters their own TMDB key in the setup wizard.
 
 Copyright (C) 2026 MrSpongeHead

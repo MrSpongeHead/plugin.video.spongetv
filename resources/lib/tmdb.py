@@ -32,6 +32,21 @@ class TmdbError(Exception):
     pass
 
 
+def check_key(http, api_key):
+    """True if TMDB accepts the key, False if it rejects it, None if TMDB couldn't be reached."""
+    from resources.lib.http import HttpError
+    try:
+        http.get_json(BASE + "/configuration", params={"api_key": api_key})
+        return True
+    except HttpError as error:
+        return False if error.status in (401, 403) else None
+
+
+def looks_like_read_token(value):
+    """The long 'API Read Access Token' (starts eyJ...) is not the short v3 API key SpongeTV needs."""
+    return value.startswith("eyJ") or len(value) > 40
+
+
 class Tmdb:
     def __init__(self, api_key, http, store=None, language="en-GB", region="GB", today=None):
         if not api_key:

@@ -39,6 +39,10 @@ def fake_tmdb(monkeypatch):
 
     def get_json(self, url, params=None, headers=None):
         calls.append(url)
+        if url.endswith("/configuration"):
+            if params["api_key"] == "good":
+                return {}
+            raise HttpError("Invalid API key", 401)
         if url.endswith("/movie/popular"):
             return {"page": 1, "total_pages": 3, "results": [{"id": i} for i in range(1, 21)]}
         if "/movie/" in url:
@@ -50,8 +54,8 @@ def fake_tmdb(monkeypatch):
         raise HttpError("not found", 404)
 
     monkeypatch.setattr(Http, "get_json", get_json)
-    monkeypatch.setattr(context, "builtin_keys", lambda: {"tmdb": "built-in"})
-    FakeAddon.settings.update({"artwork.preset": 1})
+    monkeypatch.setattr(context, "builtin_keys", lambda: {})
+    FakeAddon.settings.update({"artwork.preset": 1, "tmdb.api_key": "good"})
     return calls
 
 
@@ -66,8 +70,11 @@ def mark_wizard_done():
 
 
 def test_first_run_shows_wizard_then_home(fake_tmdb):
-    FakeDialog.script = [1, 0, False, False]  # English (UK), best artwork, no Fanart, no OMDb
+    # English (UK), best artwork, a rejected key then a good one, no Fanart, no OMDb
+    FakeDialog.script = [1, 0, "wrong", "good", False, False]
     call("")
+    assert FakeAddon.settings["tmdb.api_key"] == "good"
+    assert ("ok", "TMDB didn't accept that key. Check it and try again.") in FakeDialog.shown
     assert FakeAddon.settings["metadata.language"] == 1
     assert FakeAddon.settings["artwork.preset"] == 0
     assert len(Directory.items) == 4 and Directory.ended is True
@@ -127,7 +134,30 @@ def test_unknown_action_fails():
     assert Directory.ended is False
 
 
-def test_users_key_overrides_built_in(fake_tmdb):
-    FakeAddon.settings["tmdb.api_key"] = "mine"
-    app = context.App()
-    assert app.key("tmdb") == "mine"
+def test_wizard_skip_and_read_token(fake_tmdb):
+    FakeAddon.settings.pop("tmdb.api_key")
+    FakeDialog.script = [-1, -1, "eyJhbGciOiJIUzI1NiJ9.long.token", "", False, False]
+    call("")
+    assert "tmdb.api_key" not in FakeAddon.settings
+    assert ("ok", 'That looks like the long Read Access Token. Please copy the shorter "API Key" instead.') \
+        in FakeDialog.shown
+    assert any(m.startswith("No TMDB key saved") for kind, m in FakeDialog.shown if kind == "ok")
+
+
+def test_wizard_saves_key_when_tmdb_unreachable(fake_tmdb, monkeypatch):
+    def offline(self, url, params=None, headers=None):
+        raise HttpError("offline")
+    monkeypatch.setattr(Http, "get_json", offline)
+    FakeAddon.settings.pop("tmdb.api_key")
+    FakeDialog.script = [-1, -1, "abc123", False, False]
+    call("")
+    assert FakeAddon.settings["tmdb.api_key"] == "abc123"
+
+
+def test_no_key_in_zip(tmp_path, monkeypatch):
+    import zipfile
+    from tools import build
+    monkeypatch.setattr(build, "ROOT", build.ROOT)
+    out = build.main()
+    with zipfile.ZipFile(out) as archive:
+        assert not any(name.endswith("_keys.json") for name in archive.namelist())
