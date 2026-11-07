@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings version="1">
+    <section id="plugin.video.spongetv">
+        <category id="general" label="30100">
+            <group id="display" label="30104">
+                <setting id="metadata.language" type="integer" label="30110">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30111">0</option>
+                            <option label="30160">1</option>
+                            <option label="30161">2</option>
+                            <option label="30162">3</option>
+                            <option label="30163">4</option>
+                            <option label="30164">5</option>
+                            <option label="30165">6</option>
+                            <option label="30166">7</option>
+                            <option label="30167">8</option>
+                            <option label="30168">9</option>
+                            <option label="30169">10</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string"/>
+                </setting>
+                <setting id="metadata.original_titles" type="boolean" label="30112">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="display.hide_specials" type="boolean" label="30113">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="display.hide_unaired" type="boolean" label="30114">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="display.flatten_seasons" type="boolean" label="30115">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+        </category>
+        <category id="artwork" label="30101">
+            <group id="artwork" label="30101">
+                <setting id="artwork.preset" type="integer" label="30120">
+                    <level>0</level>
+                    <default>1</default>
+                    <constraints>
+                        <options>
+                            <option label="30121">0</option>
+                            <option label="30122">1</option>
+                            <option label="30123">2</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string"/>
+                </setting>
+            </group>
+        </category>
+        <category id="accounts" label="30102">
+            <group id="keys" label="30105">
+                <setting id="tmdb.api_key" type="string" label="30130">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30130</heading>
+                    </control>
+                </setting>
+                <setting id="fanart.api_key" type="string" label="30131">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30131</heading>
+                    </control>
+                </setting>
+                <setting id="omdb.api_key" type="string" label="30132">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30132</heading>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="advanced" label="30103">
+            <group id="views" label="30106">
+                <setting id="view.movies" type="integer" label="30140">
+                    <level>2</level>
+                    <default>0</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <maximum>9999</maximum>
+                    </constraints>
+                    <control type="edit" format="integer">
+                        <heading>30140</heading>
+                    </control>
+                </setting>
+                <setting id="view.tvshows" type="integer" label="30141">
+                    <level>2</level>
+                    <default>0</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <maximum>9999</maximum>
+                    </constraints>
+                    <control type="edit" format="integer">
+                        <heading>30141</heading>
+                    </control>
+                </setting>
+                <setting id="view.seasons" type="integer" label="30142">
+                    <level>2</level>
+                    <default>0</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <maximum>9999</maximum>
+                    </constraints>
+                    <control type="edit" format="integer">
+                        <heading>30142</heading>
+                    </control>
+                </setting>
+                <setting id="view.episodes" type="integer" label="30143">
+                    <level>2</level>
+                    <default>0</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <maximum>9999</maximum>
+                    </constraints>
+                    <control type="edit" format="integer">
+                        <heading>30143</heading>
+                    </control>
+                </setting>
+            </group>
+            <group id="maintenance" label="30107">
+                <setting id="cache.size_mb" type="integer" label="30150">
+                    <level>2</level>
+                    <default>100</default>
+                    <constraints>
+                        <minimum>10</minimum>
+                        <step>10</step>
+                        <maximum>1000</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="action.clear_cache" type="action" label="30050">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.spongetv/?action=clear_cache)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="action.wizard" type="action" label="30051">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.spongetv/?action=wizard)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
+    </section>
+</settings>

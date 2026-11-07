@@ -1,0 +1,344 @@
+# Kodi Media Center language file
+# Addon Name: SpongeTV
+# Addon id: plugin.video.spongetv
+# Addon Provider: MrSpongeHead
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.spongetv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30010"
+msgid "Movies"
+msgstr ""
+
+msgctxt "#30011"
+msgid "TV shows"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Tools"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Trending this week"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Popular"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Top rated"
+msgstr ""
+
+msgctxt "#30023"
+msgid "In cinemas now"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Coming soon"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Genres"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Years"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Airing today"
+msgstr ""
+
+msgctxt "#30034"
+msgid "On TV this week"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Next page ({page} of {total})"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Search films"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Search TV shows"
+msgstr ""
+
+msgctxt "#30043"
+msgid "New search"
+msgstr ""
+
+msgctxt "#30044"
+msgid "Clear search history"
+msgstr ""
+
+msgctxt "#30045"
+msgid "Season {number}"
+msgstr ""
+
+msgctxt "#30046"
+msgid "Specials"
+msgstr ""
+
+msgctxt "#30047"
+msgid "All episodes"
+msgstr ""
+
+msgctxt "#30050"
+msgid "Clear cache"
+msgstr ""
+
+msgctxt "#30051"
+msgid "Run setup wizard again"
+msgstr ""
+
+msgctxt "#30052"
+msgid "Clean install"
+msgstr ""
+
+msgctxt "#30053"
+msgid "Cache cleared"
+msgstr ""
+
+msgctxt "#30054"
+msgid "Search history cleared"
+msgstr ""
+
+msgctxt "#30055"
+msgid "Remove all SpongeTV data and start again?"
+msgstr ""
+
+msgctxt "#30056"
+msgid "Keep your accounts and settings?"
+msgstr ""
+
+msgctxt "#30057"
+msgid "SpongeTV has been reset. Restart Kodi to finish."
+msgstr ""
+
+msgctxt "#30058"
+msgid "Keep"
+msgstr ""
+
+msgctxt "#30059"
+msgid "Remove"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Welcome to SpongeTV"
+msgstr ""
+
+msgctxt "#30061"
+msgid "A few quick questions to set things up. You can change any of these later in Settings."
+msgstr ""
+
+msgctxt "#30062"
+msgid "Language for titles and plots"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Artwork quality"
+msgstr ""
+
+msgctxt "#30064"
+msgid "Do you have a Fanart.tv personal API key? It adds logos and extra artwork. (Optional)"
+msgstr ""
+
+msgctxt "#30065"
+msgid "Do you have an OMDb API key? It adds IMDb, Rotten Tomatoes and Metacritic ratings. (Optional)"
+msgstr ""
+
+msgctxt "#30066"
+msgid "SpongeTV needs a TMDB API key for titles and artwork. Enter one now?"
+msgstr ""
+
+msgctxt "#30067"
+msgid "Enter the API key"
+msgstr ""
+
+msgctxt "#30068"
+msgid "All set. Trakt sign-in arrives in the next test build."
+msgstr ""
+
+msgctxt "#30069"
+msgid "Yes"
+msgstr ""
+
+msgctxt "#30070"
+msgid "No"
+msgstr ""
+
+msgctxt "#30080"
+msgid "Playback arrives in a later test build"
+msgstr ""
+
+msgctxt "#30081"
+msgid "No TMDB API key. Add one in Settings, Accounts."
+msgstr ""
+
+msgctxt "#30082"
+msgid "Couldn't reach TMDB. Check your connection and try again."
+msgstr ""
+
+msgctxt "#30083"
+msgid "Nothing found"
+msgstr ""
+
+msgctxt "#30100"
+msgid "General"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Metadata and artwork"
+msgstr ""
+
+msgctxt "#30102"
+msgid "Accounts"
+msgstr ""
+
+msgctxt "#30103"
+msgid "Advanced"
+msgstr ""
+
+msgctxt "#30104"
+msgid "Display"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Your own API keys"
+msgstr ""
+
+msgctxt "#30106"
+msgid "View types (0 uses your skin's default)"
+msgstr ""
+
+msgctxt "#30107"
+msgid "Maintenance"
+msgstr ""
+
+msgctxt "#30110"
+msgid "Language for titles and plots"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Same as Kodi"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Show original titles"
+msgstr ""
+
+msgctxt "#30113"
+msgid "Hide specials"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Hide episodes not yet aired"
+msgstr ""
+
+msgctxt "#30115"
+msgid "Show all episodes in one list instead of seasons"
+msgstr ""
+
+msgctxt "#30120"
+msgid "Artwork quality"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Best quality"
+msgstr ""
+
+msgctxt "#30122"
+msgid "Balanced"
+msgstr ""
+
+msgctxt "#30123"
+msgid "Minimal (fastest)"
+msgstr ""
+
+msgctxt "#30130"
+msgid "TMDB API key"
+msgstr ""
+
+msgctxt "#30131"
+msgid "Fanart.tv personal API key (optional)"
+msgstr ""
+
+msgctxt "#30132"
+msgid "OMDb API key (optional)"
+msgstr ""
+
+msgctxt "#30140"
+msgid "Films view ID"
+msgstr ""
+
+msgctxt "#30141"
+msgid "TV shows view ID"
+msgstr ""
+
+msgctxt "#30142"
+msgid "Seasons view ID"
+msgstr ""
+
+msgctxt "#30143"
+msgid "Episodes view ID"
+msgstr ""
+
+msgctxt "#30150"
+msgid "Cache size limit (MB)"
+msgstr ""
+
+msgctxt "#30160"
+msgid "English (UK)"
+msgstr ""
+
+msgctxt "#30161"
+msgid "English (US)"
+msgstr ""
+
+msgctxt "#30162"
+msgid "Français"
+msgstr ""
+
+msgctxt "#30163"
+msgid "Deutsch"
+msgstr ""
+
+msgctxt "#30164"
+msgid "Español"
+msgstr ""
+
+msgctxt "#30165"
+msgid "Italiano"
+msgstr ""
+
+msgctxt "#30166"
+msgid "Nederlands"
+msgstr ""
+
+msgctxt "#30167"
+msgid "Português"
+msgstr ""
+
+msgctxt "#30168"
+msgid "Polski"
+msgstr ""
+
+msgctxt "#30169"
+msgid "Svenska"
+msgstr ""
