@@ -21,6 +21,7 @@ ACTIONS = {
     "year": menus.year,
     "search_menu": menus.search_menu,
     "search": menus.search,
+    "new_search": menus.new_search,
     "seasons": menus.seasons,
     "episodes": menus.episodes,
     "all_episodes": menus.all_episodes,
@@ -34,7 +35,7 @@ ACTIONS = {
 }
 
 # Actions that produce a directory listing (and so must end it, even on failure).
-DIRECTORY_ACTIONS = set(ACTIONS) - {"play", "clear_cache", "clear_search", "wizard", "clean_install", "settings"}
+DIRECTORY_ACTIONS = set(ACTIONS) - {"play", "new_search", "clear_cache", "clear_search", "wizard", "clean_install", "settings"}
 
 
 def dispatch(argv):

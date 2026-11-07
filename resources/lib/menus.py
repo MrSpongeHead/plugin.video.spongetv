@@ -5,6 +5,7 @@
 import datetime
 from concurrent.futures import ThreadPoolExecutor
 
+import xbmc
 import xbmcgui
 
 from resources.lib import artwork, kodi, listing
@@ -112,7 +113,9 @@ def _title_items(plugin, app, media, summaries):
     return items
 
 
-def _show_titles(plugin, app, media, data, **page_params):
+def _show_titles(plugin, app, title_media, data, **page_params):
+    """page_params build the Next page link and may include their own media=."""
+    media = title_media
     results = [r for r in data.get("results", []) if r.get("id")]
     items = _title_items(plugin, app, media, results)
     items += _next_page(plugin, data, **page_params)
@@ -161,21 +164,30 @@ def year(plugin, app):
 # -- search ------------------------------------------------------------------------------
 def search_menu(plugin, app):
     media = plugin.params.get("media", "movie")
-    items = [(plugin.url(action="search", media=media), listing.folder_item(kodi.text("new_search"), kodi.ICON, kodi.FANART), True)]
+    # "New search" is an action, not a folder: it asks for the words, then opens a results folder
+    # whose address includes them, so Kodi never reuses an old result list or re-asks on Back.
+    items = [(plugin.url(action="new_search", media=media), listing.folder_item(kodi.text("new_search"), kodi.ICON, kodi.FANART), False)]
     for query in app.store.searches(media):
         items.append((plugin.url(action="search", media=media, query=query), listing.folder_item(query, kodi.ICON, kodi.FANART), True))
     items.append((plugin.url(action="clear_search"), listing.folder_item(kodi.text("clear_search_history"), kodi.ICON, kodi.FANART), False))
     plugin.finish(items, category=kodi.text("search_movies" if media == "movie" else "search_tv"), cache=False)
 
 
+def new_search(plugin, app):
+    media = plugin.params.get("media", "movie")
+    query = (xbmcgui.Dialog().input(kodi.text("search_movies" if media == "movie" else "search_tv")) or "").strip()
+    if not query:
+        return
+    app.store.add_search(media, query)
+    xbmc.executebuiltin(f"Container.Update({plugin.url(action='search', media=media, query=query)})")
+
+
 def search(plugin, app):
     media = plugin.params.get("media", "movie")
-    query = plugin.params.get("query")
+    query = (plugin.params.get("query") or "").strip()
     if not query:
-        query = xbmcgui.Dialog().input(kodi.text("search_movies" if media == "movie" else "search_tv")).strip()
-        if not query:
-            plugin.fail()
-            return
+        plugin.fail()
+        return
     app.store.add_search(media, query)
     page = plugin.int_param("page", 1)
     data = app.tmdb.search(media, query, page)

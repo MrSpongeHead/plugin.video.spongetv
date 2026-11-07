@@ -43,6 +43,9 @@ def fake_tmdb(monkeypatch):
             if params["api_key"] == "good":
                 return {}
             raise HttpError("Invalid API key", 401)
+        if url.endswith("/search/movie"):
+            hits = [{"id": 7}] if params["query"] == "matrix" else []
+            return {"page": 1, "total_pages": 1, "results": hits}
         if url.endswith("/movie/popular"):
             return {"page": 1, "total_pages": 3, "results": [{"id": i} for i in range(1, 21)]}
         if "/movie/" in url:
@@ -161,3 +164,74 @@ def test_no_key_in_zip(tmp_path, monkeypatch):
     out = build.main()
     with zipfile.ZipFile(out) as archive:
         assert not any(name.endswith("_keys.json") for name in archive.namelist())
+
+
+def test_new_search_asks_then_opens_results(fake_tmdb):
+    mark_wizard_done()
+    FakeDialog.script = ["matrix"]
+    call("?action=new_search&media=movie")
+    assert Directory.builtins == [
+        "Container.Update(plugin://plugin.video.spongetv/?action=search&media=movie&query=matrix)"]
+    call("?action=search&media=movie&query=matrix")
+    assert [i[1].label for i in Directory.items] == ["Film 7"]
+    Directory.items = []
+    call("?action=search_menu&media=movie")
+    labels = [i[1].label for i in Directory.items]
+    assert "matrix" in labels and Directory.items[0][2] is False  # "New search" is not a folder
+
+
+def test_search_with_no_matches_says_so(fake_tmdb):
+    mark_wizard_done()
+    call("?action=search&media=movie&query=zzzz")
+    assert ("notification", "Nothing found") in FakeDialog.shown and Directory.ended is True
+
+
+def test_cancelled_search_does_nothing(fake_tmdb):
+    mark_wizard_done()
+    FakeDialog.script = [""]
+    call("?action=new_search&media=movie")
+    assert Directory.builtins == [] and Directory.ended is None
+
+
+@pytest.fixture
+def fake_everything(monkeypatch):
+    """Answers every TMDB call a menu can make: lists return film 7 or show 50."""
+    def get_json(self, url, params=None, headers=None):
+        path = url.split("/3", 1)[1]
+        if path.startswith("/genre/"):
+            return {"genres": [{"id": 18, "name": "Drama"}]}
+        if path == "/tv/50":
+            return SHOW
+        if path.startswith("/tv/50/season/"):
+            return SEASON_1
+        if path.startswith("/movie/") and path.rsplit("/", 1)[1].isdigit():
+            return movie(int(path.rsplit("/", 1)[1]))
+        is_tv = "/tv" in path
+        return {"page": 1, "total_pages": 2, "results": [{"id": 50 if is_tv else 7}]}
+    monkeypatch.setattr(Http, "get_json", get_json)
+    monkeypatch.setattr(context, "builtin_keys", lambda: {})
+    FakeAddon.settings.update({"tmdb.api_key": "good"})
+    mark_wizard_done()
+
+
+@pytest.mark.parametrize("query", [
+    "", "?action=movies", "?action=tv", "?action=search_home",
+    *[f"?action=movie_list&kind={k}" for k in ("trending", "popular", "top_rated", "now_playing", "upcoming")],
+    *[f"?action=tv_list&kind={k}" for k in ("trending", "popular", "top_rated", "airing_today", "on_the_air")],
+    "?action=genres&media=movie", "?action=genres&media=tv",
+    "?action=genre&media=movie&genre=18", "?action=genre&media=tv&genre=18",
+    "?action=years&media=movie", "?action=year&media=movie&year=2020", "?action=year&media=tv&year=2020",
+    "?action=search_menu&media=tv", "?action=search&media=tv&query=show", "?action=search&media=movie&query=film",
+    "?action=seasons&tmdb_id=50", "?action=episodes&tmdb_id=50&season=1", "?action=all_episodes&tmdb_id=50",
+    "?action=tools",
+])
+def test_every_menu_opens(fake_everything, query):
+    call(query)
+    assert Directory.ended is True, f"{query} failed"
+    assert Directory.items, f"{query} listed nothing"
+
+
+def test_next_page_keeps_genre_and_media(fake_everything):
+    call("?action=genre&media=tv&genre=18")
+    next_url = Directory.items[-1][0]
+    assert "media=tv" in next_url and "genre=18" in next_url and "page=2" in next_url
