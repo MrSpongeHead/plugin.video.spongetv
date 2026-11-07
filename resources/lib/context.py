@@ -5,7 +5,7 @@
 import json
 import os
 
-from resources.lib import kodi
+from resources.lib import artwork, kodi
 from resources.lib.database import Store
 from resources.lib.extras import Fanart, Omdb
 from resources.lib.http import Http
@@ -49,7 +49,12 @@ class App:
 
     @property
     def preset(self):
-        return kodi.setting_int("artwork.preset")
+        """A preset index, or for Advanced a size table built from its own settings."""
+        index = kodi.setting_int("artwork.preset")
+        if index != artwork.ADVANCED:
+            return index
+        return artwork.advanced(kodi.setting_int("artwork.poster_size"), kodi.setting_int("artwork.fanart_size"),
+                                kodi.setting_int("artwork.still_size"), kodi.setting_bool("artwork.extras"))
 
     @property
     def tmdb(self):

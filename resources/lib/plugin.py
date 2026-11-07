@@ -35,6 +35,7 @@ class Plugin:
         if content:
             xbmcplugin.setContent(self.handle, content)
         xbmcplugin.addDirectoryItems(self.handle, items, len(items))
+        cache = cache and kodi.setting_bool("perf.menu_cache")
         xbmcplugin.endOfDirectory(self.handle, succeeded=True, cacheToDisc=cache)
         view_id = kodi.setting_int(view_setting) if view_setting else 0
         if view_id > 0:

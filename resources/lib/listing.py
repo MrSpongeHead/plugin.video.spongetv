@@ -5,6 +5,8 @@
 import xbmc
 import xbmcgui
 
+from resources.lib import airtime
+from resources.lib.options import EPISODE_1X01, EPISODE_S01E01, Display
 from resources.lib.tmdb import image_url
 
 
@@ -52,8 +54,19 @@ def _apply_ratings(tag, details, extra_ratings):
         tag.setRating(rating, votes, kind, False)
 
 
-def movie_item(details, art, region=None, original_titles=False, extra_ratings=None):
-    title = details.get("original_title") if original_titles else details.get("title")
+def _studios(names, display):
+    return names[:1] if display.one_studio else names
+
+
+def _with_menu(item, context_menu):
+    if context_menu:
+        item.addContextMenuItems(context_menu)
+
+
+def movie_item(details, art, display=None, extra_ratings=None, context_menu=None):
+    display = display or Display()
+    region = display.region
+    title = details.get("original_title") if display.original_titles else details.get("title")
     item = xbmcgui.ListItem(title or details.get("title", ""), offscreen=True)
     tag = item.getVideoInfoTag()
     tag.setMediaType("movie")
@@ -62,10 +75,11 @@ def movie_item(details, art, region=None, original_titles=False, extra_ratings=N
     tag.setPlot(details.get("overview", ""))
     tag.setTagLine(details.get("tagline", ""))
     tag.setYear(_year(details.get("release_date")))
-    if details.get("release_date"):
-        tag.setPremiered(details["release_date"])
+    released = airtime.local_release_date(details, region)
+    if released:
+        tag.setPremiered(released)
     tag.setGenres([g["name"] for g in details.get("genres", [])])
-    tag.setStudios([c["name"] for c in details.get("production_companies", [])][:1])
+    tag.setStudios(_studios([c["name"] for c in details.get("production_companies", [])], display))
     tag.setCountries([c["name"] for c in details.get("production_countries", [])])
     tag.setDuration(int(details.get("runtime") or 0) * 60)
     tag.setMpaa(_certification_movie(details, region))
@@ -79,11 +93,14 @@ def movie_item(details, art, region=None, original_titles=False, extra_ratings=N
     _apply_ratings(tag, details, extra_ratings)
     item.setArt(art)
     item.setProperty("IsPlayable", "true")
+    _with_menu(item, context_menu)
     return item
 
 
-def show_item(details, art, region=None, original_titles=False, extra_ratings=None):
-    title = details.get("original_name") if original_titles else details.get("name")
+def show_item(details, art, display=None, extra_ratings=None, context_menu=None):
+    display = display or Display()
+    region = display.region
+    title = details.get("original_name") if display.original_titles else details.get("name")
     item = xbmcgui.ListItem(title or details.get("name", ""), offscreen=True)
     tag = item.getVideoInfoTag()
     tag.setMediaType("tvshow")
@@ -95,7 +112,7 @@ def show_item(details, art, region=None, original_titles=False, extra_ratings=No
     if details.get("first_air_date"):
         tag.setPremiered(details["first_air_date"])
     tag.setGenres([g["name"] for g in details.get("genres", [])])
-    tag.setStudios([n["name"] for n in details.get("networks", [])][:1])
+    tag.setStudios(_studios([n["name"] for n in details.get("networks", [])], display))
     tag.setMpaa(_certification_tv(details, region))
     tag.setTvShowStatus(details.get("status", ""))
     tag.setCast(_cast(details))
@@ -108,6 +125,7 @@ def show_item(details, art, region=None, original_titles=False, extra_ratings=No
     tag.setUniqueIDs(ids, "tmdb")
     _apply_ratings(tag, details, extra_ratings)
     item.setArt(art)
+    _with_menu(item, context_menu)
     return item
 
 
@@ -126,12 +144,24 @@ def season_item(show, season, art, label):
     return item
 
 
-def episode_item(show, episode, art):
-    label = episode.get("name") or f"Episode {episode.get('episode_number')}"
+def episode_label(episode, style, fallback):
+    name = episode.get("name") or fallback
+    season, number = int(episode.get("season_number") or 0), int(episode.get("episode_number") or 0)
+    if style == EPISODE_1X01:
+        return f"{season}x{number:02d}. {name}"
+    if style == EPISODE_S01E01:
+        return f"S{season:02d}E{number:02d} {name}"
+    return name
+
+
+def episode_item(show, episode, art, display=None, fallback_title=""):
+    display = display or Display()
+    title = episode.get("name") or fallback_title or f"Episode {episode.get('episode_number')}"
+    label = episode_label(episode, display.episode_style, title)
     item = xbmcgui.ListItem(label, offscreen=True)
     tag = item.getVideoInfoTag()
     tag.setMediaType("episode")
-    tag.setTitle(label)
+    tag.setTitle(title)
     tag.setTvShowTitle(show.get("name", ""))
     tag.setSeason(int(episode.get("season_number") or 0))
     tag.setEpisode(int(episode.get("episode_number") or 0))
@@ -146,6 +176,20 @@ def episode_item(show, episode, art):
         tag.setRating(float(episode.get("vote_average") or 0), int(episode["vote_count"]), "themoviedb", True)
     item.setArt(art)
     item.setProperty("IsPlayable", "true")
+    return item
+
+
+def person_item(person, fallback_icon="", fanart=""):
+    item = xbmcgui.ListItem(person.get("name", ""), offscreen=True)
+    known_for = [t.get("title") or t.get("name") for t in person.get("known_for", []) if t.get("title") or t.get("name")]
+    plot = person.get("biography") or ", ".join(known_for)
+    role = person.get("character") or person.get("job") or person.get("known_for_department") or ""
+    if role:
+        item.setLabel2(role)
+    if plot:
+        item.getVideoInfoTag().setPlot(plot)
+    photo = image_url(person.get("profile_path"), "h632") or fallback_icon
+    item.setArt({k: v for k, v in (("icon", photo), ("thumb", photo), ("poster", photo), ("fanart", fanart)) if v})
     return item
 
 

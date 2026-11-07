@@ -6,6 +6,8 @@ import datetime
 import hashlib
 import json
 
+from resources.lib.http import HttpError
+
 BASE = "https://api.themoviedb.org/3"
 IMAGE_BASE = "https://image.tmdb.org/t/p/"
 
@@ -30,21 +32,6 @@ TV_LISTS = {
 
 class TmdbError(Exception):
     pass
-
-
-def check_key(http, api_key):
-    """True if TMDB accepts the key, False if it rejects it, None if TMDB couldn't be reached."""
-    from resources.lib.http import HttpError
-    try:
-        http.get_json(BASE + "/configuration", params={"api_key": api_key})
-        return True
-    except HttpError as error:
-        return False if error.status in (401, 403) else None
-
-
-def looks_like_read_token(value):
-    """The long 'API Read Access Token' (starts eyJ...) is not the short v3 API key SpongeTV needs."""
-    return value.startswith("eyJ") or len(value) > 40
 
 
 class Tmdb:
@@ -93,16 +80,49 @@ class Tmdb:
     def genres(self, media):
         return self._get(f"/genre/{media}/list", ttl=7 * DAY).get("genres", [])
 
-    def discover(self, media, page=1, genre=None, year=None):
-        params = {"page": page, "sort_by": "popularity.desc"}
-        if genre:
-            params["with_genres"] = genre
-        if year:
-            params["primary_release_year" if media == "movie" else "first_air_date_year"] = year
-        return self._get(f"/discover/{media}", params)
+    def discover(self, media, page=1, sort_by="popularity.desc", filters=None):
+        """Discover with any TMDB filters. Sorting by rating ignores titles with few votes, and
+        sorting by date ignores far-future placeholders. If TMDB rejects a sort, fall back to popularity."""
+        params = {"page": page, "sort_by": sort_by}
+        params.update({k: v for k, v in (filters or {}).items() if v not in (None, "")})
+        if sort_by.startswith("vote_average"):
+            params.setdefault("vote_count.gte", 200 if media == "movie" else 100)
+        if sort_by.startswith(("primary_release_date", "first_air_date")):
+            key = "primary_release_date.lte" if media == "movie" else "first_air_date.lte"
+            params.setdefault(key, self._today().isoformat())
+        try:
+            return self._get(f"/discover/{media}", params)
+        except HttpError as error:
+            if sort_by == "popularity.desc" or error.status not in (400, 422):
+                raise
+            return self.discover(media, page, "popularity.desc", filters)
 
     def search(self, media, query, page=1):
+        """media: movie, tv or person."""
         return self._get(f"/search/{media}", {"query": query, "page": page}, ttl=HOUR)
+
+    def recommendations(self, media, tmdb_id, page=1):
+        """TMDB's recommendations, or similar titles when it has none."""
+        data = self._get(f"/{media}/{tmdb_id}/recommendations", {"page": page}, ttl=DAY)
+        if page == 1 and not data.get("results"):
+            data = self._get(f"/{media}/{tmdb_id}/similar", {"page": page}, ttl=DAY)
+        return data
+
+    def network(self, network_id):
+        return self._get(f"/network/{network_id}", ttl=30 * DAY)
+
+    def watch_providers(self, media, region):
+        """Streaming services available in a region, in TMDB's display order for that region."""
+        data = self._get(f"/watch/providers/{media}", {"watch_region": region}, ttl=7 * DAY)
+        providers = data.get("results", [])
+
+        def order(provider):
+            return (provider.get("display_priorities") or {}).get(region, provider.get("display_priority", 999))
+        return sorted(providers, key=order)
+
+    def person(self, person_id):
+        data = self._get(f"/person/{person_id}", {"append_to_response": "movie_credits,tv_credits"}, ttl=7 * DAY)
+        return self._with_english_fallback(f"/person/{person_id}", data, ("biography",))
 
     # -- details -----------------------------------------------------------------
     def movie(self, movie_id):

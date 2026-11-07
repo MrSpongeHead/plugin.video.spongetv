@@ -56,7 +56,8 @@ def set_setting_int(setting_id, value):
 
 
 def notify(message, time_ms=4000):
-    xbmcgui.Dialog().notification("SpongeTV", message, ICON, time_ms)
+    sound = setting_bool("general.notification_sound")
+    xbmcgui.Dialog().notification("SpongeTV", message, ICON, time_ms, sound)
 
 
 def kodi_major_version():

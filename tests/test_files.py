@@ -7,7 +7,8 @@ import xml.etree.ElementTree as ET
 
 from conftest import ROOT
 from resources.lib.strings import LANGUAGES, STRINGS
-from tools import make_strings
+from resources.lib.options import HIDE
+from tools import make_settings, make_strings
 
 
 def read(*parts):
@@ -26,6 +27,10 @@ def test_addon_xml():
 
 def test_strings_po_is_up_to_date():
     assert read("resources", "language", "resource.language.en_gb", "strings.po") == make_strings.render()
+
+
+def test_settings_xml_is_up_to_date():
+    assert read("resources", "settings.xml") == make_settings.render()
 
 
 def test_string_ids_unique():
@@ -50,6 +55,8 @@ def test_settings_labels_exist_and_code_settings_are_defined():
     used = set(re.findall(r'setting_(?:str|bool|int)\("([a-z_.]+)"\)', code))
     used |= {f"{name}.api_key" for name in ("tmdb", "fanart", "omdb")}
     used |= set(re.findall(r'view_setting="([a-z_.]+)"', code))
+    used |= set(re.findall(r'setting_(?:str|bool|int)\("([a-z_.]+)"', code))
+    used |= set(HIDE.values())
     missing = used - defined
     assert not missing, f"settings used in code but not defined: {missing}"
 

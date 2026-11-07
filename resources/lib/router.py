@@ -2,7 +2,7 @@
 # Copyright (C) 2026 MrSpongeHead
 """Routes a plugin call to the matching action."""
 
-from resources.lib import kodi, menus, tools, wizard
+from resources.lib import kodi, menus, search, shows, tools, wizard
 from resources.lib.context import App
 from resources.lib.http import HttpError
 from resources.lib.plugin import Plugin
@@ -12,30 +12,46 @@ ACTIONS = {
     "home": menus.home,
     "movies": menus.movies,
     "tv": menus.tv,
-    "search_home": menus.search_home,
     "movie_list": menus.movie_list,
     "tv_list": menus.tv_list,
     "genres": menus.genres,
     "genre": menus.genre,
     "years": menus.years,
     "year": menus.year,
-    "search_menu": menus.search_menu,
-    "search": menus.search,
-    "new_search": menus.new_search,
-    "seasons": menus.seasons,
-    "episodes": menus.episodes,
-    "all_episodes": menus.all_episodes,
+    "new_shows": menus.new_shows,
+    "networks": menus.networks,
+    "network": menus.network,
+    "providers": menus.providers,
+    "provider": menus.provider,
+    "set_sort": menus.set_sort,
+    "related": menus.related,
+    "cast": menus.cast,
+    "search_menu": search.search_menu,
+    "new_search": search.new_search,
+    "search": search.search,
+    "search_results": search.search_results,
+    "person": search.person,
+    "person_titles": search.person_titles,
+    "seasons": shows.seasons,
+    "episodes": shows.episodes,
+    "all_episodes": shows.all_episodes,
     "play": menus.play,
     "tools": tools.menu,
+    "tools_accounts": tools.accounts,
+    "tools_caches": tools.caches,
     "clear_cache": tools.clear_cache,
     "clear_search": tools.clear_search,
+    "clear_all": tools.clear_all,
+    "home_menu_edit": tools.edit_home_menu,
     "wizard": tools.run_wizard,
     "clean_install": tools.clean_install,
     "settings": tools.open_settings,
 }
 
-# Actions that produce a directory listing (and so must end it, even on failure).
-DIRECTORY_ACTIONS = set(ACTIONS) - {"play", "new_search", "clear_cache", "clear_search", "wizard", "clean_install", "settings"}
+# Actions run from a non-folder item: they do something and don't produce a listing.
+NOT_DIRECTORIES = {"play", "new_search", "set_sort", "clear_cache", "clear_search", "clear_all",
+                   "home_menu_edit", "wizard", "clean_install", "settings"}
+DIRECTORY_ACTIONS = set(ACTIONS) - NOT_DIRECTORIES
 
 
 def dispatch(argv):

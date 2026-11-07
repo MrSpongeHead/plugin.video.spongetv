@@ -31,9 +31,17 @@ class Recorder:
 class FakeListItem:
     def __init__(self, label="", label2="", path="", offscreen=False):
         self.label = label
+        self.label2 = label2
         self.art = {}
         self.properties = {}
+        self.context_menu = []
         self.tag = Recorder()
+
+    def setLabel2(self, label):
+        self.label2 = label
+
+    def addContextMenuItems(self, items, replaceItems=False):
+        self.context_menu.extend(items)
 
     def getVideoInfoTag(self):
         return self.tag
@@ -52,7 +60,7 @@ class FakeDialog:
     def _next(self, default):
         return FakeDialog.script.pop(0) if FakeDialog.script else default
 
-    def notification(self, heading, message, icon="", time=0):
+    def notification(self, heading, message, icon="", time=0, sound=True):
         FakeDialog.shown.append(("notification", message))
 
     def ok(self, heading, message):
@@ -80,7 +88,7 @@ class FakeAddon:
         pass
 
     def getAddonInfo(self, key):
-        return {"id": "plugin.video.spongetv", "version": "0.1.2", "path": ROOT,
+        return {"id": "plugin.video.spongetv", "version": "0.1.3", "path": ROOT,
                 "profile": FakeAddon.profile, "name": "SpongeTV"}[key]
 
     def getLocalizedString(self, string_id):

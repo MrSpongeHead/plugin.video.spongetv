@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 MrSpongeHead
-"""First-run setup wizard: language, artwork quality and optional API keys."""
+"""First-run setup wizard: language, artwork quality and API keys, each key checked as it's entered."""
 
 import xbmcgui
 
-from resources.lib import kodi
+from resources.lib import keys, kodi
 from resources.lib.strings import LANGUAGES
-from resources.lib.tmdb import check_key, looks_like_read_token
 
 DONE_FLAG = "wizard_done"
 
@@ -19,36 +18,35 @@ def _language_labels():
     return [kodi.text(key) for _, key in LANGUAGES]
 
 
-def _ask_key(dialog, question_key, setting_id):
-    if dialog.yesno("SpongeTV", kodi.text(question_key), nolabel=kodi.text("no"), yeslabel=kodi.text("yes")):
-        value = dialog.input(kodi.text("wizard_enter_key")).strip()
-        if value:
-            kodi.set_setting_str(setting_id, value)
-
-
-def _ask_tmdb(app, dialog, attempts=3):
-    """Required step: ask for the user's TMDB key and check it with TMDB before saving."""
+def _enter_key(app, dialog, name, attempts=3):
+    """Ask for a key, check it with the service, save it. Returns True if a key was saved."""
     title = kodi.text("wizard_title")
-    dialog.ok(title, kodi.text("wizard_tmdb_ask"))
-    value = kodi.setting_str("tmdb.api_key").strip()
+    service = keys.SERVICES[name]
+    value = kodi.setting_str(f"{name}.api_key").strip()
     for _ in range(attempts):
-        value = (dialog.input(kodi.text("wizard_tmdb_enter"), defaultt=value) or "").strip()
+        value = (dialog.input(kodi.text("wizard_key_enter", service=service), defaultt=value) or "").strip()
         if not value:
-            break
-        if looks_like_read_token(value):
+            return False
+        if name == "tmdb" and keys.looks_like_read_token(value):
             dialog.ok(title, kodi.text("wizard_tmdb_token"))
             value = ""
             continue
-        result = check_key(app.http, value)
+        result = keys.check(name, app.http, value)
         if result is False:
-            dialog.ok(title, kodi.text("wizard_tmdb_bad"))
+            dialog.ok(title, kodi.text("key_rejected", service=service))
             continue
-        kodi.set_setting_str("tmdb.api_key", value)
+        # Record the check first, so the service doesn't check the same key again when the setting changes.
+        app.store.set_meta(f"keycheck:{name}", keys.fingerprint(value) if result else "")
+        kodi.set_setting_str(f"{name}.api_key", value)
         if result is None:
-            dialog.ok(title, kodi.text("wizard_tmdb_unchecked"))
+            dialog.ok(title, kodi.text("key_unchecked", service=service))
         return True
-    dialog.ok(title, kodi.text("wizard_tmdb_skipped"))
     return False
+
+
+def _optional_key(app, dialog, name, question_key):
+    if dialog.yesno("SpongeTV", kodi.text(question_key), nolabel=kodi.text("no"), yeslabel=kodi.text("yes")):
+        _enter_key(app, dialog, name)
 
 
 def run(app):
@@ -61,13 +59,16 @@ def run(app):
         kodi.set_setting_int("metadata.language", choice)
 
     presets = [kodi.text("preset_best"), kodi.text("preset_balanced"), kodi.text("preset_minimal")]
-    choice = dialog.select(kodi.text("wizard_artwork"), presets, preselect=kodi.setting_int("artwork.preset"))
+    current = kodi.setting_int("artwork.preset")
+    choice = dialog.select(kodi.text("wizard_artwork"), presets, preselect=current if current < 3 else 1)
     if choice >= 0:
         kodi.set_setting_int("artwork.preset", choice)
 
-    _ask_tmdb(app, dialog)
-    _ask_key(dialog, "wizard_fanart_ask", "fanart.api_key")
-    _ask_key(dialog, "wizard_omdb_ask", "omdb.api_key")
+    dialog.ok(kodi.text("wizard_title"), kodi.text("wizard_tmdb_ask"))
+    if not _enter_key(app, dialog, "tmdb"):
+        dialog.ok(kodi.text("wizard_title"), kodi.text("wizard_tmdb_skipped"))
+    _optional_key(app, dialog, "fanart", "wizard_fanart_ask")
+    _optional_key(app, dialog, "omdb", "wizard_omdb_ask")
 
     app.store.set_meta(DONE_FLAG, "1")
     dialog.ok(kodi.text("wizard_title"), kodi.text("wizard_done"))

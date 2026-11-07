@@ -12,7 +12,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#30010"
-msgid "Movies"
+msgid "Films"
 msgstr ""
 
 msgctxt "#30011"
@@ -71,14 +71,6 @@ msgctxt "#30040"
 msgid "Next page ({page} of {total})"
 msgstr ""
 
-msgctxt "#30041"
-msgid "Search films"
-msgstr ""
-
-msgctxt "#30042"
-msgid "Search TV shows"
-msgstr ""
-
 msgctxt "#30043"
 msgid "New search"
 msgstr ""
@@ -93,10 +85,6 @@ msgstr ""
 
 msgctxt "#30046"
 msgid "Specials"
-msgstr ""
-
-msgctxt "#30047"
-msgid "All episodes"
 msgstr ""
 
 msgctxt "#30050"
@@ -167,10 +155,6 @@ msgctxt "#30066"
 msgid "SpongeTV needs your own free TMDB API key for titles, plots and artwork. To get one, sign up at themoviedb.org, then open Settings, API and copy the short \"API Key\" (not the long Read Access Token)."
 msgstr ""
 
-msgctxt "#30067"
-msgid "Enter the API key"
-msgstr ""
-
 msgctxt "#30068"
 msgid "All set. Trakt sign-in arrives in the next test build."
 msgstr ""
@@ -183,20 +167,8 @@ msgctxt "#30070"
 msgid "No"
 msgstr ""
 
-msgctxt "#30071"
-msgid "Enter your TMDB API key"
-msgstr ""
-
-msgctxt "#30072"
-msgid "TMDB didn't accept that key. Check it and try again."
-msgstr ""
-
 msgctxt "#30073"
 msgid "That looks like the long Read Access Token. Please copy the shorter \"API Key\" instead."
-msgstr ""
-
-msgctxt "#30074"
-msgid "Couldn't reach TMDB to check the key, so it has been saved unchecked."
 msgstr ""
 
 msgctxt "#30075"
@@ -264,11 +236,11 @@ msgid "Show original titles"
 msgstr ""
 
 msgctxt "#30113"
-msgid "Hide specials"
+msgid "Seasons: hide specials"
 msgstr ""
 
 msgctxt "#30114"
-msgid "Hide episodes not yet aired"
+msgid "Seasons: hide seasons not yet aired here"
 msgstr ""
 
 msgctxt "#30115"
@@ -289,6 +261,10 @@ msgstr ""
 
 msgctxt "#30123"
 msgid "Minimal (fastest)"
+msgstr ""
+
+msgctxt "#30124"
+msgid "Advanced (choose sizes yourself)"
 msgstr ""
 
 msgctxt "#30130"
@@ -361,4 +337,268 @@ msgstr ""
 
 msgctxt "#30169"
 msgid "Svenska"
+msgstr ""
+
+msgctxt "#30200"
+msgid "New shows"
+msgstr ""
+
+msgctxt "#30201"
+msgid "Networks"
+msgstr ""
+
+msgctxt "#30202"
+msgid "Streaming services"
+msgstr ""
+
+msgctxt "#30203"
+msgid "Sort: {sort}"
+msgstr ""
+
+msgctxt "#30204"
+msgid "Sort by"
+msgstr ""
+
+msgctxt "#30205"
+msgid "Popularity"
+msgstr ""
+
+msgctxt "#30206"
+msgid "Rating"
+msgstr ""
+
+msgctxt "#30207"
+msgid "Newest first"
+msgstr ""
+
+msgctxt "#30208"
+msgid "Title (A to Z)"
+msgstr ""
+
+msgctxt "#30209"
+msgid "Related titles"
+msgstr ""
+
+msgctxt "#30210"
+msgid "Cast and crew"
+msgstr ""
+
+msgctxt "#30211"
+msgid "Films ({count})"
+msgstr ""
+
+msgctxt "#30212"
+msgid "TV shows ({count})"
+msgstr ""
+
+msgctxt "#30213"
+msgid "People ({count})"
+msgstr ""
+
+msgctxt "#30214"
+msgid "Results for \"{query}\""
+msgstr ""
+
+msgctxt "#30215"
+msgid "Search films, TV shows and people"
+msgstr ""
+
+msgctxt "#30216"
+msgid "Episode {number}"
+msgstr ""
+
+msgctxt "#30220"
+msgid "Accounts and API keys"
+msgstr ""
+
+msgctxt "#30221"
+msgid "Caches"
+msgstr ""
+
+msgctxt "#30222"
+msgid "Customise home menu"
+msgstr ""
+
+msgctxt "#30223"
+msgid "Clear all caches"
+msgstr ""
+
+msgctxt "#30224"
+msgid "All caches cleared"
+msgstr ""
+
+msgctxt "#30225"
+msgid "{name} (hidden)"
+msgstr ""
+
+msgctxt "#30226"
+msgid "Reset to default"
+msgstr ""
+
+msgctxt "#30227"
+msgid "Move up"
+msgstr ""
+
+msgctxt "#30228"
+msgid "Move down"
+msgstr ""
+
+msgctxt "#30229"
+msgid "Hide"
+msgstr ""
+
+msgctxt "#30230"
+msgid "Show"
+msgstr ""
+
+msgctxt "#30240"
+msgid "Enter your {service} API key"
+msgstr ""
+
+msgctxt "#30241"
+msgid "{service} didn't accept that key. Check it and try again."
+msgstr ""
+
+msgctxt "#30242"
+msgid "Couldn't reach {service} to check the key, so it has been saved unchecked."
+msgstr ""
+
+msgctxt "#30243"
+msgid "{service} key accepted"
+msgstr ""
+
+msgctxt "#30300"
+msgid "Hide items"
+msgstr ""
+
+msgctxt "#30301"
+msgid "General"
+msgstr ""
+
+msgctxt "#30302"
+msgid "Performance"
+msgstr ""
+
+msgctxt "#30303"
+msgid "Advanced artwork sizes"
+msgstr ""
+
+msgctxt "#30304"
+msgid "Episode titles"
+msgstr ""
+
+msgctxt "#30305"
+msgid "Title only"
+msgstr ""
+
+msgctxt "#30306"
+msgid "1x01. Title"
+msgstr ""
+
+msgctxt "#30307"
+msgid "S01E01 Title"
+msgstr ""
+
+msgctxt "#30308"
+msgid "Show every studio or network, not just the main one"
+msgstr ""
+
+msgctxt "#30309"
+msgid "Highlight colour"
+msgstr ""
+
+msgctxt "#30310"
+msgid "Amber"
+msgstr ""
+
+msgctxt "#30311"
+msgid "Teal"
+msgstr ""
+
+msgctxt "#30312"
+msgid "Mint"
+msgstr ""
+
+msgctxt "#30313"
+msgid "Blue"
+msgstr ""
+
+msgctxt "#30314"
+msgid "White"
+msgstr ""
+
+msgctxt "#30315"
+msgid "No highlight"
+msgstr ""
+
+msgctxt "#30316"
+msgid "Play a sound with notifications"
+msgstr ""
+
+msgctxt "#30317"
+msgid "Film lists: hide films not yet released here"
+msgstr ""
+
+msgctxt "#30318"
+msgid "TV show lists: hide shows not yet aired here"
+msgstr ""
+
+msgctxt "#30319"
+msgid "Search results: hide titles not yet released here"
+msgstr ""
+
+msgctxt "#30320"
+msgid "Episodes: hide episodes not yet aired here"
+msgstr ""
+
+msgctxt "#30321"
+msgid "Poster size"
+msgstr ""
+
+msgctxt "#30322"
+msgid "Fanart size"
+msgstr ""
+
+msgctxt "#30323"
+msgid "Episode image size"
+msgstr ""
+
+msgctxt "#30324"
+msgid "Small (342 px)"
+msgstr ""
+
+msgctxt "#30325"
+msgid "Medium (500 px)"
+msgstr ""
+
+msgctxt "#30326"
+msgid "Large (780 px)"
+msgstr ""
+
+msgctxt "#30327"
+msgid "Original"
+msgstr ""
+
+msgctxt "#30328"
+msgid "Medium (780 px)"
+msgstr ""
+
+msgctxt "#30329"
+msgid "Large (1280 px)"
+msgstr ""
+
+msgctxt "#30330"
+msgid "Small (300 px)"
+msgstr ""
+
+msgctxt "#30331"
+msgid "Logos and clear art (more with a Fanart.tv key)"
+msgstr ""
+
+msgctxt "#30332"
+msgid "Parallel requests"
+msgstr ""
+
+msgctxt "#30333"
+msgid "Let Kodi cache menus"
 msgstr ""
