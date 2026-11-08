@@ -68,3 +68,15 @@ def test_language_options_match_setting():
     assert len(options) == len(LANGUAGES)
     for option, (_, key) in zip(options, LANGUAGES):
         assert option.get("label") == str(STRINGS[key][0])
+
+
+def test_settings_that_appear_conditionally_share_a_group_with_their_switch():
+    """Kodi never hides a group heading, so a group of only conditional settings leaves an empty heading."""
+    settings = ET.fromstring(read("resources", "settings.xml"))
+    for group in settings.iter("group"):
+        members = group.findall("setting")
+        own_ids = {s.get("id") for s in members}
+        for setting in members:
+            for condition in setting.iter("condition"):
+                assert condition.get("setting") in own_ids, \
+                    f"{setting.get('id')} depends on {condition.get('setting')} in another group"

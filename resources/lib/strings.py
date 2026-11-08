@@ -133,7 +133,6 @@ STRINGS = {
     "grp_hide": (30300, "Hide items"),
     "grp_general": (30301, "General"),
     "grp_performance": (30302, "Performance"),
-    "grp_advanced_artwork": (30303, "Advanced artwork sizes"),
     "set_episode_label": (30304, "Episode titles"),
     "ep_title": (30305, "Title only"),
     "ep_1x01": (30306, "1x01. Title"),

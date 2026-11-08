@@ -92,11 +92,12 @@ def render():
                      + boolean("hide.seasons.unaired", "set_hide_seasons_unaired", True)
                      + boolean("hide.episodes.unaired", "set_hide_episodes_unaired", True))
     advanced_only = visible_if("artwork.preset", 3)
+    # The Advanced sizes sit in the same group as the preset, straight under it: Kodi shows and hides
+    # settings as you change the preset, but never hides a group's heading, even when it's empty.
     art = group("artwork", "cat_artwork",
                 choice("artwork.preset", "set_artwork_preset",
-                       ["preset_best", "preset_balanced", "preset_minimal", "preset_advanced"], 1))
-    art += group("artwork_advanced", "grp_advanced_artwork",
-                 choice("artwork.poster_size", "set_poster_size",
+                       ["preset_best", "preset_balanced", "preset_minimal", "preset_advanced"], 1)
+                + choice("artwork.poster_size", "set_poster_size",
                         ["size_small_342", "size_medium_500", "size_large_780", "size_original"], 2, extra=advanced_only)
                  + choice("artwork.fanart_size", "set_fanart_size",
                           ["size_medium_780", "size_large_1280", "size_original"], 1, extra=advanced_only)

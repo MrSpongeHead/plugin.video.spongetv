@@ -479,10 +479,6 @@ msgctxt "#30302"
 msgid "Performance"
 msgstr ""
 
-msgctxt "#30303"
-msgid "Advanced artwork sizes"
-msgstr ""
-
 msgctxt "#30304"
 msgid "Episode titles"
 msgstr ""

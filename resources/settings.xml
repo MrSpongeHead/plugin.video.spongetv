@@ -119,8 +119,6 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-            </group>
-            <group id="artwork_advanced" label="30303">
                 <setting id="artwork.poster_size" type="integer" label="30321">
                     <level>0</level>
                     <default>2</default>

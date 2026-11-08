@@ -88,7 +88,7 @@ class FakeAddon:
         pass
 
     def getAddonInfo(self, key):
-        return {"id": "plugin.video.spongetv", "version": "0.1.3", "path": ROOT,
+        return {"id": "plugin.video.spongetv", "version": "0.1.4", "path": ROOT,
                 "profile": FakeAddon.profile, "name": "SpongeTV"}[key]
 
     def getLocalizedString(self, string_id):
