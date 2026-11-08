@@ -77,7 +77,21 @@ def test_home_shows_trakt_menus_when_signed_in(world):
     assert labels() == ["Films", "TV shows", "My films", "My TV shows", "Trakt lists", "Search", "Tools"]
 
 
-def test_next_up_skips_dropped_and_finished_shows(world):
+def test_show_name_takes_the_highlight_colour(world):
+    call("?action=next_up")
+    assert Directory.items[0][1].label == "[COLOR FFF5A524]Show 52[/COLOR]: S02E01 Ep 1"
+    world[1].calendar = [{"episode": {"season": 2, "number": 2}, "show": {"ids": {"tmdb": 51}}}]
+    call("?action=calendar&when=upcoming")
+    assert Directory.items[0][1].label.startswith("[COLOR FFF5A524]Show 51[/COLOR]: ")
+
+
+@pytest.fixture
+def plain(world):
+    FakeAddon.settings["display.highlight"] = 5   # No highlight: plain labels
+    return world
+
+
+def test_next_up_skips_dropped_and_finished_shows(plain):
     call("?action=next_up")
     # 52 watched most recently (day 7): next is S02E01. 53 has watched every aired episode.
     # 51: next is S01E03. 54 is dropped on Trakt.
@@ -85,7 +99,8 @@ def test_next_up_skips_dropped_and_finished_shows(world):
     assert "action=play" in Directory.items[0][0] and "season=2" in Directory.items[0][0]
 
 
-def test_next_up_can_sort_by_newest_episodes(world):
+def test_next_up_can_sort_by_newest_episodes(plain):
+    world = plain
     FakeAddon.settings["nextup.sort"] = 1
     call("?action=next_up")
     assert labels() == ["Show 52: S02E01 Ep 1", "Show 51: S01E03 Ep 3"]   # 52's last air date is newer too
@@ -179,7 +194,8 @@ def test_rate_an_episode(world):
     assert fresh_app().library.rating("episode", show=51, season=1, episode=1) == 9
 
 
-def test_hide_a_show_from_next_up(world):
+def test_hide_a_show_from_next_up(plain):
+    world = plain
     call("?action=trakt_menu&media=tv&tmdb_id=51")
     options = FakeDialog.menus[0]
     FakeDialog.script = [options.index("Hide from Next up and progress")]
@@ -224,7 +240,8 @@ def test_lists_with_counts_items_and_create(world):
     assert server.posted("/users/me/lists") == [{"name": "Watch next", "privacy": "private"}]
 
 
-def test_upcoming_episodes_calendar(world):
+def test_upcoming_episodes_calendar(plain):
+    world = plain
     world[1].calendar = [{"first_aired": FUTURE, "episode": {"season": 2, "number": 2}, "show": {"ids": {"tmdb": 51}}}]
     call("?action=calendar&when=upcoming")
     assert labels() == ["Show 51: S02E02 Ep 2"]

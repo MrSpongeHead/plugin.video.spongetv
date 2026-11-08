@@ -6,7 +6,7 @@ import xbmc
 import xbmcgui
 
 from resources.lib import airtime
-from resources.lib.options import EPISODE_1X01, EPISODE_S01E01, Display
+from resources.lib.options import EPISODE_1X01, EPISODE_S01E01, Display, highlight
 from resources.lib.tmdb import image_url
 
 
@@ -181,8 +181,8 @@ def episode_item(show, episode, art, display=None, fallback_title="", marks=None
     display = display or Display()
     title = episode.get("name") or fallback_title or f"Episode {episode.get('episode_number')}"
     label = episode_label(episode, display.episode_style, title)
-    if show_in_label:   # lists that mix shows, such as Next Up
-        label = f"{show.get('name', '')}: {episode_label(episode, display.episode_style or EPISODE_S01E01, title)}"
+    if show_in_label:   # lists that mix shows (Next up, calendars): the show name in your highlight colour
+        label = f"{highlight(show.get('name', ''))}: {episode_label(episode, display.episode_style or EPISODE_S01E01, title)}"
     item = xbmcgui.ListItem(label, offscreen=True)
     tag = item.getVideoInfoTag()
     tag.setMediaType("episode")
