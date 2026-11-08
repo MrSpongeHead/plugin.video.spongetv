@@ -65,8 +65,8 @@ def test_auto_play_moves_on_when_a_source_fails(premiumize, monkeypatch):
     from resources.lib import choose
     real = choose.find_sources
 
-    def first_fails(app, params, prepared=None):
-        found = real(app, params, prepared)
+    def first_fails(app, params, prepared=None, fresh=False):
+        found = real(app, params, prepared, fresh)
         ordered = ranking.sort_sources(found[5], ranking.load_rules(app.store))
         premiumize.failing.add(ordered[0]["hash"])
         return found
@@ -198,3 +198,41 @@ def test_clear_resume_point_clears_all_three(premiumize, monkeypatch):
     cleared = [json.loads(r)["params"]["file"] for r in xbmc.jsonrpc]
     assert "plugin://plugin.video.spongetv/?action=play&media=episode&tmdb_id=50&season=1&episode=2" in cleared
     assert "plugin://plugin.video.spongetv/?action=play&media=episode&tmdb_id=50&season=1&episode=2&kr=1" in cleared
+
+
+
+# -- searching again ---------------------------------------------------------------------------------------
+def test_search_again_from_the_context_menu_ignores_saved_results(premiumize, monkeypatch):
+    from resources.lib import choose
+    FakeAddon.settings["play.movies"] = playback.AUTO_PLAY
+    call("?action=play&media=movie&tmdb_id=7")
+    searches = []
+    real = choose.Search
+    monkeypatch.setattr(choose, "Search", lambda *a, **k: searches.append(1) or real(*a, **k))
+    call("?action=play&media=movie&tmdb_id=7")
+    assert searches == []                                  # saved results reused
+    call("?action=play&media=movie&tmdb_id=7&fresh=1")
+    assert searches == [1] and Directory.resolved is True  # a fresh search, then played
+
+
+def test_search_again_from_source_select(premiumize, monkeypatch):
+    from resources.lib import choose
+    FakeAddon.settings["play.movies"] = playback.SOURCE_SELECT
+    searches = []
+    real = choose.Search
+    monkeypatch.setattr(choose, "Search", lambda *a, **k: searches.append(1) or real(*a, **k))
+    FakeDialog.script = [0, 2, 1]     # "Filter and sort" row -> "Search for sources again" -> then the first source
+    call("?action=play&media=movie&tmdb_id=7")
+    assert searches == [1, 1] and Directory.resolved is True
+
+
+def test_context_menus_offer_search_again_and_clear_resume(premiumize):
+    from test_menus import call as list_call
+    app = context.App()
+    app.store.cache_set("resume:movie:7", {"position": 600, "total": 6000, "percent": 10}, 3600)
+    list_call("?action=movie_list&kind=popular")
+    menus = {i[1].label: [label for label, _ in i[1].context_menu] for i in Directory.items}
+    film = next(m for m in menus.values() if "Clear resume point" in m)
+    assert "Search for sources again" in film
+    call("?action=clear_resume&media=movie&tmdb_id=7")
+    assert app.store.cache_get("resume:movie:7") is None

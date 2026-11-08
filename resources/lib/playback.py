@@ -205,6 +205,8 @@ def pick_and_resolve(app, target, found):
                                "clear": clear})
     while True:
         picked = windows.choose_source(chooser)
+        if picked == windows.SEARCH_AGAIN:
+            return windows.SEARCH_AGAIN, None
         if not picked:
             return None, None
         shown = chooser.visible()
@@ -345,15 +347,20 @@ def play(plugin, app, target=None):
             start_at = ask_resume(saved_position(app, target))
             if start_at is None:
                 return
-        found = choose.find_sources(app, plugin.params, target.prepared)
-        if not found:
-            return
-        try:
-            source, link = pick_and_resolve(app, target, found)
-        except PremiumizeError as error:
-            xbmcgui.Dialog().ok(kodi.text("grp_premiumize"),
-                                kodi.text("pm_no_key" if error.kind == "no_key" else "pm_bad_key"))
-            return
+        fresh = plugin.params.get("fresh") == "1"   # "Search for sources again"
+        while True:
+            found = choose.find_sources(app, plugin.params, target.prepared, fresh=fresh)
+            if not found:
+                return
+            try:
+                source, link = pick_and_resolve(app, target, found)
+            except PremiumizeError as error:
+                xbmcgui.Dialog().ok(kodi.text("grp_premiumize"),
+                                    kodi.text("pm_no_key" if error.kind == "no_key" else "pm_bad_key"))
+                return
+            if source != windows.SEARCH_AGAIN:
+                break
+            fresh = True                              # "Search again" in Source Select
         if not link:
             return
         item = target.list_item(app, link)

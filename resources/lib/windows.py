@@ -11,6 +11,7 @@ import xbmcgui
 
 from resources.lib import kodi, ranking
 
+SEARCH_AGAIN = "search again"   # what choose_source returns when you ask for a fresh search
 BACK_ACTIONS = {9, 10, 92, 216, 247, 257, 275, 61467, 61448}
 CONTEXT_ACTIONS = {117}
 INFO_ACTIONS = {11}
@@ -275,14 +276,14 @@ class SourceSelectWindow(xbmcgui.WindowXMLDialog):
         if action_id in BACK_ACTIONS:
             self.close()
         elif action_id in CONTEXT_ACTIONS:
-            options = [kodi.text("menu_filter"), kodi.text("menu_sort"), kodi.text("menu_clear_results")]
+            options = [kodi.text("menu_filter"), kodi.text("menu_sort"), kodi.text("search_again")]
             picked = xbmcgui.Dialog().contextmenu(options)
             if picked == 0 and self.chooser.actions["filter"]():
                 self.fill()
             elif picked == 1 and self.chooser.actions["sort"]():
                 self.fill()
             elif picked == 2:
-                self.chooser.actions["clear"]()
+                self.choice = SEARCH_AGAIN
                 self.close()
         elif action_id in INFO_ACTIONS and self.getFocusId() == 1000 and self.shown:
             index = self.getControl(1000).getSelectedPosition()
@@ -309,11 +310,13 @@ def choose_source(chooser):
         if picked < 0:
             return None
         if picked == 0:
-            options = [kodi.text("menu_filter"), kodi.text("menu_sort")]
+            options = [kodi.text("menu_filter"), kodi.text("menu_sort"), kodi.text("search_again")]
             which = xbmcgui.Dialog().select(kodi.text("menu_filter_sort"), options)
             if which == 0:
                 chooser.actions["filter"]()
             elif which == 1:
                 chooser.actions["sort"]()
+            elif which == 2:
+                return SEARCH_AGAIN
             continue
         return shown[picked - 1]

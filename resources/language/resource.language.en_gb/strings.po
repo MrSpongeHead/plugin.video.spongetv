@@ -1436,7 +1436,7 @@ msgid "From"
 msgstr ""
 
 msgctxt "#30689"
-msgid "Menu: filter, sort, clear results   Info: why is this here?"
+msgid "Menu: filter, sort, search again   Info: why is this here?"
 msgstr ""
 
 msgctxt "#30690"
@@ -1449,10 +1449,6 @@ msgstr ""
 
 msgctxt "#30692"
 msgid "Change sort rules"
-msgstr ""
-
-msgctxt "#30693"
-msgid "Clear these results and close"
 msgstr ""
 
 msgctxt "#30694"
@@ -1981,4 +1977,8 @@ msgstr ""
 
 msgctxt "#30826"
 msgid "Premiumize no longer accepts SpongeTV's sign-in. Sign in again in Tools, Accounts."
+msgstr ""
+
+msgctxt "#30827"
+msgid "Search for sources again"
 msgstr ""

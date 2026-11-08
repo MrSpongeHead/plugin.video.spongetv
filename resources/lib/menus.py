@@ -100,10 +100,25 @@ def trakt_entry(plugin, **params):
     return kodi.text("trakt_menu"), f"RunPlugin({plugin.url(action='trakt_menu', **params)})"
 
 
-def context_menu(plugin, media, tmdb_id, signed_in=False):
+def play_entries(plugin, has_resume, **ids):
+    """'Search for sources again' and, when there's a resume point, 'Clear resume point'.
+    ids: media="movie", tmdb_id=… or media="episode", tmdb_id=<show>, season=…, episode=…"""
+    entries = [(kodi.text("search_again"), f"PlayMedia({plugin.url(action='play', fresh='1', **ids)})")]
+    if has_resume:
+        entries.append((kodi.text("clear_progress"), f"RunPlugin({plugin.url(action='clear_resume', **ids)})"))
+    return entries
+
+
+def own_resume(app, key):
+    return bool(app.store.cache_get(f"resume:{key}"))
+
+
+def context_menu(plugin, media, tmdb_id, signed_in=False, has_resume=False):
     related = plugin.url(action="related", media=media, tmdb_id=tmdb_id)
     cast = plugin.url(action="cast", media=media, tmdb_id=tmdb_id)
     entries = [trakt_entry(plugin, media=media, tmdb_id=tmdb_id)] if signed_in else []
+    if media == "movie":
+        entries += play_entries(plugin, has_resume, media="movie", tmdb_id=tmdb_id)
     if media == "tv":
         entries.append((kodi.text("play_next_episode"), f"PlayMedia({plugin.url(action='play_show', tmdb_id=tmdb_id)})"))
     return entries + [(kodi.text("related_titles"), f"Container.Update({related})"),
@@ -140,7 +155,8 @@ def title_items(plugin, app, media, summaries, hide_menu=None):
             extra_art = fanart_api.movie(d.get("id")) if media == "movie" else fanart_api.tv(external.get("tvdb_id"))
         art = artwork.for_title(d, app.preset, app.language, extra_art, kodi.FANART)
         ratings = omdb_api.ratings(imdb_id) if omdb_api.api_key else {}
-        menu = context_menu(plugin, media, d.get("id"), signed_in)
+        has_resume = media == "movie" and ((len(mark) > 1 and bool(mark[1])) or own_resume(app, f"movie:{d.get('id')}"))
+        menu = context_menu(plugin, media, d.get("id"), signed_in, has_resume)
         if media == "movie":
             li = listing.movie_item(d, art, display, ratings, menu, mark)
             asks = "1" if len(mark) > 1 and mark[1] else None   # Kodi asks "Resume from…" itself for this item

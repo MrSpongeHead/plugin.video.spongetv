@@ -245,7 +245,7 @@ def own_resume_key(target):
 def clear_progress(app, target):
     """Clear every resume point: Trakt's, SpongeTV's own, and Kodi's."""
     _, playback_id = app.library.progress(target.media, target.tmdb_id, target.show, target.season, target.episode)
-    if playback_id:
+    if playback_id and app.signed_in:
         app.trakt.delete(f"/sync/playback/{playback_id}")
     app.store.cache_delete(own_resume_key(target))
     from resources.lib import playback
@@ -271,3 +271,18 @@ def refresh_info(app, target):
     else:
         app.tmdb.forget_tv(target.show)
     return True
+
+
+def clear_resume(plugin, app):
+    """The context menu's own "Clear resume point" (works whether or not you're signed in to Trakt)."""
+    params = dict(plugin.params)
+    if params.get("media") == "episode":
+        params["show"] = params.get("tmdb_id")
+    target = Target(params)
+    try:
+        clear_progress(app, target)
+    except TraktError as error:
+        kodi.notify(accounts.message(error))
+        return
+    kodi.notify(kodi.text("done_clear_progress"))
+    xbmc.executebuiltin("Container.Refresh")

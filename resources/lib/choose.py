@@ -153,7 +153,7 @@ def _checker(app):
     return check
 
 
-def find_sources(app, params, prepared=None):
+def find_sources(app, params, prepared=None, fresh=False):
     """Search (or reuse recent results). Returns (request, title, meta, poster, fanart, results, clear) or None.
     prepared: (request, title, meta, poster, fanart) instead of looking the title up on TMDB (window tests)."""
     try:
@@ -165,7 +165,9 @@ def find_sources(app, params, prepared=None):
     providers = manager.providers(enabled_only=True)
     key = request_key(request)
     hours = kodi.setting_int("sources.cache_hours")
-    saved = app.store.cache_get(key) if hours > 0 else None
+    if fresh:
+        app.store.cache_delete(key)   # "Search again": forget what was found before
+    saved = app.store.cache_get(key) if hours > 0 and not fresh else None
     if saved:
         results = [Source(s) for s in saved]
         checker = _checker(app)

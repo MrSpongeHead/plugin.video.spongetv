@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.3" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.4" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.4.3: Clear resume point now clears SpongeTV's own resume point and Kodi's as well as Trakt's. Lists show SpongeTV's exact resume point, and when Kodi asks "Resume from…" for an item, SpongeTV no longer asks again. After you stop a video, the list reloads so the item keeps its details.
+        <news>0.4.4: "Search for sources again" in the context menu of every film and episode, and in Source Select's menu, runs a fresh search instead of reusing saved results. "Clear resume point" is now in the context menu of any film or episode that has one, whether or not you're signed in to Trakt.
+0.4.3: Clear resume point now clears SpongeTV's own resume point and Kodi's as well as Trakt's. Lists show SpongeTV's exact resume point, and when Kodi asks "Resume from…" for an item, SpongeTV no longer asks again. After you stop a video, the list reloads so the item keeps its details.
 0.4.2: Tools, Accounts shows your Premiumize premium days left, not how long the sign-in lasts.
 0.4.1: Sign in to Premiumize with a code, as in Seren: Tools, Accounts (or Settings, Accounts), then enter the code at premiumize.me/device. The setup wizard offers it too. The Premiumize API key and the Trakt Client ID and Secret move to the Expert settings level.
 0.4.0: Playback. Add your Premiumize API key in Settings, Accounts. Sources show Ready, In your cloud or Not cached, and your Premiumize cloud is searched too. Pressing play offers to resume, then plays the best source (Auto Play) or shows Source Select, set separately for films and episodes; a source that won't play moves on to the next. Season packs play the right episode. SpongeTV scrobbles to Trakt, keeps its own resume points and clears Kodi's, so you see one resume prompt. Smart Play gets the next episode ready, Playing Next offers Play now or Stop after this episode, and Still Watching asks after a few episodes in a row. Shows have Play next episode in their context menu.

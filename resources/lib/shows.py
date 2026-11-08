@@ -87,7 +87,10 @@ def _episode_items(plugin, app, show, show_art, season_numbers, only=None, show_
             url = plugin.url(action="play", media="episode", tmdb_id=show["id"], season=season, episode=number, kr=asks)
             fallback = kodi.text("episode_number", number=number)
             menu = [menus.trakt_entry(plugin, media="episode", show=show["id"], season=season, episode=number)] \
-                if marks.active else None
+                if marks.active else []
+            has_resume = bool(mark[1]) or menus.own_resume(app, f"episode:{show['id']}:{season}:{number}")
+            menu += menus.play_entries(plugin, has_resume, media="episode", tmdb_id=show["id"], season=season,
+                                       episode=number)
             items.append((url, listing.episode_item(show, episode, art, display, fallback, mark, menu, show_in_label), False))
     return items
 

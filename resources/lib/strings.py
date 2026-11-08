@@ -378,11 +378,10 @@ STRINGS = {
     "col_size": (30686, "Size"),
     "col_status": (30687, "Status"),
     "col_from": (30688, "From"),
-    "select_hints": (30689, "Menu: filter, sort, clear results   Info: why is this here?"),
+    "select_hints": (30689, "Menu: filter, sort, search again   Info: why is this here?"),
     "ranking_note": (30690, "Sorted by your sort rules"),
     "menu_filter": (30691, "Change filter"),
     "menu_sort": (30692, "Change sort rules"),
-    "menu_clear_results": (30693, "Clear these results and close"),
     "menu_filter_sort": (30694, "Filter and sort"),
     "simple_filter_sort": (30695, "[Filter: {name}. Choose to change filter or sort rules]"),
     "why_heading": (30696, "Why is this source here?"),
@@ -514,6 +513,7 @@ STRINGS = {
     "wizard_pm_ask": (30824, "Sign in to Premiumize now? It's what plays your sources."),
     "pm_sign_in_again": (30825, "Your Premiumize sign-in ends in {days} days. Sign in again in Tools, Accounts."),
     "pm_sign_in_expired": (30826, "Premiumize no longer accepts SpongeTV's sign-in. Sign in again in Tools, Accounts."),
+    "search_again": (30827, "Search for sources again"),
     "window_test_live": (30764, "Window test: real search with your providers (made-up film)"),
 }
 
