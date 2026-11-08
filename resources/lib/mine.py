@@ -155,12 +155,18 @@ def next_up(plugin, app):
 
 
 def _episode_rows(plugin, app, wanted):
-    """List items for (show details, season, episode) triples, keeping their order."""
+    """List items for (show details, season, episode[, when]) entries, keeping their order.
+    when, if given, goes at the start of the line ("Tomorrow 02:00 · Show: S01E05 …")."""
     def build(entry):
-        details, season, episode = entry
+        details, season, episode = entry[:3]
+        when = entry[3] if len(entry) > 3 else ""
         rows = shows._episode_items(plugin, app, details, shows._show_art(app, details), [season],
                                     only={(season, episode)}, show_in_label=True)
-        return rows[0] if rows else None
+        if not rows:
+            return None
+        if when:
+            rows[0][1].setLabel(f"{when} \u00b7 {rows[0][1].getLabel()}")
+        return rows[0]
     with ThreadPoolExecutor(max_workers=menus.workers()) as pool:
         return [r for r in pool.map(build, wanted) if r]
 
@@ -178,6 +184,7 @@ def calendar(plugin, app):
     if when == "recent":
         entries = list(reversed(entries))
     wanted, details_by_id = [], {}
+    words = {k: kodi.text(k) for k in ("today", "tomorrow", "yesterday")}
     show_ids = list(dict.fromkeys(((e.get("show") or {}).get("ids") or {}).get("tmdb") for e in entries))
     for details in _show_details(app, [s for s in show_ids if s]):
         details_by_id[details["id"]] = details
@@ -185,7 +192,8 @@ def calendar(plugin, app):
         show_id = ((entry.get("show") or {}).get("ids") or {}).get("tmdb")
         episode = entry.get("episode") or {}
         if show_id in details_by_id:
-            wanted.append((details_by_id[show_id], episode.get("season"), episode.get("number")))
+            when = airtime.when_label(entry.get("first_aired"), words)
+            wanted.append((details_by_id[show_id], episode.get("season"), episode.get("number"), when))
     items = _episode_rows(plugin, app, wanted)
     label = "upcoming_episodes" if when == "upcoming" else "recent_episodes"
     plugin.finish(items, content="episodes", category=kodi.text(label), view_setting="view.episodes")

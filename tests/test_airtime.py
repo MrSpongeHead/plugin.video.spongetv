@@ -57,3 +57,28 @@ def test_local_release_date_prefers_your_region():
     ]}}
     assert airtime.local_release_date(details, "GB") == "2026-05-08"  # premieres (type 1) don't count
     assert airtime.local_release_date(details, "FR") == "2026-05-01"
+
+
+WORDS = {"today": "Today", "tomorrow": "Tomorrow", "yesterday": "Yesterday"}
+
+
+def test_when_label_in_your_time_zone():
+    now = dt.datetime(2026, 11, 7, 18, 0)      # Saturday evening, UK winter
+    assert airtime.when_label("2026-11-07T21:00:00.000Z", WORDS, now, UK_WINTER) == "Today 21:00"
+    assert airtime.when_label("2026-11-08T02:00:00.000Z", WORDS, now, UK_WINTER) == "Tomorrow 02:00"
+    assert airtime.when_label("2026-11-06T20:00:00.000Z", WORDS, now, UK_WINTER) == "Yesterday 20:00"
+    assert airtime.when_label("2026-11-14T20:00:00.000Z", WORDS, now, UK_WINTER) == "Sat 14 Nov 20:00"
+    assert airtime.when_label("2026-11-03T20:00:00.000Z", WORDS, now, UK_WINTER) == "Tue 3 Nov 20:00"
+
+
+def test_when_label_crosses_midnight_with_the_offset():
+    # 23:30 UTC in UK summer (UTC+1) is 00:30 the next day locally.
+    now = dt.datetime(2026, 7, 14, 12, 0)
+    assert airtime.when_label("2026-07-14T23:30:00.000Z", WORDS, now, UK_SUMMER) == "Tomorrow 00:30"
+
+
+def test_when_label_date_only_and_missing():
+    now = dt.datetime(2026, 11, 7, 18, 0)
+    assert airtime.when_label("2026-11-14", WORDS, now, UK_WINTER) == "Sat 14 Nov"
+    assert airtime.when_label("", WORDS, now, UK_WINTER) == ""
+    assert airtime.when_label("not a date", WORDS, now, UK_WINTER) == ""

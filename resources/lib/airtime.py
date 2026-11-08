@@ -87,3 +87,34 @@ def local_release_date(details, region):
             if dates:
                 return min(dates)
     return details.get("release_date", "") or ""
+
+
+DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+def when_label(first_aired, words, now=None, offset=None):
+    """"Today 21:00", "Tomorrow 02:00", "Yesterday 20:00" or "Sat 14 Nov 20:00", in your time zone.
+
+    first_aired: Trakt's UTC time ("2026-11-14T01:00:00.000Z"). A plain date ("2026-11-14") has
+    no time to convert, so it's shown as a date only. words: {"today", "tomorrow", "yesterday"}."""
+    text = (first_aired or "").strip()
+    if not text:
+        return ""
+    offset = local_offset_seconds() if offset is None else offset
+    if "T" in text:
+        try:
+            moment = datetime.datetime.fromisoformat(text.replace("Z", "+00:00")).replace(tzinfo=None)
+        except ValueError:
+            return ""
+        local = moment + datetime.timedelta(seconds=offset)
+        day, clock = local.date(), local.strftime("%H:%M")
+    else:
+        day, clock = _parse(text), ""
+        if day is None:
+            return ""
+    today = local_today(now, offset)
+    names = {today: words["today"], today + datetime.timedelta(days=1): words["tomorrow"],
+             today - datetime.timedelta(days=1): words["yesterday"]}
+    label = names.get(day) or f"{DAYS[day.weekday()]} {day.day} {MONTHS[day.month - 1]}"
+    return f"{label} {clock}".strip()

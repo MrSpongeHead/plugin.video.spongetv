@@ -707,6 +707,18 @@ msgctxt "#30426"
 msgid "No watched episodes from Trakt yet. Try Tools, Trakt sync, Sync now."
 msgstr ""
 
+msgctxt "#30427"
+msgid "Today"
+msgstr ""
+
+msgctxt "#30428"
+msgid "Tomorrow"
+msgstr ""
+
+msgctxt "#30429"
+msgid "Yesterday"
+msgstr ""
+
 msgctxt "#30430"
 msgid "Trakt…"
 msgstr ""

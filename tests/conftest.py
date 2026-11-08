@@ -37,6 +37,12 @@ class FakeListItem:
         self.context_menu = []
         self.tag = Recorder()
 
+    def getLabel(self):
+        return self.label
+
+    def setLabel(self, label):
+        self.label = label
+
     def setLabel2(self, label):
         self.label2 = label
 
@@ -112,7 +118,7 @@ class FakeAddon:
         pass
 
     def getAddonInfo(self, key):
-        return {"id": "plugin.video.spongetv", "version": "0.2.2", "path": ROOT,
+        return {"id": "plugin.video.spongetv", "version": "0.2.3", "path": ROOT,
                 "profile": FakeAddon.profile, "name": "SpongeTV"}[key]
 
     def getLocalizedString(self, string_id):

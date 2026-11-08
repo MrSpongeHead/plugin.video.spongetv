@@ -240,11 +240,29 @@ def test_lists_with_counts_items_and_create(world):
     assert server.posted("/users/me/lists") == [{"name": "Watch next", "privacy": "private"}]
 
 
-def test_upcoming_episodes_calendar(plain):
+def test_upcoming_episodes_calendar(plain, monkeypatch):
     world = plain
-    world[1].calendar = [{"first_aired": FUTURE, "episode": {"season": 2, "number": 2}, "show": {"ids": {"tmdb": 51}}}]
+    from resources.lib import airtime
+    monkeypatch.setattr(airtime, "local_offset_seconds", lambda: 0)
+    world[1].calendar = [{"first_aired": FUTURE + "T21:00:00.000Z", "episode": {"season": 2, "number": 2},
+                          "show": {"ids": {"tmdb": 51}}}]
     call("?action=calendar&when=upcoming")
-    assert labels() == ["Show 51: S02E02 Ep 2"]
+    import datetime
+    day = datetime.date.fromisoformat(FUTURE)
+    expected = f"{airtime.DAYS[day.weekday()]} {day.day} {airtime.MONTHS[day.month - 1]} 21:00"
+    assert labels() == [f"{expected} \u00b7 Show 51: S02E02 Ep 2"]
+
+
+def test_recent_episodes_show_when_they_aired(plain, monkeypatch):
+    world = plain
+    from resources.lib import airtime
+    monkeypatch.setattr(airtime, "local_offset_seconds", lambda: 0)
+    import datetime
+    yesterday = (airtime.local_today() - datetime.timedelta(days=1)).isoformat()
+    world[1].calendar = [{"first_aired": yesterday + "T20:00:00.000Z", "episode": {"season": 1, "number": 1},
+                          "show": {"ids": {"tmdb": 51}}}]
+    call("?action=calendar&when=recent")
+    assert labels() == ["Yesterday 20:00 \u00b7 Show 51: S01E01 Ep 1"]
 
 
 def test_recommendations(world):
