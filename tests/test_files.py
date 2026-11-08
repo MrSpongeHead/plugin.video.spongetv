@@ -33,9 +33,10 @@ def test_settings_xml_is_up_to_date():
     assert read("resources", "settings.xml") == make_settings.render()
 
 
-def test_string_ids_unique():
+def test_string_ids_unique_and_in_the_add_on_range():
     ids = [i for i, _ in STRINGS.values()]
     assert len(ids) == len(set(ids))
+    assert all(30000 <= i <= 30999 for i in ids), "Kodi reserves 30000-30999 for add-on strings"
 
 
 def test_settings_labels_exist_and_code_settings_are_defined():

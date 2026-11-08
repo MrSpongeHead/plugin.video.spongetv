@@ -967,6 +967,10 @@ msgctxt "#30494"
 msgid "Not now"
 msgstr ""
 
+msgctxt "#30495"
+msgid "Next page ({page})"
+msgstr ""
+
 msgctxt "#30500"
 msgid "Your Trakt sign-in has ended. Sign in again from Tools, Accounts and API keys."
 msgstr ""

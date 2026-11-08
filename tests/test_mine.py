@@ -233,6 +233,7 @@ def test_lists_with_counts_items_and_create(world):
     assert labels()[0].endswith("Create a new list[/COLOR]")
     call("?action=lists&source=0")
     assert labels() == ["Favourites 2026 (2)"]
+    assert server.gets("/users/me/lists")[0]["limit"] == 250   # your own lists: every page
     call("?action=list_items&user=sponge&list_id=5")
     assert labels() == ["Show 51", "Film 7"]   # the list's own order; people left out
     FakeDialog.script = ["Watch next"]
@@ -351,3 +352,30 @@ def test_next_up_says_why_when_empty(world):
     call("?action=next_up")
     assert labels() == []
     assert ("notification", "No watched episodes from Trakt yet. Try Tools, Trakt sync, Sync now.") in FakeDialog.shown
+
+
+def test_trending_lists_load_one_page_at_a_time(world):
+    server = world[1]
+    server.pages["/lists/trending"] = [{"list": {"name": f"L{i}", "item_count": i, "ids": {"trakt": 1000 + i},
+                                                 "user": {"ids": {"slug": "x"}}}} for i in range(120)]
+    call("?action=lists&source=2")
+    assert len(server.gets("/lists/trending")) == 1           # one request, not every page
+    assert len(labels()) == 51 and labels()[-1].endswith("Next page (2)[/COLOR]")
+    call("?action=lists&source=2&page=3")
+    assert len(labels()) == 20                                 # last page: no Next page
+
+
+def test_big_list_opens_one_page_at_a_time_and_updates_after_adding(world):
+    server = world[1]
+    server.lists = [{"name": "Big", "item_count": 45, "ids": {"trakt": 5}}]
+    server.list_items["/users/sponge/lists/5/items"] = [{"type": "movie", "movie": {"ids": {"tmdb": i}}}
+                                                         for i in range(1, 46)]
+    call("?action=list_items&user=sponge&list_id=5")
+    assert len(server.gets("/users/sponge/lists/5/items")) == 1
+    assert labels()[0] == "Film 1" and labels()[-1].endswith("Next page (2)[/COLOR]")
+    server.list_items["/users/sponge/lists/5/items"].insert(0, {"type": "movie", "movie": {"ids": {"tmdb": 99}}})
+    call("?action=trakt_menu&media=movie&tmdb_id=99")
+    FakeDialog.script = [FakeDialog.menus[0].index("Add to a list\u2026"), 0]
+    call("?action=trakt_menu&media=movie&tmdb_id=99")
+    call("?action=list_items&user=sponge&list_id=5")
+    assert labels()[0] == "Film 99"                            # not an out-of-date saved copy

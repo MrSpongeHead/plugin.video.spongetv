@@ -93,6 +93,11 @@ class Store:
         with self._lock, self._db:
             self._db.execute("DELETE FROM cache WHERE key = ?", (key,))
 
+    def cache_delete_matching(self, pattern):
+        """Delete cache entries whose key matches a SQL LIKE pattern (e.g. every page of one list)."""
+        with self._lock, self._db:
+            self._db.execute("DELETE FROM cache WHERE key LIKE ?", (pattern,))
+
     def cache_size(self):
         with self._lock:
             return self._db.execute("SELECT COALESCE(SUM(size), 0) FROM cache").fetchone()[0]

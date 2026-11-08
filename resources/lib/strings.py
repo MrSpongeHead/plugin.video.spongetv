@@ -188,6 +188,7 @@ STRINGS = {
     "rename_list": (30421, "Rename list"),
     "list_created": (30422, "List \"{name}\" created"),
     "list_renamed": (30423, "List renamed to \"{name}\""),
+    "next_page_plain": (30495, "Next page ({page})"),
     "season_progress": (30424, "{watched} of {aired} watched"),
     "next_up_empty": (30425, "You're up to date: no aired episodes left to watch"),
     "today": (30427, "Today"),

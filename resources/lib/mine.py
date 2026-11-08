@@ -225,6 +225,16 @@ def recommended(plugin, app):
 # -- Trakt lists -------------------------------------------------------------------------------------
 LIST_SOURCES = [("my_lists", "/users/me/lists", True), ("liked_lists", "/users/likes/lists", True),
                 ("trending_lists", "/lists/trending", False), ("popular_lists", "/lists/popular", False)]
+# Trending and popular lists run to thousands of pages: read them one page at a time as you browse.
+PAGED_SOURCES = {"/lists/trending", "/lists/popular"}
+LISTS_PER_PAGE = 50
+
+
+def _more_page(plugin, page, **params):
+    """A "Next page" item for lists whose total Trakt doesn't promise to tell us."""
+    url = plugin.url(**dict(params, page=page + 1))
+    label = options.highlight(kodi.text("next_page_plain", page=page + 1))
+    return [(url, listing.folder_item(label, kodi.ICON, kodi.FANART), True)]
 
 
 def trakt_lists(plugin, app):
@@ -244,7 +254,12 @@ def lists(plugin, app):
     label, path, needs_sign_in = LIST_SOURCES[index]
     if needs_sign_in and not app.signed_in:
         return _need_sign_in(plugin)
-    entries = _cached(app, f"trakt:lists:{path}", lambda: app.trakt.get_all(path, auth=app.signed_in))
+    page = plugin.int_param("page", 1)
+    if path in PAGED_SOURCES:
+        entries = _cached(app, f"trakt:lists:{path}:{page}", lambda: app.trakt.get(
+            path, {"page": page, "limit": LISTS_PER_PAGE}) or [])
+    else:
+        entries = _cached(app, f"trakt:lists:{path}", lambda: app.trakt.get_all(path, auth=app.signed_in))
     items = []
     own = path == "/users/me/lists"
     for entry in entries:
@@ -260,27 +275,28 @@ def lists(plugin, app):
             rename = plugin.url(action="rename_list", list_id=list_id)
             item.addContextMenuItems([(kodi.text("rename_list"), f"RunPlugin({rename})")])
         items.append((url, item, True))
+    if path in PAGED_SOURCES and len(entries) >= LISTS_PER_PAGE:
+        items += _more_page(plugin, page, action="lists", source=index)
     plugin.finish(items, category=kodi.text(label))
 
 
 def list_items(plugin, app):
-    """A list's films and shows, in the list's own order (Trakt sorts it)."""
+    """A list's films and shows in the list's own order (Trakt sorts it), one Trakt page per screen,
+    so even a list of thousands opens straight away."""
     user, list_id = plugin.params.get("user", "me"), plugin.params.get("list_id")
+    page = plugin.int_param("page", 1)
     path = f"/users/{user}/lists/{list_id}/items"
-    entries = _cached(app, f"trakt:list:{user}:{list_id}", lambda: app.trakt.get_all(path, auth=app.signed_in))
+    entries = _cached(app, f"trakt:list:{user}:{list_id}:{page}", lambda: app.trakt.get(
+        path, {"page": page, "limit": PER_PAGE}, auth=app.signed_in) or [])
     ordered = [(e.get("type"), ((e.get(e.get("type")) or {}).get("ids") or {}).get("tmdb")) for e in entries]
     ordered = [(kind, i) for kind, i in ordered if kind in ("movie", "show") and i]
-    page = plugin.int_param("page", 1)
-    chunk = ordered[(page - 1) * PER_PAGE: page * PER_PAGE]
     built = {}
     for kind, media in (("movie", "movie"), ("show", "tv")):
-        ids = [i for k, i in chunk if k == kind]
-        for item in menus.title_items(plugin, app, media, [{"id": i} for i in ids]):
-            built.setdefault(kind, []).append(item)
-    by_kind = {k: iter(v) for k, v in built.items()}
-    items = [i for i in (next(by_kind[k], None) for k, _ in chunk if k in by_kind) if i]
-    total = max(1, -(-len(ordered) // PER_PAGE))
-    items += menus._next_page(plugin, {"page": page, "total_pages": total}, action="list_items", user=user, list_id=list_id)
+        ids = [i for k, i in ordered if k == kind]
+        built[kind] = iter(menus.title_items(plugin, app, media, [{"id": i} for i in ids]))
+    items = [i for i in (next(built[k], None) for k, _ in ordered) if i]
+    if len(entries) >= PER_PAGE:
+        items += _more_page(plugin, page, action="list_items", user=user, list_id=list_id)
     plugin.finish(items, content="videos")
 
 

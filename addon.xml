@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.2.3" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.2.4" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.2.3: Upcoming and Recent episodes start each line with when it airs or aired, in your time zone (Today 21:00, Tomorrow 02:00, Sat 14 Nov 20:00).
+        <news>0.2.4: Trending and Popular lists, and big lists, now open quickly: they load a page at a time with a Next page item. Adding to or removing from a list shows straight away.
+0.2.3: Upcoming and Recent episodes start each line with when it airs or aired, in your time zone (Today 21:00, Tomorrow 02:00, Sat 14 Nov 20:00).
 0.2.2: In Next up, Upcoming episodes and Recent episodes the show name now uses your Highlight colour ("No highlight" keeps it plain).
 0.2.1: Fixed watched episodes not downloading from Trakt (Trakt now sends seasons only when asked), which left Next up and Shows in progress empty. Your watch history downloads again in full on the next sync. Next up now says why when it's empty.
 0.2.0: Trakt. Sign in with a code on trakt.tv; My films, My TV shows with Next up, shows in progress, upcoming and recent episodes, recommendations and Trakt lists; watched marks, resume points and season progress; Trakt actions on every title (watched, collection, watchlist, favourites, lists, rate, hide, clear resume point); background sync of only what changed; Trakt sync in Tools.

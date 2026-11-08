@@ -184,7 +184,7 @@ def _list_change(app, target, add):
     list_id, name = own[picked]
     path = f"/users/me/lists/{list_id}/items" + ("" if add else "/remove")
     app.trakt.post(path, target.body())
-    app.store.cache_set(f"trakt:list:me:{list_id}", None, 0)
+    app.store.cache_delete_matching(f"trakt:list:%:{list_id}:%")   # every saved page, whoever's name is in it
     return kodi.text("done_added_to_list" if add else "done_removed_from_list", name=name)
 
 
