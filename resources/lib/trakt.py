@@ -224,12 +224,15 @@ class Trakt:
     def delete(self, path, auth=True):
         return self.request("DELETE", path, auth=auth)
 
-    def get_all(self, path, params=None, auth=True):
+    def get_all(self, path, params=None, auth=True, limit=PAGE_LIMIT):
         """Every page, in Trakt's order. Stops at an empty page, or a page identical to the last
-        one (in case paging is ignored), never trusting pagination headers or the limit."""
+        one (in case paging is ignored), never trusting pagination headers or the limit.
+        limit: 250 normally; 100 for requests with extended=progress, which Trakt caps lower."""
         items, previous = [], None
         for page in range(1, MAX_PAGES + 1):
-            batch = self.get(path, dict(params or {}, page=page, limit=PAGE_LIMIT), auth=auth) or []
+            batch = self.get(path, dict(params or {}, page=page, limit=limit), auth=auth) or []
+            if not isinstance(batch, list):
+                raise TraktError("unavailable", 200, f"unexpected reply from {path}")
             if not batch:
                 break
             fingerprint = json.dumps(batch, sort_keys=True)

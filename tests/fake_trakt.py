@@ -22,6 +22,7 @@ class FakeTrakt:
         self.list_items = {}
         self.calendar = []
         self.recommendations = {"movies": [], "shows": []}
+        self.trakt_to_tmdb = {}
 
     # Http.send signature
     def __call__(self, http_self, method, url, params=None, json_body=None, headers=None, max_wait=None):
@@ -75,6 +76,8 @@ class FakeTrakt:
             return {"user": {"username": "sponge"}}
         if path.startswith("/calendars/my/shows/"):
             return self.calendar
+        if path.startswith("/shows/") and path[7:].isdigit():
+            return {"title": "x", "ids": {"trakt": int(path[7:]), "tmdb": self.trakt_to_tmdb.get(int(path[7:]))}}
         if path.startswith("/recommendations/"):
             return self.recommendations[path.rsplit("/", 1)[1]]
         if path == "/users/me/lists":
@@ -82,6 +85,11 @@ class FakeTrakt:
         if path.endswith("/items") and path.startswith("/users/"):
             return self._paged(self.list_items.get(path, []), params)
         items = self.pages.get(path, [])
+        if path.startswith("/sync/watched/shows") and params.get("extended") != "progress":
+            # Trakt since 3 July 2026: no seasons unless extended=progress is requested
+            items = [{k: v for k, v in item.items() if k != "seasons"} for item in items]
+        if params.get("extended") == "progress" and int(params.get("limit", 10)) > 100:
+            params = dict(params, limit=100)   # Trakt caps progress pages at 100
         if path in self.ignore_paging:
             return items
         return self._paged(items, params)

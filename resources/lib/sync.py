@@ -11,15 +11,21 @@ import datetime
 import json
 import time
 
+from resources.lib import kodi
 from resources.lib.library import Library, row
 from resources.lib.trakt import TraktError
 
 LOCK_STALE = 15 * 60
+# Bumped whenever the way a part is downloaded changes, so the next sync fetches everything again.
+# 2: watched shows need extended=progress for their seasons (Trakt API change, 3 July 2026).
+SYNC_FORMAT = "2"
+PROGRESS_LIMIT = 100   # Trakt caps extended=progress pages at 100 items
 
 # (part, media, activity keys that mean this part changed, Trakt path, extra query)
 PARTS = [
     ("watched", "movie", [("movies", "watched_at")], "/sync/watched/movies", {}),
-    ("watched", "episode", [("episodes", "watched_at")], "/sync/watched/shows", {}),
+    # Since 3 July 2026 watched shows only include seasons and episodes with extended=progress.
+    ("watched", "episode", [("episodes", "watched_at")], "/sync/watched/shows", {"extended": "progress"}),
     ("collection", "movie", [("movies", "collected_at")], "/sync/collection/movies", {}),
     ("collection", "episode", [("episodes", "collected_at")], "/sync/collection/shows", {}),
     ("ratings", "movie", [("movies", "rated_at")], "/sync/ratings/movies", {}),
@@ -67,8 +73,11 @@ def rows_for(part, media, entries, resume_max_age_days=0, now=None):
                 continue
             for season in e.get("seasons") or []:
                 for ep in season.get("episodes") or []:
+                    # The progress format may list every aired episode with completed true/false.
+                    if ep.get("completed") is False or ep.get("plays") == 0:
+                        continue
                     rows.append(row(part, "episode", show=show, season=season.get("number"), episode=ep.get("number"),
-                                    value=ep.get("plays", 1), at=ep.get("last_watched_at") or ep.get("collected_at")))
+                                    value=ep.get("plays") or 1, at=ep.get("last_watched_at") or ep.get("collected_at")))
         elif part == "ratings":
             if media in ("movie", "show"):
                 rows.append(row(part, media, _tmdb(e.get(media)), _trakt(e.get(media)), value=e.get("rating"),
@@ -133,6 +142,35 @@ class Syncer:
         self.forget()
         return self.run(force=True)
 
+    # -- safety checks on what Trakt sends ---------------------------------------------------------
+    def _fill_show_ids(self, entries, max_lookups=300):
+        """Shows arriving without a TMDB ID (a slimmer format) are looked up by their Trakt ID."""
+        lookups = 0
+        for entry in entries:
+            show = entry.get("show") or {}
+            ids = show.get("ids") or {}
+            if ids.get("tmdb") or not ids.get("trakt") or lookups >= max_lookups:
+                continue
+            key = f"trakt:show_ids:{ids['trakt']}"
+            found = self.store.cache_get(key)
+            if found is None:
+                lookups += 1
+                try:
+                    found = (self.trakt.get(f"/shows/{ids['trakt']}") or {}).get("ids") or {}
+                except TraktError:
+                    found = {}
+                self.store.cache_set(key, found, 30 * 86400)
+            ids.update({k: v for k, v in found.items() if v})
+            show["ids"] = ids
+            entry["show"] = show
+
+    @staticmethod
+    def _check_seasons(part, entries):
+        without = sum(1 for e in entries if not e.get("seasons"))
+        kodi.log(f"Trakt {part}: {len(entries)} shows, {without} without seasons")
+        if entries and without == len(entries):
+            kodi.log_error(f"Trakt {part}: no show came with its seasons; episode marks can't be read")
+
     # -- the sync -------------------------------------------------------------------------------
     def run(self, force=False, progress=None):
         """Returns the list of parts updated, or None if another sync was already running."""
@@ -140,6 +178,9 @@ class Syncer:
             return None
         updated = []
         try:
+            if self.store.get_meta("sync_format") != SYNC_FORMAT:
+                self.forget()   # the download changed: fetch every part again once
+                force = True
             activities = self.trakt.get("/sync/last_activities", auth=True) or {}
             for index, (part, media, keys, path, params) in enumerate(PARTS):
                 if progress:
@@ -149,7 +190,11 @@ class Syncer:
                 if not force and self.store.get_meta(key) == marker:
                     continue
                 try:
-                    entries = self.trakt.get_all(path, params)
+                    limit = PROGRESS_LIMIT if params.get("extended") == "progress" else None
+                    entries = self.trakt.get_all(path, params, **({"limit": limit} if limit else {}))
+                    if media == "episode":
+                        self._fill_show_ids(entries)
+                        self._check_seasons(part, entries)
                 except TraktError as error:
                     if error.kind == "not_found":      # a part Trakt doesn't offer this account
                         self.store.set_meta(key, marker)
@@ -159,6 +204,7 @@ class Syncer:
                 self.store.set_meta(key, marker)
                 updated.append(f"{part}:{media}")
             self.trakt.send_queued_scrobbles()
+            self.store.set_meta("sync_format", SYNC_FORMAT)
             self.store.set_meta("sync_last", datetime.datetime.fromtimestamp(self.clock()).strftime("%Y-%m-%d %H:%M"))
             self.store.set_meta("sync_error", "")
             return updated

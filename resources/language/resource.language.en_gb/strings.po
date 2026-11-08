@@ -699,6 +699,14 @@ msgctxt "#30424"
 msgid "{watched} of {aired} watched"
 msgstr ""
 
+msgctxt "#30425"
+msgid "You're up to date: no aired episodes left to watch"
+msgstr ""
+
+msgctxt "#30426"
+msgid "No watched episodes from Trakt yet. Try Tools, Trakt sync, Sync now."
+msgstr ""
+
 msgctxt "#30430"
 msgid "Trakt…"
 msgstr ""

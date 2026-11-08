@@ -92,6 +92,8 @@ def shows_in_progress(plugin, app):
     started = [show for show, _ in library.watched_shows() if show not in skipped]
     marks = Marks(library)
     ids = [d["id"] for d in _show_details(app, started) if not fully_watched(*marks.show(d))]
+    if not ids:
+        kodi.notify(kodi.text("next_up_empty" if started else "next_up_no_history"))
     menus.show_titles(plugin, app, "tv", _page(plugin, ids), None, action="shows_in_progress")
 
 
@@ -124,10 +126,13 @@ def next_up_entries(app):
     watched_shows = [(show, at) for show, at in library.watched_shows() if show not in skipped]
     last_watched = dict(watched_shows)
     entries = []
-    for details in _show_details(app, [show for show, _ in watched_shows]):
+    details_found = _show_details(app, [show for show, _ in watched_shows])
+    for details in details_found:
         found = next_episode(details, library.watched_episodes(details["id"]))
         if found:
             entries.append((details, found[0], found[1], last_watched.get(details["id"], "")))
+    kodi.log(f"Next up: {len(watched_shows) + len(skipped)} shows with watched episodes, {len(skipped)} hidden or "
+             f"dropped, {len(details_found)} found on TMDB, {len(entries)} with an episode to watch next")
     if kodi.setting_int("nextup.sort") == 1:   # newest air date first
         entries.sort(key=lambda e: ((e[0].get("last_air_date") or ""), e[3]), reverse=True)
     else:                                      # most recently watched first
@@ -139,6 +144,8 @@ def next_up(plugin, app):
     if not app.signed_in:
         return _need_sign_in(plugin)
     entries = next_up_entries(app)
+    if not entries:
+        kodi.notify(kodi.text("next_up_empty" if app.library.watched_shows() else "next_up_no_history"))
     page = plugin.int_param("page", 1)
     chunk = entries[(page - 1) * PER_PAGE: page * PER_PAGE]
     items = _episode_rows(plugin, app, [(d, s, e) for d, s, e, _ in chunk])

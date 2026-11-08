@@ -189,6 +189,8 @@ STRINGS = {
     "list_created": (30422, "List \"{name}\" created"),
     "list_renamed": (30423, "List renamed to \"{name}\""),
     "season_progress": (30424, "{watched} of {aired} watched"),
+    "next_up_empty": (30425, "You're up to date: no aired episodes left to watch"),
+    "next_up_no_history": (30426, "No watched episodes from Trakt yet. Try Tools, Trakt sync, Sync now."),
     # Trakt actions
     "trakt_menu": (30430, "Trakt\u2026"),
     "mark_watched": (30431, "Mark as watched"),

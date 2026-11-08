@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.2.0" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.2.1" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.2.0: Trakt. Sign in with a code on trakt.tv; My films, My TV shows with Next up, shows in progress, upcoming and recent episodes, recommendations and Trakt lists; watched marks, resume points and season progress; Trakt actions on every title (watched, collection, watchlist, favourites, lists, rate, hide, clear resume point); background sync of only what changed; Trakt sync in Tools.
+        <news>0.2.1: Fixed watched episodes not downloading from Trakt (Trakt now sends seasons only when asked), which left Next up and Shows in progress empty. Your watch history downloads again in full on the next sync. Next up now says why when it's empty.
+0.2.0: Trakt. Sign in with a code on trakt.tv; My films, My TV shows with Next up, shows in progress, upcoming and recent episodes, recommendations and Trakt lists; watched marks, resume points and season progress; Trakt actions on every title (watched, collection, watchlist, favourites, lists, rate, hide, clear resume point); background sync of only what changed; Trakt sync in Tools.
 0.1.4: Advanced artwork sizes now sit directly under Artwork quality, with no empty heading left behind.
 0.1.3: One search for films, TV shows and people; actors' and directors' pages; related titles and cast (context menu); TV networks, new shows and streaming services; sortable lists; hide options per menu; customisable home menu; episode title styles; highlight colour; Advanced artwork sizes; API keys checked when entered; grouped Tools with Clear all caches.
 0.1.2: Fixed search, genres and years.

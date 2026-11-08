@@ -306,3 +306,13 @@ def test_service_sync_once(world):
     assert service.sync_once() is True
     world[1].fail[("GET", "/sync/last_activities")] = 500
     assert service.sync_once() is False
+
+
+def test_next_up_says_why_when_empty(world):
+    from resources.lib.library import Library
+    app = fresh_app()
+    Library(app.store).replace("watched", "episode", [])
+    app.store.close()
+    call("?action=next_up")
+    assert labels() == []
+    assert ("notification", "No watched episodes from Trakt yet. Try Tools, Trakt sync, Sync now.") in FakeDialog.shown

@@ -114,3 +114,39 @@ def test_part_trakt_does_not_offer_is_skipped(setup):
     server.fail[("GET", "/users/hidden/dropped", 1)] = 404
     updated = syncer.run()
     assert "dropped:show" not in updated and "watched:movie" in updated
+
+
+def test_watched_shows_ask_for_seasons_in_pages_of_100(setup):
+    server, syncer, library, _ = setup
+    syncer.run()
+    params = server.gets("/sync/watched/shows")[0]
+    assert params["extended"] == "progress" and params["limit"] == 100
+    assert library.watched_episodes(50)   # the episodes really arrived
+
+
+def test_progress_format_skips_episodes_not_completed(setup):
+    server, syncer, library, _ = setup
+    server.pages["/sync/watched/shows"] = [{"show": {"ids": {"tmdb": 50}}, "seasons": [{"number": 1, "episodes": [
+        {"number": 1, "completed": True, "last_watched_at": "2026-01-01T20:00:00.000Z"},
+        {"number": 2, "completed": False, "last_watched_at": None}]}]}]
+    syncer.run()
+    assert set(library.watched_episodes(50)) == {(1, 1)}
+
+
+def test_older_sync_format_downloads_everything_again(setup):
+    server, syncer, library, store = setup
+    syncer.run()
+    store.set_meta("sync_format", "1")      # as left by 0.2.0
+    server.calls.clear()
+    assert len(syncer.run()) == len(PARTS)  # same activities, but every part fetched again
+    assert store.get_meta("sync_format") == "2"
+    assert syncer.run() == []
+
+
+def test_shows_without_a_tmdb_id_are_looked_up(setup):
+    server, syncer, library, _ = setup
+    server.trakt_to_tmdb[5] = 55
+    server.pages["/sync/watched/shows"] = [{"show": {"ids": {"trakt": 5}}, "seasons": [
+        {"number": 1, "episodes": [{"number": 1, "plays": 1, "last_watched_at": "2026-01-01T20:00:00.000Z"}]}]}]
+    syncer.run()
+    assert set(library.watched_episodes(55)) == {(1, 1)}
