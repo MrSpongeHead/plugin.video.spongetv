@@ -63,10 +63,14 @@ def _with_menu(item, context_menu):
         item.addContextMenuItems(context_menu)
 
 
-def _played(tag, plays, percent, duration):
+def _played(tag, marks, duration):
+    """marks: (plays, resume percent) or (plays, percent, position, total) when SpongeTV saved the exact spot."""
+    plays, percent, position, total = (tuple(marks or ()) + (0, 0, 0, 0))[:4]
     if plays:
         tag.setPlaycount(int(plays))
-    if percent and duration:
+    if position and total:
+        tag.setResumePoint(float(position), float(total))
+    elif percent and duration:
         tag.setResumePoint(duration * float(percent) / 100.0, duration)
 
 
@@ -99,7 +103,7 @@ def movie_item(details, art, display=None, extra_ratings=None, context_menu=None
     tag.setCountries([c["name"] for c in details.get("production_countries", [])])
     duration = int(details.get("runtime") or 0) * 60
     tag.setDuration(duration)
-    _played(tag, *(marks or (0, 0)), duration)
+    _played(tag, marks, duration)
     tag.setMpaa(_certification_movie(details, region))
     tag.setDirectors(_crew(details, "Director"))
     tag.setWriters(_crew(details, "Screenplay") or _crew(details, "Writer"))
@@ -197,7 +201,7 @@ def episode_item(show, episode, art, display=None, fallback_title="", marks=None
         tag.setYear(_year(episode["air_date"]))
     duration = int(episode.get("runtime") or 0) * 60
     tag.setDuration(duration)
-    _played(tag, *(marks or (0, 0)), duration)
+    _played(tag, marks, duration)
     tag.setUniqueIDs({"tmdb": str(episode.get("id", ""))}, "tmdb")
     if episode.get("vote_count"):
         tag.setRating(float(episode.get("vote_average") or 0), int(episode["vote_count"]), "themoviedb", True)

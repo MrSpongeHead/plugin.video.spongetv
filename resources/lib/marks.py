@@ -35,11 +35,20 @@ class Marks:
     def active(self):
         return self.library is not None
 
+    def _own(self, key):
+        """SpongeTV's own resume point (saved while playing): (percent, position, total) or None."""
+        saved = self.library.store.cache_get(f"resume:{key}")
+        if saved and saved.get("position") and saved.get("total"):
+            return saved.get("percent", 0), saved["position"], saved["total"]
+        return None
+
     def movie(self, tmdb_id):
-        """(plays, resume percent)"""
+        """(plays, resume percent), or (plays, percent, position, total) from SpongeTV's own resume point"""
         if not self.library:
             return 0, 0
-        return self.library.movie_plays(tmdb_id), self.library.progress("movie", tmdb_id)[0]
+        plays = self.library.movie_plays(tmdb_id)
+        own = self._own(f"movie:{tmdb_id}")
+        return (plays,) + own if own else (plays, self.library.progress("movie", tmdb_id)[0])
 
     def _show_episodes(self, show_id):
         return self.library.watched_episodes(show_id) if self.library else {}
@@ -63,11 +72,13 @@ class Marks:
         return sum(1 for e in watched if e <= aired), aired
 
     def episode(self, show_id, season, episode):
-        """(plays, resume percent)"""
+        """(plays, resume percent), or (plays, percent, position, total) from SpongeTV's own resume point"""
         if not self.library:
             return 0, 0
         plays = self._show_episodes(show_id).get((season, episode), (0, ""))[0]
-        return plays, self.library.progress("episode", show=show_id, season=season, episode=episode)[0]
+        own = self._own(f"episode:{show_id}:{season}:{episode}")
+        return (plays,) + own if own else (plays, self.library.progress("episode", show=show_id, season=season,
+                                                                         episode=episode)[0])
 
 
 def fully_watched(watched, aired):

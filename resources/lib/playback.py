@@ -131,6 +131,13 @@ def clear_kodi_resume(url):
         return False
 
 
+def refresh_list():
+    """Reload the SpongeTV list you came from. Kodi updates the item you played from its own records after
+    playback, which leaves it without its details; a reload puts them back, with the new resume point."""
+    if xbmc.getInfoLabel("Container.FolderPath").startswith("plugin://plugin.video.spongetv/"):
+        xbmc.executebuiltin("Container.Refresh")
+
+
 # -- choosing and resolving -----------------------------------------------------------------------------------
 def mode_for(media):
     return kodi.setting_int("play.movies" if media == "movie" else "play.episodes")
@@ -293,6 +300,7 @@ class Follower(xbmc.Player):
         if not monitor.waitForAbort(3):   # Kodi saves its own state in the background: clear again after it
             clear_kodi_resume(self.url)
         xbmcgui.Window(10000).setProperty("spongetv.sync_soon", "1")
+        refresh_list()
         return percent
 
     def _take_events(self):
@@ -331,9 +339,12 @@ def play(plugin, app, target=None):
             kodi.log_error(f"Couldn't load details to play: {error}")
             kodi.notify(kodi.text("tmdb_unreachable"))
             return
-        start_at = ask_resume(saved_position(app, target))
-        if start_at is None:
-            return
+        if plugin.params.get("kr"):
+            start_at = 0   # chosen from a list showing a resume point: Kodi has already asked and resumes itself
+        else:
+            start_at = ask_resume(saved_position(app, target))
+            if start_at is None:
+                return
         found = choose.find_sources(app, plugin.params, target.prepared)
         if not found:
             return

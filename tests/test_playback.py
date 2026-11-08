@@ -159,3 +159,42 @@ def test_hide_uncached_filter():
     a["debrid"], b["debrid"] = "cached", "uncached"
     rules = dict(ranking.PRESETS[ranking.PRESET_EVERYTHING], ready_only=True)
     assert ranking.apply_filter([a, b], rules, "movie") == [a]
+
+
+# -- one resume prompt, and clearing it ------------------------------------------------------------------
+def test_kodi_asks_so_spongetv_does_not(premiumize):
+    """From a list item that shows a resume point, Kodi asks itself; SpongeTV mustn't ask a second time."""
+    FakeAddon.settings["play.movies"] = playback.AUTO_PLAY
+    context.App().store.cache_set("resume:movie:7", {"position": 1930, "total": 6000, "percent": 32}, 3600)
+    call("?action=play&media=movie&tmdb_id=7&kr=1")
+    assert not any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
+    assert Directory.resolved is True
+
+
+def test_own_resume_point_reaches_the_list_item():
+    from resources.lib import listing
+    from resources.lib.database import Store
+    from resources.lib.library import Library
+    from resources.lib.marks import Marks
+    import tempfile, os
+    store = Store(os.path.join(tempfile.mkdtemp(), "t.db"))
+    store.cache_set("resume:movie:7", {"position": 1930.0, "total": 6000.0, "percent": 32.2}, 3600)
+    mark = Marks(Library(store)).movie(7)
+    assert mark == (0, 32.2, 1930.0, 6000.0)
+    item = listing.movie_item({"id": 7, "title": "Film", "runtime": 98}, {}, marks=mark)
+    assert item.getVideoInfoTag().calls["setResumePoint"] == [(1930.0, 6000.0)]
+    store.close()
+
+
+def test_clear_resume_point_clears_all_three(premiumize, monkeypatch):
+    import xbmc
+    from resources.lib import actions
+    app = context.App()
+    app.store.cache_set("resume:episode:50:1:2", {"position": 600, "total": 3000, "percent": 20}, 3600)
+    target = actions.Target({"media": "episode", "show": "50", "season": "1", "episode": "2"})
+    monkeypatch.setattr(app.library, "progress", lambda *a, **k: (0, None))
+    assert actions.clear_progress(app, target)
+    assert app.store.cache_get("resume:episode:50:1:2") is None
+    cleared = [json.loads(r)["params"]["file"] for r in xbmc.jsonrpc]
+    assert "plugin://plugin.video.spongetv/?action=play&media=episode&tmdb_id=50&season=1&episode=2" in cleared
+    assert "plugin://plugin.video.spongetv/?action=play&media=episode&tmdb_id=50&season=1&episode=2&kr=1" in cleared

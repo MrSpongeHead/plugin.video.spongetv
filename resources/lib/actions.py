@@ -8,6 +8,8 @@ the next sync), confirms with a short notification and refreshes the list.
 
 import datetime
 
+from urllib.parse import urlencode
+
 import xbmc
 import xbmcgui
 
@@ -78,7 +80,8 @@ def _choices(app, target):
     if t.media == "show":
         hidden = t.show in lib.skipped_shows()
         choices.append(("unhide_progress", unhide) if hidden else ("hide_progress", hide))
-    if t.media in ("movie", "episode") and lib.progress(t.media, t.tmdb_id, t.show, t.season, t.episode)[1]:
+    if t.media in ("movie", "episode") and (lib.progress(t.media, t.tmdb_id, t.show, t.season, t.episode)[1]
+                                           or app.store.cache_get(own_resume_key(t))):
         choices.append(("clear_progress", clear_progress))
     choices.append(("refresh_info", refresh_info))
     return choices
@@ -233,10 +236,27 @@ def unhide(app, target):
     return True
 
 
+def own_resume_key(target):
+    if target.media == "movie":
+        return f"resume:movie:{target.tmdb_id}"
+    return f"resume:episode:{target.show}:{target.season}:{target.episode}"
+
+
 def clear_progress(app, target):
+    """Clear every resume point: Trakt's, SpongeTV's own, and Kodi's."""
     _, playback_id = app.library.progress(target.media, target.tmdb_id, target.show, target.season, target.episode)
     if playback_id:
         app.trakt.delete(f"/sync/playback/{playback_id}")
+    app.store.cache_delete(own_resume_key(target))
+    from resources.lib import playback
+    for kr in (None, "1"):   # the item's play address, with and without "Kodi asks about resuming"
+        if target.media == "movie":
+            params = {"action": "play", "media": "movie", "tmdb_id": target.tmdb_id, "kr": kr}
+        else:
+            params = {"action": "play", "media": "episode", "tmdb_id": target.show, "season": target.season,
+                      "episode": target.episode, "kr": kr}
+        playback.clear_kodi_resume("plugin://plugin.video.spongetv/?" + urlencode(
+            {k: v for k, v in params.items() if v is not None}))
     if target.media == "movie":
         app.library.remove("playback", "movie", target.tmdb_id)
     else:

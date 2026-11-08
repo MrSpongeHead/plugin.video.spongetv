@@ -83,7 +83,8 @@ def _episode_items(plugin, app, show, show_art, season_numbers, only=None, show_
             if hide_watched and mark[0]:
                 continue
             art = artwork.for_episode(episode, show_art, app.preset)
-            url = plugin.url(action="play", media="episode", tmdb_id=show["id"], season=season, episode=number)
+            asks = "1" if mark[1] else None   # Kodi asks "Resume from…" itself for this item
+            url = plugin.url(action="play", media="episode", tmdb_id=show["id"], season=season, episode=number, kr=asks)
             fallback = kodi.text("episode_number", number=number)
             menu = [menus.trakt_entry(plugin, media="episode", show=show["id"], season=season, episode=number)] \
                 if marks.active else None

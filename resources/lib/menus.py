@@ -143,7 +143,8 @@ def title_items(plugin, app, media, summaries, hide_menu=None):
         menu = context_menu(plugin, media, d.get("id"), signed_in)
         if media == "movie":
             li = listing.movie_item(d, art, display, ratings, menu, mark)
-            items.append((plugin.url(action="play", media="movie", tmdb_id=d.get("id")), li, False))
+            asks = "1" if len(mark) > 1 and mark[1] else None   # Kodi asks "Resume from…" itself for this item
+            items.append((plugin.url(action="play", media="movie", tmdb_id=d.get("id"), kr=asks), li, False))
         else:
             li = listing.show_item(d, art, display, ratings, menu, mark)
             next_action = "all_episodes" if kodi.setting_bool("display.flatten_seasons") else "seasons"
