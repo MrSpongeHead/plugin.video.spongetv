@@ -63,7 +63,23 @@ def _with_menu(item, context_menu):
         item.addContextMenuItems(context_menu)
 
 
-def movie_item(details, art, display=None, extra_ratings=None, context_menu=None):
+def _played(tag, plays, percent, duration):
+    if plays:
+        tag.setPlaycount(int(plays))
+    if percent and duration:
+        tag.setResumePoint(duration * float(percent) / 100.0, duration)
+
+
+def _progress(item, tag, watched, aired):
+    if aired:
+        item.setProperty("TotalEpisodes", str(aired))
+        item.setProperty("WatchedEpisodes", str(min(watched, aired)))
+        item.setProperty("UnWatchedEpisodes", str(max(aired - watched, 0)))
+        if watched >= aired:
+            tag.setPlaycount(1)
+
+
+def movie_item(details, art, display=None, extra_ratings=None, context_menu=None, marks=None):
     display = display or Display()
     region = display.region
     title = details.get("original_title") if display.original_titles else details.get("title")
@@ -81,7 +97,9 @@ def movie_item(details, art, display=None, extra_ratings=None, context_menu=None
     tag.setGenres([g["name"] for g in details.get("genres", [])])
     tag.setStudios(_studios([c["name"] for c in details.get("production_companies", [])], display))
     tag.setCountries([c["name"] for c in details.get("production_countries", [])])
-    tag.setDuration(int(details.get("runtime") or 0) * 60)
+    duration = int(details.get("runtime") or 0) * 60
+    tag.setDuration(duration)
+    _played(tag, *(marks or (0, 0)), duration)
     tag.setMpaa(_certification_movie(details, region))
     tag.setDirectors(_crew(details, "Director"))
     tag.setWriters(_crew(details, "Screenplay") or _crew(details, "Writer"))
@@ -97,7 +115,7 @@ def movie_item(details, art, display=None, extra_ratings=None, context_menu=None
     return item
 
 
-def show_item(details, art, display=None, extra_ratings=None, context_menu=None):
+def show_item(details, art, display=None, extra_ratings=None, context_menu=None, marks=None):
     display = display or Display()
     region = display.region
     title = details.get("original_name") if display.original_titles else details.get("name")
@@ -124,12 +142,13 @@ def show_item(details, art, display=None, extra_ratings=None, context_menu=None)
         ids["tvdb"] = str(external["tvdb_id"])
     tag.setUniqueIDs(ids, "tmdb")
     _apply_ratings(tag, details, extra_ratings)
+    _progress(item, tag, *(marks or (0, 0)))
     item.setArt(art)
     _with_menu(item, context_menu)
     return item
 
 
-def season_item(show, season, art, label):
+def season_item(show, season, art, label, marks=None, progress_label="", context_menu=None):
     item = xbmcgui.ListItem(label, offscreen=True)
     tag = item.getVideoInfoTag()
     tag.setMediaType("season")
@@ -140,7 +159,11 @@ def season_item(show, season, art, label):
     if season.get("air_date"):
         tag.setPremiered(season["air_date"])
         tag.setYear(_year(season["air_date"]))
+    _progress(item, tag, *(marks or (0, 0)))
+    if progress_label:
+        item.setLabel2(progress_label)
     item.setArt(art)
+    _with_menu(item, context_menu)
     return item
 
 
@@ -154,10 +177,12 @@ def episode_label(episode, style, fallback):
     return name
 
 
-def episode_item(show, episode, art, display=None, fallback_title=""):
+def episode_item(show, episode, art, display=None, fallback_title="", marks=None, context_menu=None, show_in_label=False):
     display = display or Display()
     title = episode.get("name") or fallback_title or f"Episode {episode.get('episode_number')}"
     label = episode_label(episode, display.episode_style, title)
+    if show_in_label:   # lists that mix shows, such as Next Up
+        label = f"{show.get('name', '')}: {episode_label(episode, display.episode_style or EPISODE_S01E01, title)}"
     item = xbmcgui.ListItem(label, offscreen=True)
     tag = item.getVideoInfoTag()
     tag.setMediaType("episode")
@@ -170,12 +195,15 @@ def episode_item(show, episode, art, display=None, fallback_title=""):
         tag.setFirstAired(episode["air_date"])
         tag.setPremiered(episode["air_date"])
         tag.setYear(_year(episode["air_date"]))
-    tag.setDuration(int(episode.get("runtime") or 0) * 60)
+    duration = int(episode.get("runtime") or 0) * 60
+    tag.setDuration(duration)
+    _played(tag, *(marks or (0, 0)), duration)
     tag.setUniqueIDs({"tmdb": str(episode.get("id", ""))}, "tmdb")
     if episode.get("vote_count"):
         tag.setRating(float(episode.get("vote_average") or 0), int(episode["vote_count"]), "themoviedb", True)
     item.setArt(art)
     item.setProperty("IsPlayable", "true")
+    _with_menu(item, context_menu)
     return item
 
 

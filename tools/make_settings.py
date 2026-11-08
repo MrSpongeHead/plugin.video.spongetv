@@ -46,6 +46,15 @@ def key(sid_, label):
             f'                    </control>\n                </setting>\n')
 
 
+def hidden_text(sid_):
+    """A setting SpongeTV keeps for itself (such as Trakt tokens): never shown."""
+    return (f'                <setting id="{sid_}" type="string">\n'
+            f'                    <level>4</level>\n                    <default/>\n'
+            f'                    <constraints>\n                        <allowempty>true</allowempty>\n                    </constraints>\n'
+            f'                    <visible>false</visible>\n'
+            f'                    <control type="edit" format="string"/>\n                </setting>\n')
+
+
 def number(sid_, label, default, minimum, maximum, step=None, slider=False, level=2):
     step_xml = f"\n                        <step>{step}</step>" if step else ""
     control = ('<control type="slider" format="integer">\n                        <popup>false</popup>\n                    </control>'
@@ -90,7 +99,16 @@ def render():
                      + boolean("hide.search.unreleased", "set_hide_search", False)
                      + boolean("hide.seasons.specials", "set_hide_seasons_specials", False)
                      + boolean("hide.seasons.unaired", "set_hide_seasons_unaired", True)
-                     + boolean("hide.episodes.unaired", "set_hide_episodes_unaired", True))
+                     + boolean("hide.episodes.unaired", "set_hide_episodes_unaired", True)
+                     + boolean("hide.movie_lists.watched", "set_hide_movie_lists_watched", False)
+                     + boolean("hide.tv_lists.watched", "set_hide_tv_lists_watched", False)
+                     + boolean("hide.search.watched", "set_hide_search_watched", False)
+                     + boolean("hide.seasons.watched", "set_hide_seasons_watched", False)
+                     + boolean("hide.episodes.watched", "set_hide_episodes_watched", False))
+    general += group("trakt", "grp_trakt",
+                     number("trakt.sync_minutes", "set_sync_minutes", 15, 5, 120, step=5, slider=True, level=0)
+                     + choice("nextup.sort", "set_nextup_sort", ["nextup_last_watched", "nextup_air_date"], 0)
+                     + number("trakt.resume_max_age", "set_resume_max_age", 60, 0, 365, step=15, slider=True, level=0))
     advanced_only = visible_if("artwork.preset", 3)
     # The Advanced sizes sit in the same group as the preset, straight under it: Kodi shows and hides
     # settings as you change the preset, but never hides a group's heading, even when it's empty.
@@ -103,8 +121,13 @@ def render():
                           ["size_medium_780", "size_large_1280", "size_original"], 1, extra=advanced_only)
                  + choice("artwork.still_size", "set_still_size", ["size_small_300", "size_original"], 0, extra=advanced_only)
                  + boolean("artwork.extras", "set_extras", True, extra=advanced_only))
-    accounts = group("keys", "grp_keys", key("tmdb.api_key", "set_tmdb_key") + key("fanart.api_key", "set_fanart_key")
-                     + key("omdb.api_key", "set_omdb_key") + action("action.wizard", "run_wizard", "wizard"))
+    accounts = group("trakt_account", "grp_trakt_account",
+                     key("trakt.client_id", "set_trakt_client_id") + key("trakt.client_secret", "set_trakt_client_secret")
+                     + action("action.trakt_sign_in", "trakt_sign_in", "trakt_sign_in")
+                     + action("action.trakt_sign_out", "trakt_sign_out", "trakt_sign_out")
+                     + hidden_text("trakt.token") + hidden_text("trakt.username"))
+    accounts += group("keys", "grp_keys", key("tmdb.api_key", "set_tmdb_key") + key("fanart.api_key", "set_fanart_key")
+                      + key("omdb.api_key", "set_omdb_key") + action("action.wizard", "run_wizard", "wizard"))
     views = "".join(number(f"view.{v}", f"set_view_{v}", 0, 0, 9999) for v in ("movies", "tvshows", "seasons", "episodes"))
     advanced = group("views", "grp_views", views)
     advanced += group("performance", "grp_performance",

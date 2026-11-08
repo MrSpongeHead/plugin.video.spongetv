@@ -9,8 +9,10 @@ from resources.lib import artwork, kodi
 from resources.lib.database import Store
 from resources.lib.extras import Fanart, Omdb
 from resources.lib.http import Http
+from resources.lib.library import Library
 from resources.lib.strings import LANGUAGES
 from resources.lib.tmdb import Tmdb, TmdbError
+from resources.lib.trakt import Trakt
 
 DB_NAME = "spongetv.db"
 
@@ -23,6 +25,24 @@ def builtin_keys():
             return json.load(handle)
     except (OSError, ValueError):
         return {}
+
+
+class SettingsTokens:
+    """Trakt tokens kept in a hidden setting, so Clean install's "keep accounts" keeps you signed in."""
+
+    SETTING = "trakt.token"
+
+    def load(self):
+        try:
+            return json.loads(kodi.setting_str(self.SETTING) or "{}")
+        except ValueError:
+            return {}
+
+    def save(self, tokens):
+        kodi.set_setting_str(self.SETTING, json.dumps(tokens))
+
+    def clear(self):
+        kodi.set_setting_str(self.SETTING, "")
 
 
 class App:
@@ -64,6 +84,21 @@ class App:
                 raise TmdbError("No TMDB API key")
             self._tmdb = Tmdb(key, self.http, self.store, language=self.language, region=self.region)
         return self._tmdb
+
+    @property
+    def trakt(self):
+        if getattr(self, "_trakt", None) is None:
+            self._trakt = Trakt(kodi.setting_str("trakt.client_id").strip(), self.http, SettingsTokens(),
+                                client_secret=kodi.setting_str("trakt.client_secret").strip(), store=self.store)
+        return self._trakt
+
+    @property
+    def library(self):
+        return Library(self.store)
+
+    @property
+    def signed_in(self):
+        return self.trakt.configured and self.trakt.signed_in
 
     @property
     def fanart(self):

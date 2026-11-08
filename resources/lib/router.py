@@ -2,11 +2,12 @@
 # Copyright (C) 2026 MrSpongeHead
 """Routes a plugin call to the matching action."""
 
-from resources.lib import kodi, menus, search, shows, tools, wizard
+from resources.lib import accounts, actions, kodi, menus, mine, search, shows, tools, wizard
 from resources.lib.context import App
 from resources.lib.http import HttpError
 from resources.lib.plugin import Plugin
 from resources.lib.tmdb import TmdbError
+from resources.lib.trakt import TraktError
 
 ACTIONS = {
     "home": menus.home,
@@ -35,9 +36,28 @@ ACTIONS = {
     "seasons": shows.seasons,
     "episodes": shows.episodes,
     "all_episodes": shows.all_episodes,
+    "my_movies": mine.my_movies,
+    "my_tv": mine.my_tv,
+    "library_titles": mine.library_titles,
+    "shows_in_progress": mine.shows_in_progress,
+    "next_up": mine.next_up,
+    "calendar": mine.calendar,
+    "recommended": mine.recommended,
+    "trakt_lists": mine.trakt_lists,
+    "lists": mine.lists,
+    "list_items": mine.list_items,
+    "create_list": mine.create_list,
+    "rename_list": mine.rename_list,
+    "trakt_menu": actions.menu,
+    "trakt_sign_in": tools.trakt_sign_in,
+    "trakt_sign_out": tools.trakt_sign_out,
+    "tools_sync": tools.sync_menu,
+    "sync_now": tools.sync_now,
+    "sync_forget": tools.sync_forget,
+    "sync_rebuild": tools.sync_rebuild,
     "play": menus.play,
     "tools": tools.menu,
-    "tools_accounts": tools.accounts,
+    "tools_accounts": tools.accounts_menu,
     "tools_caches": tools.caches,
     "clear_cache": tools.clear_cache,
     "clear_search": tools.clear_search,
@@ -50,7 +70,8 @@ ACTIONS = {
 
 # Actions run from a non-folder item: they do something and don't produce a listing.
 NOT_DIRECTORIES = {"play", "new_search", "set_sort", "clear_cache", "clear_search", "clear_all",
-                   "home_menu_edit", "wizard", "clean_install", "settings"}
+                   "home_menu_edit", "wizard", "clean_install", "settings", "create_list", "rename_list",
+                   "trakt_menu", "trakt_sign_in", "trakt_sign_out", "sync_now", "sync_forget", "sync_rebuild"}
 DIRECTORY_ACTIONS = set(ACTIONS) - NOT_DIRECTORIES
 
 
@@ -68,6 +89,10 @@ def dispatch(argv):
         handler(plugin, app)
     except TmdbError:
         kodi.notify(kodi.text("no_tmdb_key"))
+        _fail(plugin)
+    except TraktError as error:
+        kodi.log_error(f"{plugin.action} failed: {error}")
+        kodi.notify(accounts.message(error))
         _fail(plugin)
     except HttpError as error:
         kodi.log_error(f"{plugin.action} failed: {error}")

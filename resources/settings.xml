@@ -102,6 +102,68 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="hide.movie_lists.watched" type="boolean" label="30529">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="hide.tv_lists.watched" type="boolean" label="30530">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="hide.search.watched" type="boolean" label="30531">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="hide.seasons.watched" type="boolean" label="30532">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="hide.episodes.watched" type="boolean" label="30533">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+            <group id="trakt" label="30523">
+                <setting id="trakt.sync_minutes" type="integer" label="30524">
+                    <level>0</level>
+                    <default>15</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>5</step>
+                        <maximum>120</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="nextup.sort" type="integer" label="30525">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30526">0</option>
+                            <option label="30527">1</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string"/>
+                </setting>
+                <setting id="trakt.resume_max_age" type="integer" label="30528">
+                    <level>0</level>
+                    <default>60</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>15</step>
+                        <maximum>365</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
             </group>
         </category>
         <category id="artwork" label="30101">
@@ -183,6 +245,66 @@
             </group>
         </category>
         <category id="accounts" label="30102">
+            <group id="trakt_account" label="30520">
+                <setting id="trakt.client_id" type="string" label="30521">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30521</heading>
+                    </control>
+                </setting>
+                <setting id="trakt.client_secret" type="string" label="30522">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30522</heading>
+                    </control>
+                </setting>
+                <setting id="action.trakt_sign_in" type="action" label="30470">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.spongetv/?action=trakt_sign_in)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="action.trakt_sign_out" type="action" label="30471">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.spongetv/?action=trakt_sign_out)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="trakt.token" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+                <setting id="trakt.username" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+            </group>
             <group id="keys" label="30105">
                 <setting id="tmdb.api_key" type="string" label="30130">
                     <level>0</level>

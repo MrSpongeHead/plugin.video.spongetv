@@ -21,6 +21,16 @@ MIGRATIONS = {
         "CREATE TABLE IF NOT EXISTS search_history (kind TEXT NOT NULL, query TEXT NOT NULL, "
         "searched REAL NOT NULL, PRIMARY KEY (kind, query))",
     ],
+    # Stage 2: your Trakt data, one row per item per part (watched, collection, ratings, hidden,
+    # dropped, favourites, watchlist, playback), and scrobbles waiting to be sent.
+    2: [
+        "CREATE TABLE IF NOT EXISTS library (part TEXT NOT NULL, media TEXT NOT NULL, tmdb_id INTEGER, "
+        "trakt_id INTEGER, show_tmdb_id INTEGER, season INTEGER, episode INTEGER, value REAL, at TEXT, extra TEXT)",
+        "CREATE INDEX IF NOT EXISTS library_item ON library (part, media, tmdb_id)",
+        "CREATE INDEX IF NOT EXISTS library_episode ON library (part, show_tmdb_id, season, episode)",
+        "CREATE TABLE IF NOT EXISTS scrobble_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, action TEXT NOT NULL, "
+        "body TEXT NOT NULL, created REAL NOT NULL)",
+    ],
 }
 SCHEMA_VERSION = max(MIGRATIONS)
 
@@ -79,6 +89,10 @@ class Store:
                 (key, data, now + ttl_seconds, now, len(data)),
             )
 
+    def cache_delete(self, key):
+        with self._lock, self._db:
+            self._db.execute("DELETE FROM cache WHERE key = ?", (key,))
+
     def cache_size(self):
         with self._lock:
             return self._db.execute("SELECT COALESCE(SUM(size), 0) FROM cache").fetchone()[0]
@@ -118,6 +132,21 @@ class Store:
     def clear_searches(self):
         with self._lock, self._db:
             self._db.execute("DELETE FROM search_history")
+
+    # -- general queries (used by the Trakt library) -----------------------------------
+    def query(self, sql, params=()):
+        with self._lock:
+            return self._db.execute(sql, params).fetchall()
+
+    def execute(self, sql, params=()):
+        with self._lock, self._db:
+            self._db.execute(sql, params)
+
+    def replace_rows(self, delete_sql, delete_params, insert_sql, rows):
+        """Swap a set of rows in one transaction: either all of it happens or none of it."""
+        with self._lock, self._db:
+            self._db.execute(delete_sql, delete_params)
+            self._db.executemany(insert_sql, rows)
 
     def close(self):
         with self._lock:

@@ -57,6 +57,8 @@ class FakeTmdb:
     def __init__(self):
         self.calls = []
         self.movies = {}          # id -> release date override
+        self.shows = {}           # id -> show details override
+        self.seasons = {}         # (show id, season) -> season details override
         self.bad_networks = {9}
         self.reject_sort = None
 
@@ -105,10 +107,11 @@ class FakeTmdb:
             return {"page": 1, "total_pages": 1, "results": [] if "/movie/8/" in path else [{"id": 9}]}
         if path.endswith("/similar"):
             return {"page": 1, "total_pages": 1, "results": [{"id": 10}]}
-        if path == "/tv/50" or (path.startswith("/tv/") and path[4:].isdigit()):
-            return show(int(path[4:]))
-        if path.startswith("/tv/50/season/"):
-            return SEASON_1
+        if path.startswith("/tv/") and path[4:].isdigit():
+            return self.shows.get(int(path[4:])) or show(int(path[4:]))
+        if path.startswith("/tv/") and "/season/" in path:
+            show_id, number = path[4:].split("/season/")
+            return self.seasons.get((int(show_id), int(number)), SEASON_1)
         if path.startswith("/movie/") and path[7:].isdigit():
             i = int(path[7:])
             return movie(i, self.movies.get(i, PAST))
@@ -408,19 +411,23 @@ def test_director_page_uses_their_department(ready):
 
 # -- home menu and tools ---------------------------------------------------------------------
 def test_home_menu_can_be_reordered_and_hidden(ready):
+    # Rows: Films, TV shows, My films, My TV shows, Trakt lists, Search, Tools, Reset.
     # Pick "TV shows" -> Hide; pick "Search" -> Move up; then back out.
-    FakeDialog.script = [1, 2, 2, 0, -1]
+    FakeDialog.script = [1, 2, 5, 0, -1]
     call("?action=home_menu_edit")
-    call("")
+    s = store()
+    assert options.home_layout(s)[0][3:6] == ["my_tv", "search", "trakt_lists"]
+    s.close()
+    call("")   # not signed in to Trakt: the Trakt items stay off the home menu
     assert labels() == ["Films", "Search", "Tools"]
-    FakeDialog.script = [4, -1]  # Reset to default
+    FakeDialog.script = [7, -1]  # Reset to default
     call("?action=home_menu_edit")
     call("")
     assert labels() == ["Films", "TV shows", "Search", "Tools"]
 
 
 def test_tools_cannot_be_hidden(ready):
-    FakeDialog.script = [3, 2, -1]  # Tools -> third action doesn't exist
+    FakeDialog.script = [6, 2, -1]  # Tools -> third action doesn't exist
     call("?action=home_menu_edit")
     call("")
     assert "Tools" in labels()
@@ -428,7 +435,7 @@ def test_tools_cannot_be_hidden(ready):
 
 def test_tools_are_grouped_and_clear_all_clears_everything(ready):
     call("?action=tools")
-    assert labels() == ["Accounts and API keys", "Caches", "Customise home menu", "Clean install", "Settings"]
+    assert labels() == ["Accounts and API keys", "Trakt sync", "Caches", "Customise home menu", "Clean install", "Settings"]
     call("?action=tools_caches")
     assert labels() == ["Clear cache", "Clear search history", "Clear all caches"]
     s = store()
@@ -466,4 +473,4 @@ def test_store_is_shared(tmp_path):
     s = Store(str(tmp_path / "x.db"))
     options.save_home_layout(s, ["search", "movies"], {"tv"})
     order, hidden_items = options.home_layout(s)
-    assert order == ["search", "movies", "tv", "tools"] and hidden_items == {"tv"}
+    assert order == ["search", "movies", "tv", "my_movies", "my_tv", "trakt_lists", "tools"] and hidden_items == {"tv"}

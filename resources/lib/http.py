@@ -13,6 +13,15 @@ class HttpError(Exception):
         self.status = status
 
 
+class Response:
+    """What send() returns: the status, the decoded JSON body (or None) and the headers."""
+
+    def __init__(self, status, data, headers):
+        self.status = status
+        self.data = data
+        self.headers = headers or {}
+
+
 class Http:
     MAX_WAIT = 30  # never sleep longer than this for a Retry-After
 
@@ -51,6 +60,40 @@ class Http:
                 return response.json()
             except ValueError as error:
                 raise HttpError(f"Invalid JSON from {url}", status) from error
+
+    def send(self, method, url, params=None, json_body=None, headers=None, max_wait=None):
+        """Any request, returning a Response for every HTTP status so the caller can decide.
+
+        Network errors are retried; 429 waits as long as Retry-After asks (up to max_wait);
+        5xx is retried. Raises HttpError only when the network itself fails."""
+        max_wait = self.MAX_WAIT if max_wait is None else max_wait
+        attempt = 0
+        while True:
+            try:
+                response = self.session.request(method, url, params=params, json=json_body, headers=headers,
+                                                timeout=self.timeout)
+            except requests.RequestException as error:
+                if attempt < self.retries:
+                    attempt += 1
+                    self.sleep(2 ** attempt)
+                    continue
+                raise HttpError(f"Network error: {error}") from error
+            status = response.status_code
+            if status == 429 and attempt < self.retries:
+                wait = self._retry_after(response)
+                if wait <= max_wait:
+                    attempt += 1
+                    self.sleep(wait)
+                    continue
+            if status >= 500 and attempt < self.retries:
+                attempt += 1
+                self.sleep(2 ** attempt)
+                continue
+            try:
+                data = response.json() if response.content else None
+            except ValueError:
+                data = None
+            return Response(status, data, dict(response.headers))
 
     @staticmethod
     def _retry_after(response):

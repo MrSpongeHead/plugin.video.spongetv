@@ -10,6 +10,7 @@ import xbmcgui
 
 from resources.lib import airtime, artwork, kodi, listing, options
 from resources.lib.http import HttpError
+from resources.lib.marks import Marks, fully_watched
 from resources.lib.tmdb import image_url
 
 MAX_PAGES = 500  # TMDB never serves pages beyond this
@@ -42,9 +43,12 @@ def _next_page(plugin, data, **params):
 # -- top level ---------------------------------------------------------------------
 def home(plugin, app):
     order, hidden_items = options.home_layout(app.store)
+    signed_in, has_app = app.signed_in, app.trakt.configured
     items = []
     for key in order:
         if key in hidden_items:
+            continue
+        if (key in options.NEEDS_SIGN_IN and not signed_in) or (key in options.NEEDS_TRAKT_APP and not has_app):
             continue
         label_key, action = options.HOME_ITEMS[key]
         items.append(folder(plugin, label_key, action=action))
@@ -92,11 +96,20 @@ def _is_out(details, media, display):
     return not airtime.has_aired(details.get("first_air_date"), details.get("origin_country"))
 
 
-def context_menu(plugin, media, tmdb_id):
+def trakt_entry(plugin, **params):
+    return kodi.text("trakt_menu"), f"RunPlugin({plugin.url(action='trakt_menu', **params)})"
+
+
+def context_menu(plugin, media, tmdb_id, signed_in=False):
     related = plugin.url(action="related", media=media, tmdb_id=tmdb_id)
     cast = plugin.url(action="cast", media=media, tmdb_id=tmdb_id)
-    return [(kodi.text("related_titles"), f"Container.Update({related})"),
-            (kodi.text("cast_and_crew"), f"Container.Update({cast})")]
+    entries = [trakt_entry(plugin, media=media, tmdb_id=tmdb_id)] if signed_in else []
+    return entries + [(kodi.text("related_titles"), f"Container.Update({related})"),
+                      (kodi.text("cast_and_crew"), f"Container.Update({cast})")]
+
+
+def marks_for(app):
+    return Marks(app.library if app.signed_in else None)
 
 
 def title_items(plugin, app, media, summaries, hide_menu=None):
@@ -107,9 +120,16 @@ def title_items(plugin, app, media, summaries, hide_menu=None):
     fanart_api, omdb_api = app.fanart, app.omdb
     what = "unreleased" if media == "movie" else "unaired"
     hide_unreleased = bool(hide_menu) and options.hidden(hide_menu, what)
+    hide_watched = bool(hide_menu) and options.hidden(hide_menu, "watched")
+    marks = marks_for(app)
+    signed_in = marks.active
     items = []
     for d in details:
         if hide_unreleased and _is_out(d, media, display):
+            continue
+        mark = marks.movie(d.get("id")) if media == "movie" else marks.show(d)
+        watched = mark[0] > 0 if media == "movie" else fully_watched(*mark)
+        if hide_watched and watched:
             continue
         external = d.get("external_ids") or {}
         imdb_id = d.get("imdb_id") or external.get("imdb_id")
@@ -118,12 +138,12 @@ def title_items(plugin, app, media, summaries, hide_menu=None):
             extra_art = fanart_api.movie(d.get("id")) if media == "movie" else fanart_api.tv(external.get("tvdb_id"))
         art = artwork.for_title(d, app.preset, app.language, extra_art, kodi.FANART)
         ratings = omdb_api.ratings(imdb_id) if omdb_api.api_key else {}
-        menu = context_menu(plugin, media, d.get("id"))
+        menu = context_menu(plugin, media, d.get("id"), signed_in)
         if media == "movie":
-            li = listing.movie_item(d, art, display, ratings, menu)
+            li = listing.movie_item(d, art, display, ratings, menu, mark)
             items.append((plugin.url(action="play", media="movie", tmdb_id=d.get("id")), li, False))
         else:
-            li = listing.show_item(d, art, display, ratings, menu)
+            li = listing.show_item(d, art, display, ratings, menu, mark)
             next_action = "all_episodes" if kodi.setting_bool("display.flatten_seasons") else "seasons"
             items.append((plugin.url(action=next_action, tmdb_id=d.get("id")), li, True))
     return items

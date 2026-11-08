@@ -149,6 +149,19 @@ class Tmdb:
             self._refresh_ttl(f"/tv/{tv_id}", params, data, 14 * DAY)
         return data
 
+    def forget_movie(self, movie_id):
+        self._forget(f"/movie/{movie_id}", {"append_to_response": "credits,images,external_ids,release_dates",
+                                             "include_image_language": self._image_languages()})
+
+    def forget_tv(self, tv_id):
+        self._forget(f"/tv/{tv_id}", {"append_to_response": "credits,images,external_ids,content_ratings",
+                                       "include_image_language": self._image_languages()})
+
+    def _forget(self, path, params):
+        if self.store is not None:
+            self.store.cache_delete(self._cache_key(path, self._query(params)))
+            self.store.cache_delete(self._cache_key(path, self._query(None, "en-US")))
+
     def season(self, tv_id, season_number):
         return self._get(f"/tv/{tv_id}/season/{season_number}", ttl=DAY)
 

@@ -35,24 +35,30 @@ def log_error(message):
     log(message, xbmc.LOGERROR)
 
 
+def _settings():
+    """A fresh handle each time: the background service runs for hours, and a long-lived handle
+    can return settings as they were when it started (such as an old Trakt token)."""
+    return xbmcaddon.Addon(ADDON_ID)
+
+
 def setting_str(setting_id):
-    return ADDON.getSettingString(setting_id)
+    return _settings().getSettingString(setting_id)
 
 
 def setting_bool(setting_id):
-    return ADDON.getSettingBool(setting_id)
+    return _settings().getSettingBool(setting_id)
 
 
 def setting_int(setting_id):
-    return ADDON.getSettingInt(setting_id)
+    return _settings().getSettingInt(setting_id)
 
 
 def set_setting_str(setting_id, value):
-    ADDON.setSettingString(setting_id, value)
+    _settings().setSettingString(setting_id, value)
 
 
 def set_setting_int(setting_id, value):
-    ADDON.setSettingInt(setting_id, value)
+    _settings().setSettingInt(setting_id, value)
 
 
 def notify(message, time_ms=4000):

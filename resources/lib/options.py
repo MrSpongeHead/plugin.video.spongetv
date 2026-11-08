@@ -46,6 +46,12 @@ HIDE = {
     ("seasons", "specials"): "hide.seasons.specials",
     ("seasons", "unaired"): "hide.seasons.unaired",
     ("episodes", "unaired"): "hide.episodes.unaired",
+    # Stage 2: watched items (needs a Trakt sign-in)
+    ("movie_lists", "watched"): "hide.movie_lists.watched",
+    ("tv_lists", "watched"): "hide.tv_lists.watched",
+    ("search", "watched"): "hide.search.watched",
+    ("seasons", "watched"): "hide.seasons.watched",
+    ("episodes", "watched"): "hide.episodes.watched",
 }
 
 
@@ -82,10 +88,15 @@ def sort_label(media, value):
 HOME_ITEMS = {
     "movies": ("movies", "movies"),
     "tv": ("tv_shows", "tv"),
+    "my_movies": ("my_movies", "my_movies"),
+    "my_tv": ("my_tv", "my_tv"),
+    "trakt_lists": ("trakt_lists", "trakt_lists"),
     "search": ("search", "search_menu"),
     "tools": ("tools", "tools"),
 }
-HOME_DEFAULT = ["movies", "tv", "search", "tools"]
+HOME_DEFAULT = ["movies", "tv", "my_movies", "my_tv", "trakt_lists", "search", "tools"]
+NEEDS_SIGN_IN = {"my_movies", "my_tv"}      # shown only when you're signed in to Trakt
+NEEDS_TRAKT_APP = {"trakt_lists"}           # public lists work with just a Client ID
 ALWAYS_SHOWN = {"tools"}
 
 

@@ -4,7 +4,7 @@
 
 import xbmcgui
 
-from resources.lib import keys, kodi
+from resources.lib import accounts, keys, kodi
 from resources.lib.strings import LANGUAGES
 
 DONE_FLAG = "wizard_done"
@@ -69,6 +69,11 @@ def run(app):
         dialog.ok(kodi.text("wizard_title"), kodi.text("wizard_tmdb_skipped"))
     _optional_key(app, dialog, "fanart", "wizard_fanart_ask")
     _optional_key(app, dialog, "omdb", "wizard_omdb_ask")
+
+    if not app.signed_in and dialog.yesno("SpongeTV", kodi.text("wizard_trakt_ask"),
+                                          nolabel=kodi.text("not_now"), yeslabel=kodi.text("yes")):
+        if accounts.ask_client_id(app, dialog):
+            accounts.sign_in(app, dialog)
 
     app.store.set_meta(DONE_FLAG, "1")
     dialog.ok(kodi.text("wizard_title"), kodi.text("wizard_done"))

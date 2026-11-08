@@ -156,7 +156,7 @@ msgid "SpongeTV needs your own free TMDB API key for titles, plots and artwork. 
 msgstr ""
 
 msgctxt "#30068"
-msgid "All set. Trakt sign-in arrives in the next test build."
+msgid "All set. You can change any of this later in Settings."
 msgstr ""
 
 msgctxt "#30069"
@@ -597,4 +597,456 @@ msgstr ""
 
 msgctxt "#30333"
 msgid "Let Kodi cache menus"
+msgstr ""
+
+msgctxt "#30400"
+msgid "My films"
+msgstr ""
+
+msgctxt "#30401"
+msgid "My TV shows"
+msgstr ""
+
+msgctxt "#30402"
+msgid "Trakt lists"
+msgstr ""
+
+msgctxt "#30403"
+msgid "Collection"
+msgstr ""
+
+msgctxt "#30404"
+msgid "Watchlist"
+msgstr ""
+
+msgctxt "#30405"
+msgid "Favourites"
+msgstr ""
+
+msgctxt "#30406"
+msgid "Watched"
+msgstr ""
+
+msgctxt "#30407"
+msgid "In progress"
+msgstr ""
+
+msgctxt "#30408"
+msgid "Recommended for you"
+msgstr ""
+
+msgctxt "#30409"
+msgid "Next up"
+msgstr ""
+
+msgctxt "#30410"
+msgid "Shows in progress"
+msgstr ""
+
+msgctxt "#30411"
+msgid "Upcoming episodes"
+msgstr ""
+
+msgctxt "#30412"
+msgid "Recent episodes"
+msgstr ""
+
+msgctxt "#30413"
+msgid "Recently watched"
+msgstr ""
+
+msgctxt "#30414"
+msgid "My lists"
+msgstr ""
+
+msgctxt "#30415"
+msgid "Liked lists"
+msgstr ""
+
+msgctxt "#30416"
+msgid "Trending lists"
+msgstr ""
+
+msgctxt "#30417"
+msgid "Popular lists"
+msgstr ""
+
+msgctxt "#30418"
+msgid "{name} ({count})"
+msgstr ""
+
+msgctxt "#30419"
+msgid "Create a new list"
+msgstr ""
+
+msgctxt "#30420"
+msgid "Name for the new list"
+msgstr ""
+
+msgctxt "#30421"
+msgid "Rename list"
+msgstr ""
+
+msgctxt "#30422"
+msgid "List \"{name}\" created"
+msgstr ""
+
+msgctxt "#30423"
+msgid "List renamed to \"{name}\""
+msgstr ""
+
+msgctxt "#30424"
+msgid "{watched} of {aired} watched"
+msgstr ""
+
+msgctxt "#30430"
+msgid "Trakt…"
+msgstr ""
+
+msgctxt "#30431"
+msgid "Mark as watched"
+msgstr ""
+
+msgctxt "#30432"
+msgid "Mark as unwatched"
+msgstr ""
+
+msgctxt "#30433"
+msgid "Add to collection"
+msgstr ""
+
+msgctxt "#30434"
+msgid "Remove from collection"
+msgstr ""
+
+msgctxt "#30435"
+msgid "Add to watchlist"
+msgstr ""
+
+msgctxt "#30436"
+msgid "Remove from watchlist"
+msgstr ""
+
+msgctxt "#30437"
+msgid "Add to favourites"
+msgstr ""
+
+msgctxt "#30438"
+msgid "Remove from favourites"
+msgstr ""
+
+msgctxt "#30439"
+msgid "Add to a list…"
+msgstr ""
+
+msgctxt "#30440"
+msgid "Remove from a list…"
+msgstr ""
+
+msgctxt "#30441"
+msgid "Rate…"
+msgstr ""
+
+msgctxt "#30442"
+msgid "Hide from Next up and progress"
+msgstr ""
+
+msgctxt "#30443"
+msgid "Show in Next up and progress again"
+msgstr ""
+
+msgctxt "#30444"
+msgid "Clear resume point"
+msgstr ""
+
+msgctxt "#30445"
+msgid "Refresh info"
+msgstr ""
+
+msgctxt "#30446"
+msgid "Your rating"
+msgstr ""
+
+msgctxt "#30447"
+msgid "{value} / 10"
+msgstr ""
+
+msgctxt "#30448"
+msgid "Remove rating"
+msgstr ""
+
+msgctxt "#30449"
+msgid "Choose a list"
+msgstr ""
+
+msgctxt "#30450"
+msgid "You have no Trakt lists yet. Create one under Trakt lists."
+msgstr ""
+
+msgctxt "#30451"
+msgid "Marked as watched"
+msgstr ""
+
+msgctxt "#30452"
+msgid "Marked as unwatched"
+msgstr ""
+
+msgctxt "#30453"
+msgid "Added to your collection"
+msgstr ""
+
+msgctxt "#30454"
+msgid "Removed from your collection"
+msgstr ""
+
+msgctxt "#30455"
+msgid "Added to your watchlist"
+msgstr ""
+
+msgctxt "#30456"
+msgid "Removed from your watchlist"
+msgstr ""
+
+msgctxt "#30457"
+msgid "Added to your favourites"
+msgstr ""
+
+msgctxt "#30458"
+msgid "Removed from your favourites"
+msgstr ""
+
+msgctxt "#30459"
+msgid "Added to \"{name}\""
+msgstr ""
+
+msgctxt "#30460"
+msgid "Removed from \"{name}\""
+msgstr ""
+
+msgctxt "#30461"
+msgid "Rated {value} / 10"
+msgstr ""
+
+msgctxt "#30462"
+msgid "Rating removed"
+msgstr ""
+
+msgctxt "#30463"
+msgid "Hidden from Next up"
+msgstr ""
+
+msgctxt "#30464"
+msgid "Back in Next up"
+msgstr ""
+
+msgctxt "#30465"
+msgid "Resume point cleared"
+msgstr ""
+
+msgctxt "#30466"
+msgid "Info will refresh next time"
+msgstr ""
+
+msgctxt "#30470"
+msgid "Sign in to Trakt"
+msgstr ""
+
+msgctxt "#30471"
+msgid "Sign out of Trakt"
+msgstr ""
+
+msgctxt "#30472"
+msgid "Sign out of Trakt ({name})"
+msgstr ""
+
+msgctxt "#30473"
+msgid "On your phone or computer, go to {url} and enter this code:[CR][B]{code}[/B][CR]Waiting for you to approve SpongeTV…"
+msgstr ""
+
+msgctxt "#30474"
+msgid "Enter your Trakt app's Client ID"
+msgstr ""
+
+msgctxt "#30475"
+msgid "SpongeTV needs your Trakt app's Client ID first. Create an app at developer.trakt.tv/apps, then enter its Client ID in Settings, Accounts."
+msgstr ""
+
+msgctxt "#30476"
+msgid "Signed in to Trakt"
+msgstr ""
+
+msgctxt "#30477"
+msgid "Signed in to Trakt as {name}"
+msgstr ""
+
+msgctxt "#30478"
+msgid "Sign out of Trakt? Your watched marks and lists will disappear from SpongeTV until you sign in again. Nothing changes on Trakt."
+msgstr ""
+
+msgctxt "#30479"
+msgid "Signed out of Trakt"
+msgstr ""
+
+msgctxt "#30480"
+msgid "Sign in to Trakt first: Tools, Accounts and API keys."
+msgstr ""
+
+msgctxt "#30481"
+msgid "Syncing with Trakt…"
+msgstr ""
+
+msgctxt "#30482"
+msgid "Trakt sync finished"
+msgstr ""
+
+msgctxt "#30483"
+msgid "A Trakt sync is already running"
+msgstr ""
+
+msgctxt "#30484"
+msgid "Trakt sync"
+msgstr ""
+
+msgctxt "#30485"
+msgid "Sync now"
+msgstr ""
+
+msgctxt "#30486"
+msgid "Last sync: {when}"
+msgstr ""
+
+msgctxt "#30487"
+msgid "Not synced yet"
+msgstr ""
+
+msgctxt "#30488"
+msgid "Last problem: {error}"
+msgstr ""
+
+msgctxt "#30489"
+msgid "Clear last sync time (next sync downloads everything)"
+msgstr ""
+
+msgctxt "#30490"
+msgid "The next sync will download everything"
+msgstr ""
+
+msgctxt "#30491"
+msgid "Rebuild local Trakt data"
+msgstr ""
+
+msgctxt "#30492"
+msgid "Delete SpongeTV's copy of your Trakt data and download it again? Nothing changes on Trakt."
+msgstr ""
+
+msgctxt "#30493"
+msgid "Connect SpongeTV to Trakt? You'll need the Client ID of the Trakt app you created."
+msgstr ""
+
+msgctxt "#30494"
+msgid "Not now"
+msgstr ""
+
+msgctxt "#30500"
+msgid "Your Trakt sign-in has ended. Sign in again from Tools, Accounts and API keys."
+msgstr ""
+
+msgctxt "#30501"
+msgid "Trakt refused the request. Check that SpongeTV's Trakt app is still approved."
+msgstr ""
+
+msgctxt "#30502"
+msgid "You've reached a Trakt account limit (for example, how many lists you can have). Trakt VIP raises it."
+msgstr ""
+
+msgctxt "#30503"
+msgid "Your Trakt account is locked. Check it on trakt.tv."
+msgstr ""
+
+msgctxt "#30504"
+msgid "This needs Trakt VIP."
+msgstr ""
+
+msgctxt "#30505"
+msgid "Trakt couldn't find that."
+msgstr ""
+
+msgctxt "#30506"
+msgid "Trakt asked SpongeTV to slow down. Try again in a minute."
+msgstr ""
+
+msgctxt "#30507"
+msgid "Couldn't reach Trakt. Try again later."
+msgstr ""
+
+msgctxt "#30508"
+msgid "The sign-in was declined on Trakt."
+msgstr ""
+
+msgctxt "#30509"
+msgid "The code expired before it was entered. Please try again."
+msgstr ""
+
+msgctxt "#30510"
+msgid "Trakt refused the connection. A free Trakt account can connect only one new app, so you may need to disconnect another app on trakt.tv or use Trakt VIP."
+msgstr ""
+
+msgctxt "#30511"
+msgid "Trakt didn't recognise that Client ID. Check it in Settings, Accounts."
+msgstr ""
+
+msgctxt "#30520"
+msgid "Trakt"
+msgstr ""
+
+msgctxt "#30521"
+msgid "Trakt app Client ID"
+msgstr ""
+
+msgctxt "#30522"
+msgid "Trakt app Client Secret (only for older apps)"
+msgstr ""
+
+msgctxt "#30523"
+msgid "Trakt"
+msgstr ""
+
+msgctxt "#30524"
+msgid "Sync with Trakt every (minutes)"
+msgstr ""
+
+msgctxt "#30525"
+msgid "Next up order"
+msgstr ""
+
+msgctxt "#30526"
+msgid "Most recently watched first"
+msgstr ""
+
+msgctxt "#30527"
+msgid "Newest episodes first"
+msgstr ""
+
+msgctxt "#30528"
+msgid "Ignore resume points older than (days, 0 keeps all)"
+msgstr ""
+
+msgctxt "#30529"
+msgid "Film lists: hide films you've watched"
+msgstr ""
+
+msgctxt "#30530"
+msgid "TV show lists: hide shows you've finished"
+msgstr ""
+
+msgctxt "#30531"
+msgid "Search results: hide titles you've watched"
+msgstr ""
+
+msgctxt "#30532"
+msgid "Seasons: hide seasons you've finished"
+msgstr ""
+
+msgctxt "#30533"
+msgid "Episodes: hide episodes you've watched"
 msgstr ""

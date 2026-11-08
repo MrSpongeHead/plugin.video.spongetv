@@ -56,6 +56,7 @@ class FakeListItem:
 class FakeDialog:
     script = []  # queued answers for select/yesno/input/ok, consumed in order
     shown = []
+    menus = []
 
     def _next(self, default):
         return FakeDialog.script.pop(0) if FakeDialog.script else default
@@ -79,6 +80,29 @@ class FakeDialog:
         FakeDialog.shown.append(("input", heading))
         return self._next("")
 
+    def contextmenu(self, options):
+        FakeDialog.shown.append(("contextmenu", tuple(options)))
+        FakeDialog.menus.append(list(options))
+        return self._next(-1)
+
+
+class FakeProgress:
+    cancel_after = None   # number of iscanceled() calls before reporting a cancel
+
+    def create(self, heading, message=""):
+        FakeDialog.shown.append(("progress", message))
+        self.checks = 0
+
+    def update(self, percent, message=""):
+        pass
+
+    def iscanceled(self):
+        self.checks += 1
+        return FakeProgress.cancel_after is not None and self.checks > FakeProgress.cancel_after
+
+    def close(self):
+        pass
+
 
 class FakeAddon:
     settings = {}
@@ -88,7 +112,7 @@ class FakeAddon:
         pass
 
     def getAddonInfo(self, key):
-        return {"id": "plugin.video.spongetv", "version": "0.1.4", "path": ROOT,
+        return {"id": "plugin.video.spongetv", "version": "0.2.0", "path": ROOT,
                 "profile": FakeAddon.profile, "name": "SpongeTV"}[key]
 
     def getLocalizedString(self, string_id):
@@ -137,6 +161,9 @@ def _install_stubs():
     xbmc.Actor = Actor
 
     class Monitor:
+        def __init__(self, *args, **kwargs):
+            pass
+
         def abortRequested(self):
             return True
 
@@ -155,6 +182,8 @@ def _install_stubs():
     xbmcgui = types.ModuleType("xbmcgui")
     xbmcgui.ListItem = FakeListItem
     xbmcgui.Dialog = FakeDialog
+    xbmcgui.DialogProgress = FakeProgress
+    xbmcgui.DialogProgressBG = FakeProgress
 
     xbmcplugin = types.ModuleType("xbmcplugin")
 
@@ -187,6 +216,8 @@ def fresh_state(tmp_path, monkeypatch):
     FakeAddon.settings = {}
     FakeDialog.script = []
     FakeDialog.shown = []
+    FakeDialog.menus = []
+    FakeProgress.cancel_after = None
     Directory.items = []
     Directory.ended = None
     Directory.content = None

@@ -9,7 +9,7 @@ import os
 import xbmc
 import xbmcgui
 
-from resources.lib import kodi, listing, options, wizard
+from resources.lib import accounts, kodi, listing, options, wizard
 from resources.lib.context import DB_NAME
 
 
@@ -20,6 +20,7 @@ def _item(plugin, label_key, action, is_folder=False):
 def menu(plugin, app):
     items = [
         _item(plugin, "tools_accounts", "tools_accounts", True),
+        _item(plugin, "tools_sync", "tools_sync", True),
         _item(plugin, "tools_caches", "tools_caches", True),
         _item(plugin, "customise_home", "home_menu_edit"),
         _item(plugin, "clean_install", "clean_install"),
@@ -28,9 +29,59 @@ def menu(plugin, app):
     plugin.finish(items, category=kodi.text("tools"), cache=False)
 
 
-def accounts(plugin, app):
-    items = [_item(plugin, "run_wizard", "wizard"), _item(plugin, "settings", "settings")]
+def accounts_menu(plugin, app):
+    if app.signed_in:
+        name = kodi.setting_str("trakt.username")
+        label = kodi.text("trakt_sign_out_as", name=name) if name else kodi.text("trakt_sign_out")
+        trakt_item = (plugin.url(action="trakt_sign_out"), listing.folder_item(label, kodi.ICON, kodi.FANART), False)
+    else:
+        trakt_item = _item(plugin, "trakt_sign_in", "trakt_sign_in")
+    items = [trakt_item, _item(plugin, "run_wizard", "wizard"), _item(plugin, "settings", "settings")]
     plugin.finish(items, category=kodi.text("tools_accounts"), cache=False)
+
+
+def sync_menu(plugin, app):
+    if not app.signed_in:
+        items = [_item(plugin, "trakt_sign_in", "trakt_sign_in")]
+        plugin.finish(items, category=kodi.text("tools_sync"), cache=False)
+        return
+    last, error = accounts.syncer(app).status()
+    status = kodi.text("sync_last", when=last) if last else kodi.text("sync_never")
+    if error:
+        status += "  " + kodi.text("sync_last_error", error=accounts.message_for(error))
+    items = [_item(plugin, "sync_now", "sync_now"),
+             (plugin.url(action="tools_sync"), listing.folder_item(status, kodi.ICON, kodi.FANART), True),
+             _item(plugin, "sync_forget", "sync_forget"),
+             _item(plugin, "sync_rebuild", "sync_rebuild")]
+    plugin.finish(items, category=kodi.text("tools_sync"), cache=False)
+
+
+def trakt_sign_in(plugin, app):
+    if accounts.sign_in(app):
+        xbmc.executebuiltin("Container.Refresh")
+
+
+def trakt_sign_out(plugin, app):
+    accounts.sign_out(app)
+
+
+def sync_now(plugin, app):
+    accounts.run_sync(app, visible=True)
+    xbmc.executebuiltin("Container.Refresh")
+
+
+def sync_forget(plugin, app):
+    accounts.syncer(app).forget()
+    kodi.notify(kodi.text("sync_forgotten"))
+
+
+def sync_rebuild(plugin, app):
+    if not xbmcgui.Dialog().yesno("SpongeTV", kodi.text("sync_rebuild_confirm")):
+        return
+    app.library.clear()
+    accounts.syncer(app).forget()
+    accounts.run_sync(app, force=True, visible=True)
+    xbmc.executebuiltin("Container.Refresh")
 
 
 def caches(plugin, app):
@@ -52,7 +103,8 @@ def clear_search(plugin, app):
 
 
 def clear_all(plugin, app):
-    """Every cache SpongeTV keeps. Later stages add their caches (provider results etc.) here."""
+    """Every cache SpongeTV keeps (Trakt lists and calendars live in the main cache). Later stages
+    add their caches (provider results etc.) here. Your Trakt library isn't a cache: see Sync."""
     app.store.cache_clear()
     app.store.clear_searches()
     kodi.notify(kodi.text("all_caches_cleared"))
