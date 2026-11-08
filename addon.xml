@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.2.7" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.3.0" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -11,13 +11,14 @@
     <extension point="xbmc.service" library="service.py"/>
     <extension point="xbmc.addon.metadata">
         <summary lang="en_GB">Films and TV with Trakt, TMDB and Premiumize</summary>
-        <description lang="en_GB">SpongeTV brings Trakt syncing, TMDB metadata, Premiumize and your own provider packages together in one add-on. This is a stage 2 test build: browsing, metadata and Trakt (playback arrives in stage 4).</description>
+        <description lang="en_GB">SpongeTV brings Trakt syncing, TMDB metadata, Premiumize and your own provider packages together in one add-on. This is a stage 3 test build: browsing, metadata, Trakt and finding sources with your provider packages (playback arrives in stage 4).</description>
         <disclaimer lang="en_GB">SpongeTV includes no content providers. You are responsible for the provider packages you install.</disclaimer>
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.2.7: Seasons show how many aired episodes you've watched in their name, such as Season 1 (7/10), so it appears in every view and sort order.
+        <news>0.3.0: Sources. Install provider packages (Seren format) from a web address, a zip file or the built-in test provider; turn providers on and off, change package settings, update, roll back and uninstall them (Tools, Providers and sources). Pressing play now searches every provider at once in SpongeTV's progress window, with early stop and Choose from N found, then opens Source Select with filters, sort rules you can reorder, and Info to see why a source is where it is. New Sources settings. Playback itself arrives in stage 4.
+0.2.7: Seasons show how many aired episodes you've watched in their name, such as Season 1 (7/10), so it appears in every view and sort order.
 0.2.6: SpongeTV's Trakt Client ID is built in, so signing in only needs the code at trakt.tv/activate. You can still use your own Trakt app in Settings, Accounts.
 0.2.5: Your own and liked Trakt lists are read fresh each time, so lists created, deleted or changed on trakt.tv show straight away.
 0.2.4: Trending and Popular lists, and big lists, now open quickly: they load a page at a time with a Next page item. Adding to or removing from a list shows straight away.

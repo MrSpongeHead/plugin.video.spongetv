@@ -31,6 +31,16 @@ MIGRATIONS = {
         "CREATE TABLE IF NOT EXISTS scrobble_queue (id INTEGER PRIMARY KEY AUTOINCREMENT, action TEXT NOT NULL, "
         "body TEXT NOT NULL, created REAL NOT NULL)",
     ],
+    # Stage 3: provider packages, their providers (with on/off and last result) and package settings.
+    3: [
+        "CREATE TABLE IF NOT EXISTS packages (name TEXT PRIMARY KEY, author TEXT, version TEXT, remote_meta TEXT, "
+        "update_directory TEXT, installed REAL, previous_version TEXT, meta TEXT, problem TEXT)",
+        "CREATE TABLE IF NOT EXISTS providers (package TEXT NOT NULL, language TEXT NOT NULL, kind TEXT NOT NULL, "
+        "name TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 1, last_status TEXT, last_count INTEGER, last_time REAL, "
+        "PRIMARY KEY (package, language, kind, name))",
+        "CREATE TABLE IF NOT EXISTS package_settings (package TEXT NOT NULL, id TEXT NOT NULL, type TEXT NOT NULL, "
+        "label TEXT, value TEXT, visible INTEGER NOT NULL DEFAULT 1, PRIMARY KEY (package, id))",
+    ],
 }
 SCHEMA_VERSION = max(MIGRATIONS)
 

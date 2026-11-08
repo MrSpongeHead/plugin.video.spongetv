@@ -2,7 +2,7 @@
 # Copyright (C) 2026 MrSpongeHead
 """Routes a plugin call to the matching action."""
 
-from resources.lib import accounts, actions, kodi, menus, mine, search, shows, tools, wizard
+from resources.lib import accounts, actions, choose, kodi, menus, mine, providers_menu, search, shows, tools, wizard
 from resources.lib.context import App
 from resources.lib.http import HttpError
 from resources.lib.plugin import Plugin
@@ -55,7 +55,25 @@ ACTIONS = {
     "sync_now": tools.sync_now,
     "sync_forget": tools.sync_forget,
     "sync_rebuild": tools.sync_rebuild,
-    "play": menus.play,
+    "play": choose.play,
+    "tools_providers": providers_menu.menu,
+    "providers_open": tools.open_providers,
+    "install_url": providers_menu.install_url,
+    "install_zip": providers_menu.install_zip,
+    "install_test": providers_menu.install_test,
+    "packages": providers_menu.package_list,
+    "package": providers_menu.package,
+    "providers_all": providers_menu.providers_all,
+    "provider_toggle": providers_menu.provider_toggle,
+    "package_toggle": providers_menu.package_toggle,
+    "package_settings": providers_menu.package_settings,
+    "package_update": providers_menu.package_update,
+    "package_updates": providers_menu.package_updates,
+    "package_rollback": providers_menu.package_rollback,
+    "package_uninstall": providers_menu.package_uninstall,
+    "sort_rules": choose.sort_rules_action,
+    "clear_results": choose.clear_results,
+    "window_test": choose.window_test,
     "tools": tools.menu,
     "tools_accounts": tools.accounts_menu,
     "tools_caches": tools.caches,
@@ -71,7 +89,10 @@ ACTIONS = {
 # Actions run from a non-folder item: they do something and don't produce a listing.
 NOT_DIRECTORIES = {"play", "new_search", "set_sort", "clear_cache", "clear_search", "clear_all",
                    "home_menu_edit", "wizard", "clean_install", "settings", "create_list", "rename_list",
-                   "trakt_menu", "trakt_sign_in", "trakt_sign_out", "sync_now", "sync_forget", "sync_rebuild"}
+                   "trakt_menu", "trakt_sign_in", "trakt_sign_out", "sync_now", "sync_forget", "sync_rebuild",
+                   "providers_open", "install_url", "install_zip", "install_test", "providers_all", "provider_toggle",
+                   "package_toggle", "package_settings", "package_update", "package_updates", "package_rollback",
+                   "package_uninstall", "sort_rules", "clear_results", "window_test"}
 DIRECTORY_ACTIONS = set(ACTIONS) - NOT_DIRECTORIES
 
 

@@ -8,6 +8,8 @@
   changed, refreshes a token that's close to expiring, and sends scrobbles queued while offline.
 - Never runs maintenance or syncs during playback, and waits longer after each failed sync.
 - Checks any API key you change in Settings.
+- Once a day, checks provider packages for updates and tells you, or installs them
+  (Settings, Sources, Provider packages).
 """
 
 import json
@@ -26,6 +28,9 @@ MAINTENANCE_EVERY = 15 * 60
 FIRST_SYNC_AFTER = 30
 MAX_BACKOFF = 2 * 3600
 MB = 1024 * 1024
+PACKAGE_CHECK_EVERY = 24 * 3600
+PACKAGE_CHECK_AFTER = 5 * 60   # not straight away at start-up
+UPDATES_OFF, UPDATES_TELL, UPDATES_INSTALL = range(3)
 
 
 def _store():
@@ -57,6 +62,36 @@ def trakt_state():
     except ValueError:
         signed_in = False
     return kodi.setting_str("trakt.client_id"), kodi.setting_str("trakt.username"), signed_in
+
+
+def check_packages(store, http, now, mode=None):
+    """Daily provider package update check. Returns the names updated or ready to update."""
+    mode = kodi.setting_int("packages.updates") if mode is None else mode
+    if mode == UPDATES_OFF:
+        return []
+    last = float(store.get_meta("packages:last_check") or 0)
+    if now - last < PACKAGE_CHECK_EVERY:
+        return []
+    store.set_meta("packages:last_check", str(now))
+    from resources.lib.packages import PackageError, Packages
+    manager = Packages(store, kodi.PROFILE, http)
+    updates = manager.available_updates()
+    if not updates:
+        return []
+    if mode == UPDATES_TELL:
+        names = [f"{p['name']} {r.get('version')}" for p, r in updates]
+        kodi.notify(kodi.text("packages_updates_ready", names=", ".join(names)), 8000)
+        return names
+    done = []
+    for package, remote in updates:
+        try:
+            if manager.update(package, remote):
+                done.append(f"{package['name']} {remote.get('version')}")
+        except PackageError as error:
+            kodi.log_error(f"Package update failed for {package['name']}: {error}")
+    if done:
+        kodi.notify(kodi.text("packages_updated", names=", ".join(done)), 8000)
+    return done
 
 
 class Scheduler:
@@ -133,6 +168,7 @@ def run(clock=None):
     player = xbmc.Player()
     kodi.log(f"Service started (Kodi {kodi.kodi_major_version()})")
     last_tidy = 0
+    package_check_at = clock() + PACKAGE_CHECK_AFTER
     while not monitor.abortRequested():
         now = clock()
         if not player.isPlaying():
@@ -145,6 +181,15 @@ def run(clock=None):
                 finally:
                     store.close()
                 last_tidy = now
+            if now >= package_check_at:
+                package_check_at = now + 3600   # look again in an hour; the check itself runs daily
+                store = _store()
+                try:
+                    check_packages(store, Http(f"SpongeTV/{kodi.VERSION}"), now)
+                except Exception as error:  # never let a check stop the service
+                    kodi.log_error(f"Package update check failed: {error}")
+                finally:
+                    store.close()
             if scheduler.due(now):
                 try:
                     ok = sync_once()

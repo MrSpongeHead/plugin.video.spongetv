@@ -14,12 +14,13 @@ class HttpError(Exception):
 
 
 class Response:
-    """What send() returns: the status, the decoded JSON body (or None) and the headers."""
+    """What send() returns: the status, the decoded JSON body (or None), the headers and the raw bytes."""
 
-    def __init__(self, status, data, headers):
+    def __init__(self, status, data, headers, content=None):
         self.status = status
         self.data = data
         self.headers = headers or {}
+        self.content = content
 
 
 class Http:
@@ -93,7 +94,7 @@ class Http:
                 data = response.json() if response.content else None
             except ValueError:
                 data = None
-            return Response(status, data, dict(response.headers))
+            return Response(status, data, dict(response.headers), response.content)
 
     @staticmethod
     def _retry_after(response):

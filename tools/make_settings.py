@@ -128,6 +128,36 @@ def render():
                      + hidden_text("trakt.token") + hidden_text("trakt.username"))
     accounts += group("keys", "grp_keys", key("tmdb.api_key", "set_tmdb_key") + key("fanart.api_key", "set_fanart_key")
                       + key("omdb.api_key", "set_omdb_key") + action("action.wizard", "run_wizard", "wizard"))
+    custom_only = visible_if("filter.preset", 0)
+    sources = group("search", "grp_search",
+                    number("sources.timeout", "set_timeout", 30, 10, 120, step=5, slider=True, level=0)
+                    + boolean("early.enabled", "set_early_enabled", True)
+                    + choice("early.quality", "set_early_quality", ["q_4k", "q_1080p", "q_720p", "q_sd"], 1,
+                             extra=visible_if("early.enabled", "true"))
+                    + number("early.count", "set_early_count", 5, 1, 50, step=1, slider=True, level=0)
+                    + number("sources.cache_hours", "set_cache_hours", 3, 0, 24, step=1, slider=True, level=0))
+    # The custom filter settings share the preset's group, so nothing is left behind when they hide.
+    sources += group("filter", "grp_filter",
+                     choice("filter.preset", "set_filter_preset", ["preset_custom", "preset_4k_hdr", "preset_1080p",
+                                                                   "preset_data_saver", "preset_everything"], 0)
+                     + boolean("filter.allow_4k", "set_allow_4k", True, extra=custom_only)
+                     + boolean("filter.allow_1080p", "set_allow_1080p", True, extra=custom_only)
+                     + boolean("filter.allow_720p", "set_allow_720p", True, extra=custom_only)
+                     + boolean("filter.allow_sd", "set_allow_sd", True, extra=custom_only)
+                     + boolean("filter.exclude_cam", "set_exclude_cam", True, extra=custom_only)
+                     + boolean("filter.exclude_3d", "set_exclude_3d", True, extra=custom_only)
+                     + boolean("filter.exclude_hevc", "set_exclude_hevc", False, extra=custom_only)
+                     + boolean("filter.exclude_hdr", "set_exclude_hdr", False, extra=custom_only)
+                     + boolean("filter.exclude_dv", "set_exclude_dv", False, extra=custom_only)
+                     + number("filter.max_gb_movie", "set_max_gb_movie", 0, 0, 100, step=1, slider=True, level=0)
+                     .replace("</level>", "</level>" + custom_only, 1)
+                     + number("filter.max_gb_episode", "set_max_gb_episode", 0, 0, 50, step=1, slider=True, level=0)
+                     .replace("</level>", "</level>" + custom_only, 1))
+    sources += group("sorting", "grp_sorting", action("action.sort_rules", "edit_sort_rules", "sort_rules"))
+    sources += group("packages", "grp_packages",
+                     choice("packages.updates", "set_package_updates", ["updates_off", "updates_tell", "updates_install"], 1)
+                     + action("action.providers", "open_providers", "providers_open")
+                     + hidden_text("packages.last_url"))
     views = "".join(number(f"view.{v}", f"set_view_{v}", 0, 0, 9999) for v in ("movies", "tvshows", "seasons", "episodes"))
     advanced = group("views", "grp_views", views)
     advanced += group("performance", "grp_performance",
@@ -137,7 +167,10 @@ def render():
                       number("cache.size_mb", "set_cache_size", 100, 10, 1000, step=10, slider=True)
                       + action("action.clear_cache", "clear_cache", "clear_cache")
                       + action("action.clear_all", "clear_all_caches", "clear_all"))
+    advanced += group("windows", "grp_windows", boolean("windows.simple", "set_windows_simple", False))
+    advanced += group("developer", "grp_developer", boolean("developer.window_tests", "set_window_tests", False, level=3))
     body = (category("general", "cat_general", general) + category("artwork", "cat_artwork", art)
+            + category("sources", "cat_sources", sources)
             + category("accounts", "cat_accounts", accounts) + category("advanced", "cat_advanced", advanced))
     return ('<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n<settings version="1">\n'
             '    <section id="plugin.video.spongetv">\n' + body + '    </section>\n</settings>\n')

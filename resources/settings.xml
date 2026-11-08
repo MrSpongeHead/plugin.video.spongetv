@@ -244,6 +244,254 @@
                 </setting>
             </group>
         </category>
+        <category id="sources" label="30726">
+            <group id="search" label="30727">
+                <setting id="sources.timeout" type="integer" label="30728">
+                    <level>0</level>
+                    <default>30</default>
+                    <constraints>
+                        <minimum>10</minimum>
+                        <step>5</step>
+                        <maximum>120</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="early.enabled" type="boolean" label="30729">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="early.quality" type="integer" label="30730">
+                    <level>0</level>
+                    <default>1</default>
+                    <constraints>
+                        <options>
+                            <option label="30733">0</option>
+                            <option label="30734">1</option>
+                            <option label="30735">2</option>
+                            <option label="30736">3</option>
+                        </options>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="early.enabled">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="list" format="string"/>
+                </setting>
+                <setting id="early.count" type="integer" label="30731">
+                    <level>0</level>
+                    <default>5</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>50</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="sources.cache_hours" type="integer" label="30732">
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>24</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+            <group id="filter" label="30737">
+                <setting id="filter.preset" type="integer" label="30738">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30704">0</option>
+                            <option label="30705">1</option>
+                            <option label="30706">2</option>
+                            <option label="30707">3</option>
+                            <option label="30708">4</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string"/>
+                </setting>
+                <setting id="filter.allow_4k" type="boolean" label="30739">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="filter.allow_1080p" type="boolean" label="30740">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="filter.allow_720p" type="boolean" label="30741">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="filter.allow_sd" type="boolean" label="30742">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="filter.exclude_cam" type="boolean" label="30743">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="filter.exclude_3d" type="boolean" label="30744">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="filter.exclude_hevc" type="boolean" label="30745">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="filter.exclude_hdr" type="boolean" label="30746">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="filter.exclude_dv" type="boolean" label="30747">
+                    <level>0</level>
+                    <default>false</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="filter.max_gb_movie" type="integer" label="30748">
+                    <level>0</level>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <default>0</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>100</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="filter.max_gb_episode" type="integer" label="30749">
+                    <level>0</level>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="filter.preset">0</condition>
+                        </dependency>
+                    </dependencies>
+                    <default>0</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>50</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+            <group id="sorting" label="30750">
+                <setting id="action.sort_rules" type="action" label="30751">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.spongetv/?action=sort_rules)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+            </group>
+            <group id="packages" label="30752">
+                <setting id="packages.updates" type="integer" label="30753">
+                    <level>0</level>
+                    <default>1</default>
+                    <constraints>
+                        <options>
+                            <option label="30754">0</option>
+                            <option label="30755">1</option>
+                            <option label="30756">2</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string"/>
+                </setting>
+                <setting id="action.providers" type="action" label="30757">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.spongetv/?action=providers_open)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
+                <setting id="packages.last_url" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+            </group>
+        </category>
         <category id="accounts" label="30102">
             <group id="trakt_account" label="30520">
                 <setting id="trakt.client_id" type="string" label="30521">
@@ -446,6 +694,20 @@
                     <control type="button" format="action">
                         <close>true</close>
                     </control>
+                </setting>
+            </group>
+            <group id="windows" label="30758">
+                <setting id="windows.simple" type="boolean" label="30759">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+            </group>
+            <group id="developer" label="30760">
+                <setting id="developer.window_tests" type="boolean" label="30761">
+                    <level>3</level>
+                    <default>false</default>
+                    <control type="toggle"/>
                 </setting>
             </group>
         </category>

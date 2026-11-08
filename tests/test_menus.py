@@ -435,7 +435,8 @@ def test_tools_cannot_be_hidden(ready):
 
 def test_tools_are_grouped_and_clear_all_clears_everything(ready):
     call("?action=tools")
-    assert labels() == ["Accounts and API keys", "Trakt sync", "Caches", "Customise home menu", "Clean install", "Settings"]
+    assert labels() == ["Accounts and API keys", "Trakt sync", "Providers and sources", "Caches", "Customise home menu",
+                        "Clean install", "Settings"]
     call("?action=tools_caches")
     assert labels() == ["Clear cache", "Clear search history", "Clear all caches"]
     s = store()
@@ -448,10 +449,11 @@ def test_tools_are_grouped_and_clear_all_clears_everything(ready):
     assert ("notification", "All caches cleared") in FakeDialog.shown
 
 
-def test_play_is_not_available_yet(ready):
+def test_play_without_providers_says_so(ready):
     call("?action=play&media=movie&tmdb_id=1")
     assert Directory.resolved is False
-    assert ("notification", "Playback arrives in a later test build") in FakeDialog.shown
+    assert ("notification", "No providers are installed and turned on. Add some in Tools, Providers and sources.") \
+        in FakeDialog.shown
 
 
 def test_advanced_artwork_sizes(ready):

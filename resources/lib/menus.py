@@ -297,7 +297,3 @@ def cast(plugin, app):
              for p in people if p.get("id")]
     plugin.finish(items, category=details.get("title") or details.get("name", ""))
 
-
-def play(plugin, app):
-    plugin.resolve_nothing()
-    kodi.notify(kodi.text("playback_later"))

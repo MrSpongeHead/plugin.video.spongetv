@@ -86,6 +86,17 @@ class FakeDialog:
         FakeDialog.shown.append(("input", heading))
         return self._next("")
 
+    def textviewer(self, heading, text):
+        FakeDialog.shown.append(("textviewer", text))
+
+    def browse(self, kind, heading, shares, mask="", *args, **kwargs):
+        FakeDialog.shown.append(("browse", heading))
+        return self._next("")
+
+    def numeric(self, kind, heading, default=""):
+        FakeDialog.shown.append(("numeric", heading))
+        return self._next(default)
+
     def contextmenu(self, options):
         FakeDialog.shown.append(("contextmenu", tuple(options)))
         FakeDialog.menus.append(list(options))
@@ -191,6 +202,12 @@ def _install_stubs():
     xbmcgui.DialogProgress = FakeProgress
     xbmcgui.DialogProgressBG = FakeProgress
 
+    class WindowXMLDialog:
+        """Tests have no skin engine: opening one fails the way Kodi does, so the simple dialogs are used."""
+        def __init__(self, *args, **kwargs):
+            raise RuntimeError("no skin engine in tests")
+    xbmcgui.WindowXMLDialog = WindowXMLDialog
+
     xbmcplugin = types.ModuleType("xbmcplugin")
 
     def add_items(handle, items, total=0):
@@ -231,4 +248,15 @@ def fresh_state(tmp_path, monkeypatch):
     Directory.builtins = []
     from resources.lib import kodi
     monkeypatch.setattr(kodi, "PROFILE", str(tmp_path))
+    # Provider packages import from the profile folder, which is new for every test.
+    path_before = list(sys.path)
+    _forget_provider_modules()
     yield
+    _forget_provider_modules()
+    sys.path[:] = path_before
+
+
+def _forget_provider_modules():
+    for name in list(sys.modules):
+        if name in ("providers", "providerModules") or name.startswith(("providers.", "providerModules.")):
+            del sys.modules[name]

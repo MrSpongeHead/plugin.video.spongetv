@@ -21,11 +21,19 @@ def menu(plugin, app):
     items = [
         _item(plugin, "tools_accounts", "tools_accounts", True),
         _item(plugin, "tools_sync", "tools_sync", True),
+        _item(plugin, "tools_providers", "tools_providers", True),
         _item(plugin, "tools_caches", "tools_caches", True),
         _item(plugin, "customise_home", "home_menu_edit"),
         _item(plugin, "clean_install", "clean_install"),
         _item(plugin, "settings", "settings"),
     ]
+    if kodi.setting_bool("developer.window_tests"):
+        items.append((plugin.url(action="window_test", window="select"),
+                      listing.folder_item(kodi.text("window_test_select"), kodi.ICON, kodi.FANART), False))
+        items.append((plugin.url(action="window_test", window="search"),
+                      listing.folder_item(kodi.text("window_test_search"), kodi.ICON, kodi.FANART), False))
+        items.append((plugin.url(action="window_test", window="live"),
+                      listing.folder_item(kodi.text("window_test_live"), kodi.ICON, kodi.FANART), False))
     plugin.finish(items, category=kodi.text("tools"), cache=False)
 
 
@@ -168,3 +176,8 @@ def clean_install(plugin, app):
             except OSError as error:
                 kodi.log_error(f"Clean install could not remove {name}: {error}")
     dialog.ok("SpongeTV", kodi.text("clean_install_done"))
+
+
+def open_providers(plugin, app):
+    """From Settings: open Tools, Providers and sources."""
+    xbmc.executebuiltin("ActivateWindow(Videos,plugin://plugin.video.spongetv/?action=tools_providers,return)")
