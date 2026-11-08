@@ -69,7 +69,8 @@ def library_titles(plugin, app):
         ids = library.collected_shows()
     else:
         ids = library.ids(part, "show")
-    menus.show_titles(plugin, app, media, _page(plugin, ids), None, action="library_titles", media=media, part=part)
+    menus.show_titles(plugin, app, media, _page(plugin, ids), None, kodi_cache=False,
+                      action="library_titles", media=media, part=part)
 
 
 def _show_details(app, show_ids):
@@ -94,7 +95,7 @@ def shows_in_progress(plugin, app):
     ids = [d["id"] for d in _show_details(app, started) if not fully_watched(*marks.show(d))]
     if not ids:
         kodi.notify(kodi.text("next_up_empty" if started else "next_up_no_history"))
-    menus.show_titles(plugin, app, "tv", _page(plugin, ids), None, action="shows_in_progress")
+    menus.show_titles(plugin, app, "tv", _page(plugin, ids), None, kodi_cache=False, action="shows_in_progress")
 
 
 # -- Next Up --------------------------------------------------------------------------------------
@@ -227,6 +228,9 @@ LIST_SOURCES = [("my_lists", "/users/me/lists", True), ("liked_lists", "/users/l
                 ("trending_lists", "/lists/trending", False), ("popular_lists", "/lists/popular", False)]
 # Trending and popular lists run to thousands of pages: read them one page at a time as you browse.
 PAGED_SOURCES = {"/lists/trending", "/lists/popular"}
+# Your own and liked lists are small and change on trakt.tv too, so they're always read fresh
+# (and Kodi is told not to keep its own copy of the menu).
+PERSONAL_SOURCES = {"/users/me/lists", "/users/likes/lists"}
 LISTS_PER_PAGE = 50
 
 
@@ -259,7 +263,7 @@ def lists(plugin, app):
         entries = _cached(app, f"trakt:lists:{path}:{page}", lambda: app.trakt.get(
             path, {"page": page, "limit": LISTS_PER_PAGE}) or [])
     else:
-        entries = _cached(app, f"trakt:lists:{path}", lambda: app.trakt.get_all(path, auth=app.signed_in))
+        entries = app.trakt.get_all(path, auth=app.signed_in)
     items = []
     own = path == "/users/me/lists"
     for entry in entries:
@@ -277,7 +281,7 @@ def lists(plugin, app):
         items.append((url, item, True))
     if path in PAGED_SOURCES and len(entries) >= LISTS_PER_PAGE:
         items += _more_page(plugin, page, action="lists", source=index)
-    plugin.finish(items, category=kodi.text(label))
+    plugin.finish(items, category=kodi.text(label), cache=path not in PERSONAL_SOURCES)
 
 
 def list_items(plugin, app):
@@ -286,8 +290,12 @@ def list_items(plugin, app):
     user, list_id = plugin.params.get("user", "me"), plugin.params.get("list_id")
     page = plugin.int_param("page", 1)
     path = f"/users/{user}/lists/{list_id}/items"
-    entries = _cached(app, f"trakt:list:{user}:{list_id}:{page}", lambda: app.trakt.get(
-        path, {"page": page, "limit": PER_PAGE}, auth=app.signed_in) or [])
+    own = user in ("me", kodi.setting_str("trakt.username"))
+
+    def fetch():
+        return app.trakt.get(path, {"page": page, "limit": PER_PAGE}, auth=app.signed_in) or []
+    # Your own lists are read fresh; other people's are kept for a few minutes.
+    entries = fetch() if own else _cached(app, f"trakt:list:{user}:{list_id}:{page}", fetch)
     ordered = [(e.get("type"), ((e.get(e.get("type")) or {}).get("ids") or {}).get("tmdb")) for e in entries]
     ordered = [(kind, i) for kind, i in ordered if kind in ("movie", "show") and i]
     built = {}
@@ -297,7 +305,7 @@ def list_items(plugin, app):
     items = [i for i in (next(built[k], None) for k, _ in ordered) if i]
     if len(entries) >= PER_PAGE:
         items += _more_page(plugin, page, action="list_items", user=user, list_id=list_id)
-    plugin.finish(items, content="videos")
+    plugin.finish(items, content="videos", cache=not own)
 
 
 def create_list(plugin, app):
@@ -305,7 +313,6 @@ def create_list(plugin, app):
     if not name:
         return
     app.trakt.post("/users/me/lists", {"name": name, "privacy": "private"})
-    app.store.cache_set("trakt:lists:/users/me/lists", None, 0)
     kodi.notify(kodi.text("list_created", name=name))
     xbmc.executebuiltin("Container.Refresh")
 
@@ -316,13 +323,12 @@ def rename_list(plugin, app):
     if not name:
         return
     app.trakt.put(f"/users/me/lists/{list_id}", {"name": name})
-    app.store.cache_set("trakt:lists:/users/me/lists", None, 0)
     kodi.notify(kodi.text("list_renamed", name=name))
     xbmc.executebuiltin("Container.Refresh")
 
 
 def my_lists_for_picker(app):
     """[(list ID, name)] of your own lists, for "Add to list"."""
-    entries = _cached(app, "trakt:lists:/users/me/lists", lambda: app.trakt.get_all("/users/me/lists"))
+    entries = app.trakt.get_all("/users/me/lists")
     return [((e.get("ids") or {}).get("trakt"), e.get("name", "")) for e in entries or [] if (e.get("ids") or {}).get("trakt")]
 

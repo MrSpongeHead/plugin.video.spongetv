@@ -379,3 +379,14 @@ def test_big_list_opens_one_page_at_a_time_and_updates_after_adding(world):
     call("?action=trakt_menu&media=movie&tmdb_id=99")
     call("?action=list_items&user=sponge&list_id=5")
     assert labels()[0] == "Film 99"                            # not an out-of-date saved copy
+
+
+def test_list_deleted_on_trakt_disappears_straight_away(world):
+    server = world[1]
+    server.lists = [{"name": "Keep", "item_count": 0, "ids": {"trakt": 1}},
+                    {"name": "Delete me", "item_count": 0, "ids": {"trakt": 2}}]
+    call("?action=lists&source=0")
+    assert labels() == ["Keep (0)", "Delete me (0)"]
+    server.lists.pop()                     # deleted on trakt.tv
+    call("?action=lists&source=0")
+    assert labels() == ["Keep (0)"]
