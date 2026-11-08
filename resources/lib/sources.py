@@ -168,10 +168,20 @@ def request_key(request):
 
 
 # -- calling one provider -------------------------------------------------------------------------
+IMPORT_LOCK = threading.Lock()
+
+
+def provider_module(provider):
+    """Import a provider's module. One import at a time: providers of one package share modules, and
+    importing them from several threads at once can deadlock inside Python's import system."""
+    name = f"providers.{provider['package']}.{provider['language']}.{provider['kind']}.{provider['name']}"
+    with IMPORT_LOCK:
+        return importlib.import_module(name)
+
+
 def call_provider(provider, request, host_lists=([], [])):
     """Run one provider and return its raw results. Raises whatever the provider raises."""
-    module = importlib.import_module(f"providers.{provider['package']}.{provider['language']}.{provider['kind']}."
-                                     f"{provider['name']}")
+    module = provider_module(provider)
     simple, info = request["simple_info"], request["info"]
     if provider["kind"] == "hosters":
         source = module.source()

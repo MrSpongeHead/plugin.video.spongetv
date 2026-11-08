@@ -55,7 +55,9 @@ def test_auto_play_resolves_and_follows_playback(premiumize):
     assert len(premiumize.resolved) == 1
     store = context.App().store
     assert store.cache_get("resume:movie:7")["position"] == 130         # saved on stop
-    assert json.loads(xbmc.jsonrpc[-1])["method"] == "Files.SetFileDetails"
+    # Kodi's own resume point is read (to avoid a second prompt) but never changed after playback:
+    # changing it makes Kodi blank the list item's details
+    assert [json.loads(r)["method"] for r in xbmc.jsonrpc] == ["Files.GetFileDetails"]
     import xbmcgui
     assert xbmcgui.Window.properties.get("spongetv.sync_soon") == "1"
 
@@ -236,3 +238,16 @@ def test_context_menus_offer_search_again_and_clear_resume(premiumize):
     assert "Search for sources again" in film
     call("?action=clear_resume&media=movie&tmdb_id=7")
     assert app.store.cache_get("resume:movie:7") is None
+
+
+
+def test_kodi_resume_point_means_kodi_asks(premiumize, monkeypatch):
+    """Kodi saved its own resume point (after 3 minutes) and asks about it itself: SpongeTV mustn't."""
+    import xbmc
+    FakeAddon.settings["play.movies"] = playback.AUTO_PLAY
+    context.App().store.cache_set("resume:movie:7", {"position": 1930, "total": 6000, "percent": 32}, 3600)
+    monkeypatch.setattr(xbmc, "executeJSONRPC", lambda request: json.dumps(
+        {"result": {"filedetails": {"resume": {"position": 1930.0, "total": 6000.0}}}}))
+    call("?action=play&media=movie&tmdb_id=7")
+    assert not any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
+    assert Directory.resolved is True

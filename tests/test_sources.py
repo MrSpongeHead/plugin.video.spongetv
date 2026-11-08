@@ -484,3 +484,26 @@ def test_package_update_check(store, tmp_path, monkeypatch):
     assert service.check_packages(store, http, 10 ** 6 + 60, mode=service.UPDATES_INSTALL) == []   # once a day
     assert service.check_packages(store, http, 10 ** 6 + 90000, mode=service.UPDATES_INSTALL) == ["Demo 1.2.0"]
     assert Packages(store, str(tmp_path)).get("Demo")["version"] == "1.2.0"
+
+
+def test_providers_import_one_at_a_time(store, tmp_path):
+    """Many providers of one package starting together must not deadlock Python's imports."""
+    import threading
+    from resources.lib import sources
+    manager = Packages(store, str(tmp_path))
+    manager.install(providers_menu.zip_folder(TEST_PACKAGE))
+    manager.ensure_import_path()
+    errors = []
+    providers = [p for p in manager.providers() if p["name"] in ("sample", "broken", "testvideo")] * 4
+
+    def load(provider):
+        try:
+            sources.provider_module(provider)
+        except Exception as error:   # noqa: BLE001 - any failure is the bug
+            errors.append(error)
+    threads = [threading.Thread(target=load, args=(p,)) for p in providers]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(10)
+    assert errors == []

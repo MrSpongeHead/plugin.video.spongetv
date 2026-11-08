@@ -2,9 +2,10 @@
 # Copyright (C) 2026 MrSpongeHead
 """Pressing play: resume prompt, find sources, Auto Play or Source Select, resolve, play, then follow along.
 
-Any source that fails to resolve moves on to the next one. While playing, SpongeTV scrobbles to Trakt,
-saves its own resume point every few seconds, and clears Kodi's own resume point so you only ever
-see one resume prompt.
+Any source that fails to resolve moves on to the next one. While playing, SpongeTV scrobbles to Trakt and
+saves its own resume point every few seconds. Kodi keeps its own resume point too (after three minutes)
+and asks about it itself, so SpongeTV only asks when Kodi won't: you only ever see one prompt. SpongeTV
+leaves Kodi's record alone after playback, because changing it makes Kodi blank the list item's details.
 """
 
 import json
@@ -131,11 +132,16 @@ def clear_kodi_resume(url):
         return False
 
 
-def refresh_list():
-    """Reload the SpongeTV list you came from. Kodi updates the item you played from its own records after
-    playback, which leaves it without its details; a reload puts them back, with the new resume point."""
-    if xbmc.getInfoLabel("Container.FolderPath").startswith("plugin://plugin.video.spongetv/"):
-        xbmc.executebuiltin("Container.Refresh")
+def kodi_resume(url):
+    """Kodi's own saved resume point for this play address (seconds), or 0. Kodi shows it on the list item
+    and asks "Resume from…" itself when you choose the item."""
+    request = {"jsonrpc": "2.0", "id": 1, "method": "Files.GetFileDetails",
+               "params": {"file": url, "media": "video", "properties": ["resume"]}}
+    try:
+        answer = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
+        return float(answer["result"]["filedetails"]["resume"]["position"] or 0)
+    except (ValueError, KeyError, TypeError):
+        return 0
 
 
 # -- choosing and resolving -----------------------------------------------------------------------------------
@@ -298,11 +304,7 @@ class Follower(xbmc.Player):
         percent = self._percent(position, total)
         self._scrobble("stop", percent)
         self.save(position, total, finished=True)
-        clear_kodi_resume(self.url)
-        if not monitor.waitForAbort(3):   # Kodi saves its own state in the background: clear again after it
-            clear_kodi_resume(self.url)
         xbmcgui.Window(10000).setProperty("spongetv.sync_soon", "1")
-        refresh_list()
         return percent
 
     def _take_events(self):
@@ -341,7 +343,7 @@ def play(plugin, app, target=None):
             kodi.log_error(f"Couldn't load details to play: {error}")
             kodi.notify(kodi.text("tmdb_unreachable"))
             return
-        if plugin.params.get("kr"):
+        if plugin.params.get("kr") or (playable and kodi_resume(plugin.url_now)):
             start_at = 0   # chosen from a list showing a resume point: Kodi has already asked and resumes itself
         else:
             start_at = ask_resume(saved_position(app, target))

@@ -214,6 +214,7 @@ def _install_stubs():
         def seekTime(self, seconds):
             self.seeks.append(seconds)
     xbmc.Player = Player
+    xbmc.VideoStreamDetail = lambda *a, **k: ("stream", a, k)
     xbmc.jsonrpc = []
 
     def execute_jsonrpc(request):

@@ -63,6 +63,15 @@ def _with_menu(item, context_menu):
         item.addContextMenuItems(context_menu)
 
 
+def _no_stream_details(tag):
+    """An empty video stream stops Kodi filling the item with the resolution, codecs and audio channels it
+    recorded while playing (the same as Seren does)."""
+    try:
+        tag.addVideoStream(xbmc.VideoStreamDetail())
+    except (AttributeError, TypeError):
+        pass
+
+
 def _played(tag, marks, duration):
     """marks: (plays, resume percent) or (plays, percent, position, total) when SpongeTV saved the exact spot."""
     plays, percent, position, total = (tuple(marks or ()) + (0, 0, 0, 0))[:4]
@@ -104,6 +113,7 @@ def movie_item(details, art, display=None, extra_ratings=None, context_menu=None
     duration = int(details.get("runtime") or 0) * 60
     tag.setDuration(duration)
     _played(tag, marks, duration)
+    _no_stream_details(tag)
     tag.setMpaa(_certification_movie(details, region))
     tag.setDirectors(_crew(details, "Director"))
     tag.setWriters(_crew(details, "Screenplay") or _crew(details, "Writer"))
@@ -202,6 +212,7 @@ def episode_item(show, episode, art, display=None, fallback_title="", marks=None
     duration = int(episode.get("runtime") or 0) * 60
     tag.setDuration(duration)
     _played(tag, marks, duration)
+    _no_stream_details(tag)
     tag.setUniqueIDs({"tmdb": str(episode.get("id", ""))}, "tmdb")
     if episode.get("vote_count"):
         tag.setRating(float(episode.get("vote_average") or 0), int(episode["vote_count"]), "themoviedb", True)
