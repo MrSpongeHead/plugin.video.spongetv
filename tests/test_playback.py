@@ -85,10 +85,12 @@ def test_source_select_plays_what_you_pick(premiumize):
 
 
 def test_backing_out_of_source_select_plays_nothing(premiumize):
+    import xbmc
     FakeAddon.settings["play.movies"] = playback.SOURCE_SELECT
     FakeDialog.script = [-1]
     call("?action=play&media=movie&tmdb_id=7")
     assert Directory.resolved is False and premiumize.resolved == []
+    assert xbmc.PlayList.cleared == 1     # so Kodi doesn't say "Playback failed" or play the next item
 
 
 def test_resume_prompt_and_seek(premiumize, monkeypatch):
@@ -251,3 +253,27 @@ def test_kodi_resume_point_means_kodi_asks(premiumize, monkeypatch):
     call("?action=play&media=movie&tmdb_id=7")
     assert not any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
     assert Directory.resolved is True
+
+
+def test_kodi_playback_failed_message_is_closed(monkeypatch):
+    """Backing out makes Kodi say "Playback failed"; SpongeTV closes that message."""
+    import xbmc
+    from resources.lib import plugin
+    shown = {"okdialog": True}
+    monkeypatch.setattr(xbmc, "getCondVisibility", lambda cond: shown["okdialog"], raising=False)
+    monkeypatch.setattr(xbmc, "getInfoLabel", lambda label: "Playback failed", raising=False)
+    monkeypatch.setattr(xbmc, "getLocalizedString", lambda number: "Playback failed" if number == 16026 else "",
+                        raising=False)
+    closed = []
+    monkeypatch.setattr(xbmc, "executebuiltin", lambda command: closed.append(command), raising=False)
+
+    class Running:
+        def abortRequested(self):
+            return False
+
+        def waitForAbort(self, seconds=0):
+            return False
+    assert plugin.dismiss_playback_failed(monitor=Running())
+    assert closed == ["Dialog.Close(okdialog,true)"]
+    shown["okdialog"] = False
+    assert not plugin.dismiss_playback_failed(wait=0.3, monitor=Running())

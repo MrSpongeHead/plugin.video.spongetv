@@ -10,6 +10,23 @@ import xbmcplugin
 from resources.lib import kodi
 
 
+def dismiss_playback_failed(wait=3.0, monitor=None):
+    """Kodi counts a play request ended without a video as a failure, and after a few (or 20 seconds)
+    shows "Playback failed: one or more items failed to play", although you only backed out. Kodi has no
+    way to turn that off, so close that message if it appears in the next few seconds."""
+    monitor = monitor or xbmc.Monitor()
+    waited = 0.0
+    while waited < wait and not monitor.abortRequested():
+        if xbmc.getCondVisibility("Window.IsActive(okdialog)") and \
+                xbmc.getInfoLabel("Control.GetLabel(1)") == xbmc.getLocalizedString(16026):
+            xbmc.executebuiltin("Dialog.Close(okdialog,true)")
+            return True
+        if monitor.waitForAbort(0.1):
+            break
+        waited += 0.1
+    return False
+
+
 class Plugin:
     def __init__(self, argv):
         self.base = argv[0]
@@ -55,6 +72,14 @@ class Plugin:
         xbmcplugin.setResolvedUrl(self.handle, True, item)
 
     def resolve_nothing(self):
-        """End a play request without playing (nothing found, cancelled or failed)."""
+        """End a play request without playing (nothing found, cancelled or failed).
+
+        Kodi may have queued the item in its video playlist (for example with "Play next video
+        automatically" on). Ending a queued item without a video makes Kodi say "Playback failed" and
+        try the next item, so empty the queue first, as Seren does."""
         import xbmcgui
-        xbmcplugin.setResolvedUrl(self.handle, False, xbmcgui.ListItem())
+        xbmc.PlayList(xbmc.PLAYLIST_VIDEO).clear()
+        xbmcplugin.setResolvedUrl(self.handle, False, xbmcgui.ListItem(offscreen=True))
+        xbmc.executebuiltin("Dialog.Close(busydialog)")
+        xbmc.executebuiltin("Dialog.Close(busydialognocancel)")
+        dismiss_playback_failed()

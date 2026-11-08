@@ -215,6 +215,19 @@ def _install_stubs():
             self.seeks.append(seconds)
     xbmc.Player = Player
     xbmc.VideoStreamDetail = lambda *a, **k: ("stream", a, k)
+    xbmc.PLAYLIST_VIDEO = 1
+    xbmc.getCondVisibility = lambda condition: False
+    xbmc.getLocalizedString = lambda number: ""
+
+    class PlayList:
+        cleared = 0
+
+        def __init__(self, kind):
+            self.kind = kind
+
+        def clear(self):
+            PlayList.cleared += 1
+    xbmc.PlayList = PlayList
     xbmc.jsonrpc = []
 
     def execute_jsonrpc(request):
@@ -292,6 +305,7 @@ def fresh_state(tmp_path, monkeypatch):
     Directory.resolved = None
     Directory.builtins = []
     sys.modules["xbmc"].Player.script = []
+    sys.modules["xbmc"].PlayList.cleared = 0
     sys.modules["xbmc"].jsonrpc.clear()
     sys.modules["xbmcgui"].Window.properties.clear()
     from resources.lib import kodi
