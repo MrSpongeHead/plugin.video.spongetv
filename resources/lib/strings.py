@@ -509,7 +509,7 @@ STRINGS = {
     "pm_err_no_client_id": (30819, "SpongeTV's Premiumize client ID is missing from this build. Enter one in Settings, Accounts (Expert level), or use an API key there."),
     "pm_err_bad_client_id": (30820, "Premiumize didn't accept the client ID. If you entered your own in Settings, Accounts (Expert level), check it."),
     "pm_err_denied": (30821, "The sign-in was refused at premiumize.me/device."),
-    "pm_signed_in_status": (30822, "Signed in to Premiumize ({days} days left)"),
+    "pm_signed_in_status": (30822, "Signed in to Premiumize ({days} days of premium left)"),
     "set_pm_client_id": (30823, "Your own Premiumize client ID (leave blank to use SpongeTV's)"),
     "wizard_pm_ask": (30824, "Sign in to Premiumize now? It's what plays your sources."),
     "pm_sign_in_again": (30825, "Your Premiumize sign-in ends in {days} days. Sign in again in Tools, Accounts."),

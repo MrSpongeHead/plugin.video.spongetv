@@ -1964,7 +1964,7 @@ msgid "The sign-in was refused at premiumize.me/device."
 msgstr ""
 
 msgctxt "#30822"
-msgid "Signed in to Premiumize ({days} days left)"
+msgid "Signed in to Premiumize ({days} days of premium left)"
 msgstr ""
 
 msgctxt "#30823"

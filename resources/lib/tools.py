@@ -51,7 +51,7 @@ def accounts_menu(plugin, app):
         trakt_item = _item(plugin, "trakt_sign_in", "trakt_sign_in")
     token = app.premiumize_token
     if token:
-        days = token_days_left(token)
+        days = premium_days_left(app)
         label = kodi.text("pm_signed_in_status", days=days) if days is not None else kodi.text("pm_signed_in")
         pm_items = [(plugin.url(action="premiumize_status"), listing.folder_item(label, kodi.ICON, kodi.FANART), False),
                     _item(plugin, "pm_sign_out", "premiumize_sign_out")]
@@ -63,10 +63,21 @@ def accounts_menu(plugin, app):
     plugin.finish(items, category=kodi.text("tools_accounts"), cache=False)
 
 
-def token_days_left(token, now=None):
-    import time
-    expires = token.get("expires_at")
-    return None if not expires else max(0, int((expires - (now or time.time())) // 86400))
+def premium_days_left(app):
+    """Days of premium left on your Premiumize account (not how long the sign-in lasts), or None.
+    Kept for an hour so opening Accounts doesn't ask Premiumize every time."""
+    from resources.lib.premiumize import PremiumizeError
+    days = app.store.cache_get("premiumize:days_left")
+    if days is None:
+        client = app.premiumize
+        try:
+            days = client.days_left(client.account())
+        except PremiumizeError:
+            return None
+        if days is None:
+            return None
+        app.store.cache_set("premiumize:days_left", days, 3600)
+    return days
 
 
 def premiumize_sign_in(plugin, app):

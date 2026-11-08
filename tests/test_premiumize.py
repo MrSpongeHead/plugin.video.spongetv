@@ -259,3 +259,22 @@ def test_daily_check_warns_before_the_sign_in_ends(tmp_path):
     service.check_premiumize(store, fake, now)
     assert ("notification", "Your Premiumize sign-in ends in 3 days. Sign in again in Tools, Accounts.") in FakeDialog.shown
     store.close()
+
+
+def test_accounts_shows_premium_days_not_the_sign_in_length(monkeypatch):
+    """Premiumize's sign-in lasts about 10 years; Accounts must show the premium days instead."""
+    import json
+    from conftest import Directory, FakeAddon
+    from resources.lib import context, premiumize
+    from test_menus import call
+    now = 2_000_000_000
+    FakeAddon.settings["premiumize.token"] = json.dumps({"access_token": "tok", "expires_at": now + 3649 * 86400})
+    monkeypatch.setattr(premiumize.Premiumize, "account",
+                        lambda self: {"premium_until": now + int(528.15 * 86400), "limit_used": 0.1})
+    monkeypatch.setattr(premiumize.Premiumize, "days_left",
+                        lambda self, account: int((account["premium_until"] - now) // 86400))
+    monkeypatch.setattr(context, "builtin_keys", lambda: {})
+    context.App().store.set_meta("wizard_done", "1")
+    call("?action=tools_accounts")
+    labels = [i[1].label for i in Directory.items]
+    assert "Signed in to Premiumize (528 days of premium left)" in labels

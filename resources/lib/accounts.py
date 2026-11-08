@@ -164,6 +164,7 @@ def premiumize_sign_out(app, dialog=None):
     if not dialog.yesno(kodi.text("grp_premiumize"), kodi.text("pm_sign_out_confirm")):
         return False
     kodi.set_setting_str("premiumize.token", "")
+    app.store.cache_delete("premiumize:days_left")
     kodi.notify(kodi.text("pm_signed_out"))
     xbmc.executebuiltin("Container.Refresh")
     return True
