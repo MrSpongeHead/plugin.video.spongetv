@@ -305,6 +305,11 @@
                         <popup>false</popup>
                     </control>
                 </setting>
+                <setting id="sources.hide_uncached" type="boolean" label="30791">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
             </group>
             <group id="filter" label="30737">
                 <setting id="filter.preset" type="integer" label="30738">
@@ -492,6 +497,75 @@
                 </setting>
             </group>
         </category>
+        <category id="playback" label="30784">
+            <group id="play_choice" label="30785">
+                <setting id="play.movies" type="integer" label="30786">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30788">0</option>
+                            <option label="30789">1</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string"/>
+                </setting>
+                <setting id="play.episodes" type="integer" label="30787">
+                    <level>0</level>
+                    <default>0</default>
+                    <constraints>
+                        <options>
+                            <option label="30788">0</option>
+                            <option label="30789">1</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string"/>
+                </setting>
+                <setting id="play.attempts" type="integer" label="30790">
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <minimum>1</minimum>
+                        <step>1</step>
+                        <maximum>10</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+            <group id="play_next" label="30805">
+                <setting id="play.next" type="boolean" label="30806">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="play.next_seconds" type="integer" label="30807">
+                    <level>0</level>
+                    <default>30</default>
+                    <constraints>
+                        <minimum>10</minimum>
+                        <step>5</step>
+                        <maximum>120</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+                <setting id="play.still_watching" type="integer" label="30808">
+                    <level>0</level>
+                    <default>3</default>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>1</step>
+                        <maximum>10</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+        </category>
         <category id="accounts" label="30102">
             <group id="trakt_account" label="30520">
                 <setting id="trakt.client_id" type="string" label="30521">
@@ -551,6 +625,43 @@
                     </constraints>
                     <visible>false</visible>
                     <control type="edit" format="string"/>
+                </setting>
+            </group>
+            <group id="premiumize" label="30765">
+                <setting id="premiumize.api_key" type="string" label="30766">
+                    <level>0</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30766</heading>
+                    </control>
+                </setting>
+                <setting id="premiumize.torrents" type="boolean" label="30767">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="premiumize.hosters" type="boolean" label="30768">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="premiumize.cloud" type="boolean" label="30769">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="action.premiumize_status" type="action" label="30770">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.spongetv/?action=premiumize_status)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
                 </setting>
             </group>
             <group id="keys" label="30105">

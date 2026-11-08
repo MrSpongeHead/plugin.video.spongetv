@@ -54,6 +54,8 @@ def apply_filter(sources, rules, media):
             continue
         if limit_gb and source.get("size_mb") and source["size_mb"] > limit_gb * 1024:
             continue
+        if rules.get("ready_only") and source.get("debrid") == "uncached":
+            continue
         kept.append(source)
     return kept
 
@@ -61,7 +63,8 @@ def apply_filter(sources, rules, media):
 # -- sorting -------------------------------------------------------------------------------------
 # rule id -> (label key, key function: smaller sorts first)
 RULES = {
-    "ready": ("sortrule_ready", lambda s: {"cloud": 0, "cached": 1}.get(s.get("debrid"), 2 if s["type"] == "torrent" else 1)),
+    "ready": ("sortrule_ready", lambda s: {"cloud": 0, "cached": 1, "uncached": 3}.get(
+        s.get("debrid"), 1 if s["type"] in ("direct", "adaptive") else 2)),
     "quality": ("sortrule_quality", lambda s: QUALITY_RANK.get(s["quality"], 99)),
     "hdr": ("sortrule_hdr", lambda s: 0 if {"HDR", "Dolby Vision"} & set(s.get("tags") or []) else 1),
     "hevc": ("sortrule_hevc", lambda s: 0 if {"HEVC", "AV1"} & set(s.get("tags") or []) else 1),

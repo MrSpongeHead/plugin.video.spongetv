@@ -16,6 +16,7 @@ import json
 import os
 
 import xbmc
+import xbmcgui
 
 from resources.lib import accounts, keys, kodi
 from resources.lib.context import DB_NAME, App
@@ -92,6 +93,29 @@ def check_packages(store, http, now, mode=None):
     if done:
         kodi.notify(kodi.text("packages_updated", names=", ".join(done)), 8000)
     return done
+
+
+EXPIRY_WARN_DAYS = 7
+
+
+def check_premiumize(store, http, now):
+    """Once a day: warn when the Premiumize account has a week or less left. Returns the days left."""
+    from resources.lib.premiumize import Premiumize, PremiumizeError
+    client = Premiumize(http, kodi.setting_str("premiumize.api_key"), clock=lambda: now)
+    if not client.ready or now - float(store.get_meta("premiumize:last_check") or 0) < PACKAGE_CHECK_EVERY:
+        return None
+    try:
+        account = client.account()
+    except PremiumizeError as error:
+        if error.kind == "bad_key":
+            store.set_meta("premiumize:last_check", str(now))
+            kodi.notify(kodi.text("pm_bad_key"), 8000)
+        return None
+    store.set_meta("premiumize:last_check", str(now))
+    days = client.days_left(account)
+    if days is not None and days <= EXPIRY_WARN_DAYS:
+        kodi.notify(kodi.text("pm_expiring", days=days), 8000)
+    return days
 
 
 class Scheduler:
@@ -185,11 +209,16 @@ def run(clock=None):
                 package_check_at = now + 3600   # look again in an hour; the check itself runs daily
                 store = _store()
                 try:
+                    check_premiumize(store, Http(f"SpongeTV/{kodi.VERSION}"), now)
                     check_packages(store, Http(f"SpongeTV/{kodi.VERSION}"), now)
                 except Exception as error:  # never let a check stop the service
                     kodi.log_error(f"Package update check failed: {error}")
                 finally:
                     store.close()
+            home = xbmcgui.Window(10000)
+            if home.getProperty("spongetv.sync_soon"):   # something was just watched: catch up with Trakt
+                home.clearProperty("spongetv.sync_soon")
+                scheduler.soon(now)
             if scheduler.due(now):
                 try:
                     ok = sync_once()

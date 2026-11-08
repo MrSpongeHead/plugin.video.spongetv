@@ -62,7 +62,7 @@ class Http:
             except ValueError as error:
                 raise HttpError(f"Invalid JSON from {url}", status) from error
 
-    def send(self, method, url, params=None, json_body=None, headers=None, max_wait=None):
+    def send(self, method, url, params=None, json_body=None, headers=None, max_wait=None, form=None):
         """Any request, returning a Response for every HTTP status so the caller can decide.
 
         Network errors are retried; 429 waits as long as Retry-After asks (up to max_wait);
@@ -71,7 +71,7 @@ class Http:
         attempt = 0
         while True:
             try:
-                response = self.session.request(method, url, params=params, json=json_body, headers=headers,
+                response = self.session.request(method, url, params=params, json=json_body, data=form, headers=headers,
                                                 timeout=self.timeout)
             except requests.RequestException as error:
                 if attempt < self.retries:

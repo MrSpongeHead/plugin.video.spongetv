@@ -15,6 +15,7 @@ class Plugin:
         self.base = argv[0]
         self.handle = int(argv[1]) if len(argv) > 1 else -1
         query = argv[2][1:] if len(argv) > 2 and argv[2].startswith("?") else ""
+        self.query = query
         self.params = dict(parse_qsl(query))
         self.action = self.params.get("action", "home")
 
@@ -44,7 +45,16 @@ class Plugin:
     def fail(self):
         xbmcplugin.endOfDirectory(self.handle, succeeded=False)
 
+    @property
+    def url_now(self):
+        """This call's own plugin:// URL (what Kodi files resume points against)."""
+        return f"{self.base}{'?' + self.query if self.query else ''}"
+
+    def resolve(self, item):
+        """Hand Kodi the playable item for this play request."""
+        xbmcplugin.setResolvedUrl(self.handle, True, item)
+
     def resolve_nothing(self):
-        """End a play request without playing (used until playback arrives)."""
+        """End a play request without playing (nothing found, cancelled or failed)."""
         import xbmcgui
         xbmcplugin.setResolvedUrl(self.handle, False, xbmcgui.ListItem())

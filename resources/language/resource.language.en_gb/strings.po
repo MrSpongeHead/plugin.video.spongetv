@@ -1323,10 +1323,6 @@ msgctxt "#30659"
 msgid "No sources found"
 msgstr ""
 
-msgctxt "#30660"
-msgid "You chose a {quality} source from {provider}. Playback arrives in stage 4."
-msgstr ""
-
 msgctxt "#30661"
 msgid "{hours} h {minutes} min"
 msgstr ""
@@ -1737,4 +1733,192 @@ msgstr ""
 
 msgctxt "#30764"
 msgid "Window test: real search with your providers (made-up film)"
+msgstr ""
+
+msgctxt "#30765"
+msgid "Premiumize"
+msgstr ""
+
+msgctxt "#30766"
+msgid "Premiumize API key"
+msgstr ""
+
+msgctxt "#30767"
+msgid "Use Premiumize for torrents"
+msgstr ""
+
+msgctxt "#30768"
+msgid "Use Premiumize for hoster links"
+msgstr ""
+
+msgctxt "#30769"
+msgid "Search your Premiumize cloud"
+msgstr ""
+
+msgctxt "#30770"
+msgid "Check Premiumize account"
+msgstr ""
+
+msgctxt "#30771"
+msgid "Premium for {days} more days. Fair use: {used}% used."
+msgstr ""
+
+msgctxt "#30772"
+msgid "This Premiumize account isn't premium, so it can't play sources."
+msgstr ""
+
+msgctxt "#30773"
+msgid "Add your Premiumize API key in Settings, Accounts. It's on your Premiumize account page."
+msgstr ""
+
+msgctxt "#30774"
+msgid "Premiumize didn't accept the API key. Check it in Settings, Accounts."
+msgstr ""
+
+msgctxt "#30775"
+msgid "Couldn't reach Premiumize. Try again in a moment."
+msgstr ""
+
+msgctxt "#30776"
+msgid "Your Premiumize account expires in {days} days"
+msgstr ""
+
+msgctxt "#30777"
+msgid "{count} ready to play now"
+msgstr ""
+
+msgctxt "#30778"
+msgid "Resume from {time}"
+msgstr ""
+
+msgctxt "#30779"
+msgid "Start from the beginning"
+msgstr ""
+
+msgctxt "#30780"
+msgid "Getting the video"
+msgstr ""
+
+msgctxt "#30781"
+msgid "Trying source {number}: {quality}[CR]{name}"
+msgstr ""
+
+msgctxt "#30782"
+msgid "None of the best sources would play. Choose one instead."
+msgstr ""
+
+msgctxt "#30783"
+msgid "That source wouldn't play. Choose another."
+msgstr ""
+
+msgctxt "#30784"
+msgid "Playback"
+msgstr ""
+
+msgctxt "#30785"
+msgid "Choosing a source"
+msgstr ""
+
+msgctxt "#30786"
+msgid "Films"
+msgstr ""
+
+msgctxt "#30787"
+msgid "Episodes"
+msgstr ""
+
+msgctxt "#30788"
+msgid "Show Source Select"
+msgstr ""
+
+msgctxt "#30789"
+msgid "Play the best source automatically"
+msgstr ""
+
+msgctxt "#30790"
+msgid "Sources to try before giving up"
+msgstr ""
+
+msgctxt "#30791"
+msgid "Hide sources Premiumize hasn't cached"
+msgstr ""
+
+msgctxt "#30792"
+msgid "Window test: play a made-up film with your providers"
+msgstr ""
+
+msgctxt "#30793"
+msgid "Playing next"
+msgstr ""
+
+msgctxt "#30794"
+msgid "S{season:02d}E{episode:02d}  {title}"
+msgstr ""
+
+msgctxt "#30795"
+msgid "Play now"
+msgstr ""
+
+msgctxt "#30796"
+msgid "Stop after this episode"
+msgstr ""
+
+msgctxt "#30797"
+msgid "ready to play"
+msgstr ""
+
+msgctxt "#30798"
+msgid "finding a source"
+msgstr ""
+
+msgctxt "#30799"
+msgid "no source ready yet: you'll choose one"
+msgstr ""
+
+msgctxt "#30800"
+msgid "Starts in {seconds} s, {status}"
+msgstr ""
+
+msgctxt "#30801"
+msgid "Still watching?"
+msgstr ""
+
+msgctxt "#30802"
+msgid "You've watched {count} episodes in a row. Keep going?"
+msgstr ""
+
+msgctxt "#30803"
+msgid "Stop"
+msgstr ""
+
+msgctxt "#30804"
+msgid "Keep watching"
+msgstr ""
+
+msgctxt "#30805"
+msgid "Next episode"
+msgstr ""
+
+msgctxt "#30806"
+msgid "Smart Play: get the next episode ready and play it"
+msgstr ""
+
+msgctxt "#30807"
+msgid "Show Playing Next this many seconds before the end"
+msgstr ""
+
+msgctxt "#30808"
+msgid "Ask if you're still watching after this many episodes (0 never)"
+msgstr ""
+
+msgctxt "#30809"
+msgid "Window test: Playing Next"
+msgstr ""
+
+msgctxt "#30810"
+msgid "Play next episode"
+msgstr ""
+
+msgctxt "#30811"
+msgid "No episode to play next: you've watched everything that's aired"
 msgstr ""

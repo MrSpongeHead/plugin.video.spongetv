@@ -34,6 +34,11 @@ def menu(plugin, app):
                       listing.folder_item(kodi.text("window_test_search"), kodi.ICON, kodi.FANART), False))
         items.append((plugin.url(action="window_test", window="live"),
                       listing.folder_item(kodi.text("window_test_live"), kodi.ICON, kodi.FANART), False))
+        items.append((plugin.url(action="window_test", window="next"),
+                      listing.folder_item(kodi.text("window_test_next"), kodi.ICON, kodi.FANART), False))
+        playable = listing.folder_item(kodi.text("window_test_play"), kodi.ICON, kodi.FANART)
+        playable.setProperty("IsPlayable", "true")   # resolved like a real film, to test the whole path
+        items.append((plugin.url(action="window_test", window="play"), playable, False))
     plugin.finish(items, category=kodi.text("tools"), cache=False)
 
 
@@ -44,8 +49,28 @@ def accounts_menu(plugin, app):
         trakt_item = (plugin.url(action="trakt_sign_out"), listing.folder_item(label, kodi.ICON, kodi.FANART), False)
     else:
         trakt_item = _item(plugin, "trakt_sign_in", "trakt_sign_in")
-    items = [trakt_item, _item(plugin, "run_wizard", "wizard"), _item(plugin, "settings", "settings")]
+    items = [trakt_item, _item(plugin, "premiumize_status", "premiumize_status"), _item(plugin, "run_wizard", "wizard"),
+             _item(plugin, "settings", "settings")]
     plugin.finish(items, category=kodi.text("tools_accounts"), cache=False)
+
+
+def premiumize_message(error):
+    return kodi.text({"no_key": "pm_no_key", "bad_key": "pm_bad_key"}.get(error.kind, "pm_unreachable"))
+
+
+def premiumize_status(plugin, app):
+    """Tools > Accounts or Settings: show the Premiumize account's days left and fair use."""
+    from resources.lib.premiumize import PremiumizeError
+    client = app.premiumize
+    try:
+        account = client.account()
+    except PremiumizeError as error:
+        xbmcgui.Dialog().ok(kodi.text("grp_premiumize"), premiumize_message(error))
+        return
+    days = client.days_left(account)
+    text = (kodi.text("pm_status_free") if days is None
+            else kodi.text("pm_status_ok", days=days, used=round(account["limit_used"] * 100)))
+    xbmcgui.Dialog().ok(kodi.text("grp_premiumize"), text)
 
 
 def sync_menu(plugin, app):

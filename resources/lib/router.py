@@ -2,7 +2,8 @@
 # Copyright (C) 2026 MrSpongeHead
 """Routes a plugin call to the matching action."""
 
-from resources.lib import accounts, actions, choose, kodi, menus, mine, providers_menu, search, shows, tools, wizard
+from resources.lib import (accounts, actions, choose, kodi, menus, mine, playback, providers_menu, search, shows, tools,
+                           wizard)
 from resources.lib.context import App
 from resources.lib.http import HttpError
 from resources.lib.plugin import Plugin
@@ -56,8 +57,10 @@ ACTIONS = {
     "sync_forget": tools.sync_forget,
     "sync_rebuild": tools.sync_rebuild,
     "play": choose.play,
+    "play_show": playback.play_show,
     "tools_providers": providers_menu.menu,
     "providers_open": tools.open_providers,
+    "premiumize_status": tools.premiumize_status,
     "install_url": providers_menu.install_url,
     "install_zip": providers_menu.install_zip,
     "install_test": providers_menu.install_test,
@@ -90,7 +93,7 @@ ACTIONS = {
 NOT_DIRECTORIES = {"play", "new_search", "set_sort", "clear_cache", "clear_search", "clear_all",
                    "home_menu_edit", "wizard", "clean_install", "settings", "create_list", "rename_list",
                    "trakt_menu", "trakt_sign_in", "trakt_sign_out", "sync_now", "sync_forget", "sync_rebuild",
-                   "providers_open", "install_url", "install_zip", "install_test", "providers_all", "provider_toggle",
+                   "providers_open", "premiumize_status", "install_url", "install_zip", "install_test", "providers_all", "provider_toggle",
                    "package_toggle", "package_settings", "package_update", "package_updates", "package_rollback",
                    "package_uninstall", "sort_rules", "clear_results", "window_test"}
 DIRECTORY_ACTIONS = set(ACTIONS) - NOT_DIRECTORIES

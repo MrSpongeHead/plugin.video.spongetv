@@ -104,6 +104,8 @@ def context_menu(plugin, media, tmdb_id, signed_in=False):
     related = plugin.url(action="related", media=media, tmdb_id=tmdb_id)
     cast = plugin.url(action="cast", media=media, tmdb_id=tmdb_id)
     entries = [trakt_entry(plugin, media=media, tmdb_id=tmdb_id)] if signed_in else []
+    if media == "tv":
+        entries.append((kodi.text("play_next_episode"), f"PlayMedia({plugin.url(action='play_show', tmdb_id=tmdb_id)})"))
     return entries + [(kodi.text("related_titles"), f"Container.Update({related})"),
                       (kodi.text("cast_and_crew"), f"Container.Update({cast})")]
 

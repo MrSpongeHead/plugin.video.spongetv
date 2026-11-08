@@ -1,10 +1,19 @@
 {
   "name": "SpongeTVTest",
   "author": "SpongeTV",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "remote_meta": "",
   "update_directory": "",
   "settings": [
-    {"id": "example", "type": "bool", "label": "Example setting (changes nothing; for trying Package settings)", "default": true, "visible": true}
+    {
+      "id": "example",
+      "type": "bool",
+      "label": "Example setting (changes nothing; for trying Package settings)",
+      "default": true,
+      "visible": true
+    }
+  ],
+  "off_by_default": [
+    "direct/testvideo"
   ]
 }

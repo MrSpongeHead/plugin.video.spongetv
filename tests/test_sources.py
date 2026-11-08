@@ -6,7 +6,6 @@ import hashlib
 import io
 import json
 import os
-import sys
 import zipfile
 
 import pytest
@@ -16,7 +15,7 @@ from resources.lib import choose, context, providers_menu, ranking, router, wind
 from resources.lib.database import Store
 from resources.lib.http import Response
 from resources.lib.packages import Package, PackageError, Packages, version_tuple
-from resources.lib.sources import (EarlyStop, Search, Source, episode_request, movie_request, normalise, quality_of,
+from resources.lib.sources import (EarlyStop, Search, episode_request, movie_request, normalise, quality_of,
                                    request_key, tags_of)
 from test_menus import FakeTmdb, call  # noqa: F401  (fixtures below reuse the fake TMDB)
 
@@ -66,8 +65,9 @@ def test_install_the_test_provider_finds_its_providers(store, tmp_path):
     package = manager.install(providers_menu.zip_folder(TEST_PACKAGE))
     assert package.name == "SpongeTVTest"
     names = sorted(p["name"] for p in manager.providers("SpongeTVTest"))
-    assert names == ["broken", "sample", "slow"]
-    assert all(p["enabled"] for p in manager.providers())
+    assert names == ["broken", "sample", "slow", "testvideo"]
+    enabled = {p["name"]: p["enabled"] for p in manager.providers()}
+    assert enabled == {"broken": 1, "sample": 1, "slow": 1, "testvideo": 0}    # the test video starts off
     assert manager.settings("SpongeTVTest")[0]["id"] == "example"
 
 
@@ -421,8 +421,9 @@ def test_play_searches_then_offers_sources(with_test_provider):
     FakeDialog.script = [1]    # the first source (row 0 is "Filter and sort")
     call("?action=play&media=movie&tmdb_id=7")
     assert Directory.resolved is False
-    picked = [m for kind, m in FakeDialog.shown if kind == "notification" and "You chose" in m]
-    assert picked and "Playback arrives in stage 4" in picked[0]
+    # without a Premiumize API key the torrent can't be played, and SpongeTV says how to fix that
+    assert ("ok", "Add your Premiumize API key in Settings, Accounts. It's on your Premiumize account page.") \
+        in FakeDialog.shown
     s = context.App().store
     saved = s.cache_get("sources:movie:7")
     assert saved and all(x["provider"] == "sample" for x in saved)
@@ -441,7 +442,7 @@ def test_play_reuses_saved_results(with_test_provider, monkeypatch):
 def test_play_an_episode(with_test_provider):
     FakeDialog.script = [1]
     call("?action=play&media=episode&tmdb_id=50&season=1&episode=1")
-    assert any("You chose" in m for kind, m in FakeDialog.shown if kind == "notification")
+    assert any("Premiumize API key" in m for kind, m in FakeDialog.shown if kind == "ok")
 
 
 def test_providers_menu_lists_packages(with_test_provider):
@@ -450,7 +451,7 @@ def test_providers_menu_lists_packages(with_test_provider):
     call("?action=packages")
     labels = [i[1].label for i in Directory.items]
     assert labels[:2] == ["Turn every provider on", "Turn every provider off"]
-    assert labels[2] == "SpongeTVTest 1.0.0  (2 of 3 on)"
+    assert labels[2] == "SpongeTVTest 1.1.0  (2 of 4 on)"
     call("?action=package&name=SpongeTVTest")
     labels = [i[1].label for i in Directory.items]
     assert any(label.startswith("[Off]  slow") for label in labels)
@@ -462,7 +463,7 @@ def test_window_tests_appear_only_for_developers(with_test_provider):
     assert not any("Window test" in i[1].label for i in Directory.items)
     FakeAddon.settings["developer.window_tests"] = True
     call("?action=tools")
-    assert sum("Window test" in i[1].label for i in Directory.items) == 3
+    assert sum("Window test" in i[1].label for i in Directory.items) == 5
     FakeDialog.script = [-1]
     call("?action=window_test&window=select")    # falls back to the simple dialog in tests, and closes
 

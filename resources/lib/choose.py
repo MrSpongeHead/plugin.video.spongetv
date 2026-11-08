@@ -11,6 +11,7 @@ from resources.lib import artwork, kodi, ranking, windows
 from resources.lib import sources as found_sources
 from resources.lib.http import HttpError
 from resources.lib.packages import Packages
+from resources.lib.premiumize import PremiumizeError
 from resources.lib.sources import EarlyStop, Search, Source, episode_request, movie_request, request_key
 
 EARLY_QUALITIES = ["4K", "1080p", "720p", "SD"]
@@ -23,10 +24,10 @@ def packages(app):
     return manager
 
 
-def early_stop():
+def early_stop(ready_only=False):
     index = kodi.setting_int("early.quality")
     quality = EARLY_QUALITIES[index] if 0 <= index < len(EARLY_QUALITIES) else "1080p"
-    return EarlyStop(kodi.setting_bool("early.enabled"), quality, kodi.setting_int("early.count") or 5)
+    return EarlyStop(kodi.setting_bool("early.enabled"), quality, kodi.setting_int("early.count") or 5, ready_only)
 
 
 # -- filters ---------------------------------------------------------------------------------------
@@ -34,9 +35,10 @@ def filter_rules():
     """(label for the Filter button, the rules)"""
     preset = kodi.setting_int("filter.preset")
     if preset in ranking.PRESETS:
-        return kodi.text(PRESET_KEYS[preset]), ranking.PRESETS[preset]
+        return kodi.text(PRESET_KEYS[preset]), dict(ranking.PRESETS[preset],
+                                                    ready_only=kodi.setting_bool("sources.hide_uncached"))
     rules = ranking.custom_filter((kodi.setting_bool, lambda sid: float(kodi.setting_int(sid))))
-    return kodi.text("preset_custom"), rules
+    return kodi.text("preset_custom"), dict(rules, ready_only=kodi.setting_bool("sources.hide_uncached"))
 
 
 def pick_filter():
@@ -115,11 +117,47 @@ def _request_for(app, params):
     return episode_request(show, episode), title, meta, art.get("poster", ""), art.get("fanart", "")
 
 
-def find_and_choose(plugin, app):
-    """The play action for stage 3: search, then Source Select. Returns the chosen source (or None)."""
-    windows.close_busy()
+CLOUD_PROVIDER = {"package": "Premiumize", "language": "en", "kind": "cloud", "name": "Your cloud"}
+
+
+def _call_with_cloud(app):
+    """Providers as usual, plus your Premiumize cloud as one more 'provider'."""
+    def call(provider, request, host_lists):
+        if provider["kind"] != "cloud":
+            return found_sources.call_provider(provider, request, host_lists)
+        return [{"url": f"pmcloud:{f['id']}", "release_title": f["name"], "size": f["size"] / 1048576, "debrid": "cloud"}
+                for f in app.premiumize.cloud_search(request)]
+    return call
+
+
+def _host_lists(app):
+    if not kodi.setting_bool("premiumize.hosters") or not app.premiumize.ready:
+        return [], []
     try:
-        request, title, meta, poster, fanart = _request_for(app, plugin.params)
+        return app.premiumize.hosts(), []
+    except PremiumizeError as error:
+        kodi.log(f"Couldn't get Premiumize's hosters: {error}")
+        return [], []
+
+
+def _checker(app):
+    """Marks sources ready / not cached with Premiumize, or None without an API key."""
+    client = app.premiumize
+    if not client.ready:
+        return None
+    use_torrents, use_hosters = kodi.setting_bool("premiumize.torrents"), kodi.setting_bool("premiumize.hosters")
+
+    def check(sources):
+        wanted = [s for s in sources if (s["type"] == "torrent" and use_torrents) or (s["type"] == "hosters" and use_hosters)]
+        client.mark_ready(wanted)
+    return check
+
+
+def find_sources(app, params, prepared=None):
+    """Search (or reuse recent results). Returns (request, title, meta, poster, fanart, results, clear) or None.
+    prepared: (request, title, meta, poster, fanart) instead of looking the title up on TMDB (window tests)."""
+    try:
+        request, title, meta, poster, fanart = prepared or _request_for(app, params)
     except HttpError:
         kodi.notify(kodi.text("tmdb_unreachable"))
         return None
@@ -130,17 +168,28 @@ def find_and_choose(plugin, app):
     saved = app.store.cache_get(key) if hours > 0 else None
     if saved:
         results = [Source(s) for s in saved]
+        checker = _checker(app)
+        if checker:    # readiness changes faster than the results: check again
+            try:
+                checker([s for s in results if s.get("debrid") != "cloud"])
+            except PremiumizeError as error:
+                kodi.log(f"Couldn't check saved sources: {error}")
     else:
+        if app.premiumize.ready and kodi.setting_bool("premiumize.cloud"):
+            providers = providers + [CLOUD_PROVIDER]
         if not providers:
             kodi.notify(kodi.text("no_providers"))
             return None
-        early = early_stop()
+        checker = _checker(app)
+        early = early_stop(ready_only=checker is not None)
         search = Search(providers, request, timeout=max(kodi.setting_int("sources.timeout"), 5), early_stop=early,
-                        record=lambda p, status, count: manager.record_result(p["package"], p["kind"], p["name"],
-                                                                             status, count)).start()
+                        host_lists=_host_lists(app), call=_call_with_cloud(app), checker=checker,
+                        record=lambda p, status, count: p["kind"] == "cloud" or manager.record_result(
+                            p["package"], p["kind"], p["name"], status, count)).start()
         outcome = windows.run_search(search, title, fanart, early)
         if outcome == "cancelled":
             return None
+        search.check_new()
         results = search.results()
         if results and hours > 0:
             app.store.cache_set(key, [dict(s) for s in results], hours * 3600)
@@ -151,20 +200,12 @@ def find_and_choose(plugin, app):
     def clear():
         app.store.cache_delete(key)
         kodi.notify(kodi.text("results_cleared"))
-    chooser = windows.Chooser(results, request["media"], title, meta, poster, fanart, filter_rules,
-                              lambda: ranking.load_rules(app.store),
-                              {"filter": pick_filter, "sort": lambda: edit_sort_rules(app.store), "clear": clear})
-    choice = windows.choose_source(chooser)
-    if choice:
-        kodi.notify(kodi.text("chosen_stage_four", quality=choice["quality"], provider=choice.get("provider", "")), 6000)
-    return choice
+    return request, title, meta, poster, fanart, results, clear
 
 
 def play(plugin, app):
-    try:
-        find_and_choose(plugin, app)
-    finally:
-        plugin.resolve_nothing()
+    from resources.lib import playback
+    playback.play(plugin, app)
 
 
 def clear_results(plugin, app):
@@ -194,6 +235,33 @@ def sample_sources():
 def window_test(plugin, app):
     """Open a window with made-up data, to check how it looks (Settings, Advanced, developer)."""
     which = plugin.params.get("window", "select")
+    if which == "next":   # the Playing Next card, counting down from 20 seconds
+        from resources.lib import smartplay
+        import xbmc
+        window = smartplay.PlayingNextWindow(smartplay.NEXT_XML, kodi.ADDON_PATH, "Default", "1080i")
+        values = {"heading": kodi.text("playing_next"), "show": "Harbour Lights",
+                  "episode": kodi.text("next_episode_line", season=2, episode=5, title="The Long Tide"),
+                  "thumb": kodi.FANART, "play_now": kodi.text("play_now"), "stop_after": kodi.text("stop_after")}
+        for key, value in values.items():
+            window.setProperty(key, value)
+        window.show()
+        monitor = xbmc.Monitor()
+        for tenth in range(200, -1, -1):
+            status = kodi.text("next_ready") if tenth < 150 else kodi.text("next_finding")
+            window.setProperty("status", kodi.text("next_countdown", seconds=tenth // 10, status=status))
+            try:
+                window.getControl(4100).setPercent(tenth / 2)
+            except (RuntimeError, TypeError):
+                pass
+            if window.choice or monitor.waitForAbort(0.1):
+                break
+        window.close()
+        del window
+        return
+    if which == "play":   # the real play pipeline for a made-up film (no TMDB needed)
+        from resources.lib import playback
+        playback.play(plugin, app, target=playback.Target.sample())
+        return
     if which == "live":   # a real search with your providers, for a made-up film (no TMDB needed)
         request = movie_request({"id": 0, "title": "The Lighthouse Keeper", "release_date": "2024-05-01",
                                  "imdb_id": "tt0000000"})

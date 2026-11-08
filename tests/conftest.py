@@ -55,6 +55,9 @@ class FakeListItem:
     def setArt(self, art):
         self.art.update(art)
 
+    def setPath(self, path):
+        self.path = path
+
     def setProperty(self, key, value):
         self.properties[key] = value
 
@@ -74,7 +77,7 @@ class FakeDialog:
         FakeDialog.shown.append(("ok", message))
         return True
 
-    def yesno(self, heading, message, nolabel="", yeslabel=""):
+    def yesno(self, heading, message, nolabel="", yeslabel="", autoclose=0, defaultbutton=None):
         FakeDialog.shown.append(("yesno", message))
         return self._next(False)
 
@@ -189,14 +192,55 @@ def _install_stubs():
     xbmc.Monitor = Monitor
 
     class Player:
+        """Plays nothing unless a test gives it a script: [(position, total), ...] then stops."""
+        script = []
+
+        def __init__(self, *args, **kwargs):
+            self.positions = list(Player.script)
+            self.seeks = []
+
         def isPlaying(self):
-            return False
+            return bool(getattr(self, "positions", []))
+
+        isPlayingVideo = isPlaying
+
+        def getTime(self):
+            position = self.positions.pop(0)
+            return position[0]
+
+        def getTotalTime(self):
+            return self.positions[0][1] if self.positions else 0
+
+        def seekTime(self, seconds):
+            self.seeks.append(seconds)
     xbmc.Player = Player
+    xbmc.jsonrpc = []
+
+    def execute_jsonrpc(request):
+        xbmc.jsonrpc.append(request)
+        return '{"id": 1, "jsonrpc": "2.0", "result": "OK"}'
+    xbmc.executeJSONRPC = execute_jsonrpc
+
+    class Window:
+        properties = {}
+
+        def __init__(self, window_id=10000):
+            pass
+
+        def setProperty(self, key, value):
+            Window.properties[key] = value
+
+        def getProperty(self, key):
+            return Window.properties.get(key, "")
+
+        def clearProperty(self, key):
+            Window.properties.pop(key, None)
 
     xbmcaddon = types.ModuleType("xbmcaddon")
     xbmcaddon.Addon = FakeAddon
 
     xbmcgui = types.ModuleType("xbmcgui")
+    xbmcgui.Window = Window
     xbmcgui.ListItem = FakeListItem
     xbmcgui.Dialog = FakeDialog
     xbmcgui.DialogProgress = FakeProgress
@@ -246,6 +290,9 @@ def fresh_state(tmp_path, monkeypatch):
     Directory.content = None
     Directory.resolved = None
     Directory.builtins = []
+    sys.modules["xbmc"].Player.script = []
+    sys.modules["xbmc"].jsonrpc.clear()
+    sys.modules["xbmcgui"].Window.properties.clear()
     from resources.lib import kodi
     monkeypatch.setattr(kodi, "PROFILE", str(tmp_path))
     # Provider packages import from the profile folder, which is new for every test.

@@ -103,6 +103,11 @@ class App:
         return self.trakt.configured and self.trakt.signed_in
 
     @property
+    def premiumize(self):
+        from resources.lib.premiumize import Premiumize
+        return Premiumize(self.http, kodi.setting_str("premiumize.api_key"), self.store)
+
+    @property
     def fanart(self):
         return Fanart(self.key("fanart"), self.http, self.store)
 

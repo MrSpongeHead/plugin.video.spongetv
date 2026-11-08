@@ -203,15 +203,23 @@ def call_provider(provider, request, host_lists=([], [])):
 
 
 # -- the search ---------------------------------------------------------------------------------------
+def is_ready(source):
+    """Playable straight away: in your cloud, cached at Premiumize, or a direct link."""
+    return source.get("debrid") in ("cloud", "cached") or source.get("type") in ("direct", "adaptive")
+
+
 class EarlyStop:
     """"Stop after <count> sources at <quality> or better." count 0 = never stop early."""
 
-    def __init__(self, enabled=True, quality="1080p", count=5):
+    def __init__(self, enabled=True, quality="1080p", count=5, ready_only=False):
         self.enabled = enabled and count > 0
         self.quality = quality
         self.count = count
+        self.ready_only = ready_only   # with Premiumize, only sources that can play straight away count
 
     def good(self, source):
+        if self.ready_only and not is_ready(source):
+            return False
         return QUALITY_RANK.get(source["quality"], 99) <= QUALITY_RANK.get(self.quality, 99)
 
     def progress(self, sources):
@@ -224,8 +232,10 @@ class EarlyStop:
 class Search:
     """Runs providers in the background. Poll status() from the window; read results() at the end."""
 
+    CHECK_EVERY = 0.5
+
     def __init__(self, providers, request, timeout=30, early_stop=None, host_lists=([], []), call=call_provider,
-                 clock=time.time, record=None):
+                 clock=time.time, record=None, checker=None):
         self.providers = list(providers)
         self.request = request
         self.timeout = timeout
@@ -241,6 +251,10 @@ class Search:
         self.cancelled = False
         self.stopped_early = False
         self.started = None
+        self.checker = checker            # marks sources ready or not (Premiumize); may raise
+        self._checked = set()
+        self._check_lock = threading.Lock()
+        self.check_failed = False
 
     @staticmethod
     def _label(provider):
@@ -251,7 +265,33 @@ class Search:
         for provider in self.providers:
             self.statuses[self._label(provider)] = "searching"
             threading.Thread(target=self._run, args=(provider,), daemon=True).start()
+        if self.checker:
+            threading.Thread(target=self._keep_checking, daemon=True).start()
         return self
+
+    def _keep_checking(self):
+        while not self.cancelled and not self.check_failed:
+            self.check_new()
+            if self.finished:
+                return
+            time.sleep(self.CHECK_EVERY)
+
+    def check_new(self):
+        """Ask the checker about sources it hasn't seen yet. Safe to call from any thread."""
+        if not self.checker or self.check_failed:
+            return
+        with self._check_lock:
+            with self._lock:
+                new = [s for k, s in self._sources.items() if k not in self._checked]
+            if not new:
+                return
+            try:
+                self.checker(new)
+            except Exception as error:   # Premiumize trouble: keep the sources, just unchecked
+                kodi.log_error(f"Checking sources failed: {error}")
+                self.check_failed = True
+            with self._lock:
+                self._checked.update(s.key for s in new)
 
     def _run(self, provider):
         try:
@@ -328,7 +368,8 @@ class Search:
                 "done": done, "counts": counts, "found": len(sources), "finished": self.finished,
                 "early": (self.early_stop.progress(sources), self.early_stop.count) if self.early_stop.enabled else None,
                 "searching": [label.split("/")[-1] for label, s in self.statuses.items() if s == "searching"],
-                "stopped_early": self.stopped_early}
+                "stopped_early": self.stopped_early,
+                "ready": sum(1 for s in sources if is_ready(s)) if self.checker else None}
 
     def results(self):
         with self._lock:

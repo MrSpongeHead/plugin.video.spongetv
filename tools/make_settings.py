@@ -126,6 +126,12 @@ def render():
                      + action("action.trakt_sign_in", "trakt_sign_in", "trakt_sign_in")
                      + action("action.trakt_sign_out", "trakt_sign_out", "trakt_sign_out")
                      + hidden_text("trakt.token") + hidden_text("trakt.username"))
+    accounts += group("premiumize", "grp_premiumize",
+                      key("premiumize.api_key", "set_premiumize_key")
+                      + boolean("premiumize.torrents", "set_pm_torrents", True)
+                      + boolean("premiumize.hosters", "set_pm_hosters", True)
+                      + boolean("premiumize.cloud", "set_pm_cloud", True)
+                      + action("action.premiumize_status", "premiumize_status", "premiumize_status"))
     accounts += group("keys", "grp_keys", key("tmdb.api_key", "set_tmdb_key") + key("fanart.api_key", "set_fanart_key")
                       + key("omdb.api_key", "set_omdb_key") + action("action.wizard", "run_wizard", "wizard"))
     custom_only = visible_if("filter.preset", 0)
@@ -135,7 +141,8 @@ def render():
                     + choice("early.quality", "set_early_quality", ["q_4k", "q_1080p", "q_720p", "q_sd"], 1,
                              extra=visible_if("early.enabled", "true"))
                     + number("early.count", "set_early_count", 5, 1, 50, step=1, slider=True, level=0)
-                    + number("sources.cache_hours", "set_cache_hours", 3, 0, 24, step=1, slider=True, level=0))
+                    + number("sources.cache_hours", "set_cache_hours", 3, 0, 24, step=1, slider=True, level=0)
+                    + boolean("sources.hide_uncached", "set_hide_uncached", True))
     # The custom filter settings share the preset's group, so nothing is left behind when they hide.
     sources += group("filter", "grp_filter",
                      choice("filter.preset", "set_filter_preset", ["preset_custom", "preset_4k_hdr", "preset_1080p",
@@ -158,6 +165,14 @@ def render():
                      choice("packages.updates", "set_package_updates", ["updates_off", "updates_tell", "updates_install"], 1)
                      + action("action.providers", "open_providers", "providers_open")
                      + hidden_text("packages.last_url"))
+    playback = group("play_choice", "grp_play_choice",
+                     choice("play.movies", "set_play_movies", ["play_source_select", "play_auto"], 0)
+                     + choice("play.episodes", "set_play_episodes", ["play_source_select", "play_auto"], 0)
+                     + number("play.attempts", "set_play_attempts", 3, 1, 10, step=1, slider=True, level=0))
+    playback += group("play_next", "grp_play_next",
+                      boolean("play.next", "set_play_next", True)
+                      + number("play.next_seconds", "set_next_seconds", 30, 10, 120, step=5, slider=True, level=0)
+                      + number("play.still_watching", "set_still_watching", 3, 0, 10, step=1, slider=True, level=0))
     views = "".join(number(f"view.{v}", f"set_view_{v}", 0, 0, 9999) for v in ("movies", "tvshows", "seasons", "episodes"))
     advanced = group("views", "grp_views", views)
     advanced += group("performance", "grp_performance",
@@ -171,6 +186,7 @@ def render():
     advanced += group("developer", "grp_developer", boolean("developer.window_tests", "set_window_tests", False, level=3))
     body = (category("general", "cat_general", general) + category("artwork", "cat_artwork", art)
             + category("sources", "cat_sources", sources)
+            + category("playback", "cat_playback", playback)
             + category("accounts", "cat_accounts", accounts) + category("advanced", "cat_advanced", advanced))
     return ('<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n<settings version="1">\n'
             '    <section id="plugin.video.spongetv">\n' + body + '    </section>\n</settings>\n')

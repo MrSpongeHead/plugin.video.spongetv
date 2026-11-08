@@ -46,7 +46,7 @@ def search_properties(status, title, early):
         "count_720p": str(status["counts"]["720p"]),
         "count_other": str(status["counts"]["Other"]),
         "other_label": kodi.text("quality_other"),
-        "ready_line": "",   # "N ready to play now" arrives with Premiumize in stage 4
+        "ready_line": (kodi.text("ready_now", count=status["ready"]) if status.get("ready") is not None else ""),
         "early_line": (kodi.text("early_stop_line", got=min(status["early"][0], status["early"][1]),
                                  count=status["early"][1], quality=early.quality)
                        if status["early"] else kodi.text("early_stop_off")),

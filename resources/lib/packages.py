@@ -339,10 +339,17 @@ class Packages:
         except Exception as error:   # a package's own code failed to load
             found, problem = [], f"{type(error).__name__}: {error}"
         enabled = {(p["language"], p["kind"], p["name"]): p["enabled"] for p in self.providers(name)}
+        rows = self.store.query("SELECT meta FROM packages WHERE name = ?", (name,))
+        try:
+            meta = json.loads(rows[0][0] or "{}") if rows else {}
+        except ValueError:
+            meta = {}
+        off = set(meta.get("off_by_default") or [])   # SpongeTV's own extra: providers that start switched off
         self.store.execute("DELETE FROM providers WHERE package = ?", (name,))
         for language, kind, provider in found:
+            default = 0 if f"{kind}/{provider}" in off else 1
             self.store.execute("INSERT INTO providers (package, language, kind, name, enabled) VALUES (?, ?, ?, ?, ?)",
-                               (name, language, kind, provider, enabled.get((language, kind, provider), 1)))
+                               (name, language, kind, provider, enabled.get((language, kind, provider), default)))
         self.store.execute("UPDATE packages SET problem = ? WHERE name = ?", (problem, name))
         return found
 

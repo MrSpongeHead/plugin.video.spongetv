@@ -10,7 +10,7 @@ TMDB_CHECK = "https://api.themoviedb.org/3/configuration"
 FANART_CHECK = "https://webservice.fanart.tv/v3/movies/603"   # The Matrix: always present
 OMDB_CHECK = "https://www.omdbapi.com/"
 
-SERVICES = {"tmdb": "TMDB", "fanart": "Fanart.tv", "omdb": "OMDb"}
+SERVICES = {"tmdb": "TMDB", "fanart": "Fanart.tv", "omdb": "OMDb", "premiumize": "Premiumize"}
 
 
 def _check(http, url, params):
@@ -30,6 +30,13 @@ def check(name, http, key):
         return _check(http, FANART_CHECK, {"api_key": key})
     if name == "omdb":
         return _check(http, OMDB_CHECK, {"apikey": key, "i": "tt0133093"})
+    if name == "premiumize":
+        from resources.lib.premiumize import Premiumize, PremiumizeError
+        try:
+            Premiumize(http, key).account()
+        except PremiumizeError as error:
+            return False if error.kind == "bad_key" else None
+        return True
     raise ValueError(name)
 
 
