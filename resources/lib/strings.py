@@ -190,6 +190,7 @@ STRINGS = {
     "list_renamed": (30423, "List renamed to \"{name}\""),
     "next_page_plain": (30495, "Next page ({page})"),
     "season_progress": (30424, "{watched} of {aired} watched"),
+    "season_with_count": (30497, "{name} ({watched}/{aired})"),
     "next_up_empty": (30425, "You're up to date: no aired episodes left to watch"),
     "today": (30427, "Today"),
     "tomorrow": (30428, "Tomorrow"),

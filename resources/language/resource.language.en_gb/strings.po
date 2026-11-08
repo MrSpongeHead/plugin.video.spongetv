@@ -975,6 +975,10 @@ msgctxt "#30496"
 msgid "Connect SpongeTV to Trakt? You'll need the Client ID of a Trakt app you've created."
 msgstr ""
 
+msgctxt "#30497"
+msgid "{name} ({watched}/{aired})"
+msgstr ""
+
 msgctxt "#30500"
 msgid "Your Trakt sign-in has ended. Sign in again from Tools, Accounts and API keys."
 msgstr ""

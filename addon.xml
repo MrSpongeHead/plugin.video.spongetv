@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.2.6" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.2.7" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.2.6: SpongeTV's Trakt Client ID is built in, so signing in only needs the code at trakt.tv/activate. You can still use your own Trakt app in Settings, Accounts.
+        <news>0.2.7: Seasons show how many aired episodes you've watched in their name, such as Season 1 (7/10), so it appears in every view and sort order.
+0.2.6: SpongeTV's Trakt Client ID is built in, so signing in only needs the code at trakt.tv/activate. You can still use your own Trakt app in Settings, Accounts.
 0.2.5: Your own and liked Trakt lists are read fresh each time, so lists created, deleted or changed on trakt.tv show straight away.
 0.2.4: Trending and Popular lists, and big lists, now open quickly: they load a page at a time with a Next page item. Adding to or removing from a list shows straight away.
 0.2.3: Upcoming and Recent episodes start each line with when it airs or aired, in your time zone (Today 21:00, Tomorrow 02:00, Sat 14 Nov 20:00).

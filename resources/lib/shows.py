@@ -47,6 +47,9 @@ def seasons(plugin, app):
         url = plugin.url(action="episodes", tmdb_id=tmdb_id, season=number)
         mark = marks.season(show, number)
         progress = kodi.text("season_progress", watched=mark[0], aired=mark[1]) if marks.active and mark[1] else ""
+        if progress:
+            # In the name itself: Kodi replaces the second column with whatever the list is sorted by.
+            label = kodi.text("season_with_count", name=label, watched=min(mark[0], mark[1]), aired=mark[1])
         menu = [menus.trakt_entry(plugin, media="season", show=show["id"], season=number)] if marks.active else None
         items.append((url, listing.season_item(show, season, art, label, mark, progress, menu), True))
     plugin.finish(items, content="seasons", category=show.get("name", ""), view_setting="view.seasons")

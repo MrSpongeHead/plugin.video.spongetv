@@ -139,7 +139,8 @@ def test_show_and_season_progress(world):
     assert "setPlaycount" in shows["Show 53"].tag.calls
     call("?action=seasons&tmdb_id=51")
     seasons = {i[1].label: i[1] for i in Directory.items}
-    assert seasons["Season 1"].label2 == "2 of 3 watched"
+    assert set(seasons) == {"Season 1 (2/3)", "Season 2 (0/1)"}   # in the name, so every view shows it
+    assert seasons["Season 1 (2/3)"].label2 == "2 of 3 watched"
 
 
 def test_hide_watched_per_menu(world):
