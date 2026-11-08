@@ -461,12 +461,19 @@ def test_advanced_artwork_sizes(ready):
     assert preset == {"name": "advanced", "poster": "w342", "fanart": "original", "still": "original", "extras": False}
 
 
-def test_no_key_in_zip():
+def test_zip_holds_only_the_trakt_client_id(tmp_path, monkeypatch):
+    import json
     import zipfile
     from tools import build
-    out = build.main()
-    with zipfile.ZipFile(out) as archive:
-        assert not any(name.endswith("_keys.json") for name in archive.namelist())
+    root = tmp_path / "addon"
+    import shutil
+    shutil.copytree(build.ROOT, root, ignore=shutil.ignore_patterns("dist", ".git", "tests", "keys.local.json"))
+    (root / "keys.local.json").write_text(json.dumps({"trakt": "public-id", "tmdb": "private", "omdb": "x"}))
+    monkeypatch.setattr(build, "ROOT", str(root))
+    with zipfile.ZipFile(build.main()) as archive:
+        assert json.loads(archive.read("plugin.video.spongetv/resources/lib/_keys.json")) == {"trakt": "public-id"}
+    with zipfile.ZipFile(build.main(with_keys=True)) as archive:   # private test builds only
+        assert "tmdb" in json.loads(archive.read("plugin.video.spongetv/resources/lib/_keys.json"))
 
 
 def test_store_is_shared(tmp_path):

@@ -888,7 +888,7 @@ msgid "Enter your Trakt app's Client ID"
 msgstr ""
 
 msgctxt "#30475"
-msgid "SpongeTV needs your Trakt app's Client ID first. Create an app at developer.trakt.tv/apps, then enter its Client ID in Settings, Accounts."
+msgid "This copy of SpongeTV has no Trakt Client ID built in. Create an app at developer.trakt.tv/apps, then enter its Client ID in Settings, Accounts."
 msgstr ""
 
 msgctxt "#30476"
@@ -960,7 +960,7 @@ msgid "Delete SpongeTV's copy of your Trakt data and download it again? Nothing 
 msgstr ""
 
 msgctxt "#30493"
-msgid "Connect SpongeTV to Trakt? You'll need the Client ID of the Trakt app you created."
+msgid "Connect SpongeTV to Trakt? You'll enter a short code at trakt.tv/activate on your phone or computer."
 msgstr ""
 
 msgctxt "#30494"
@@ -969,6 +969,10 @@ msgstr ""
 
 msgctxt "#30495"
 msgid "Next page ({page})"
+msgstr ""
+
+msgctxt "#30496"
+msgid "Connect SpongeTV to Trakt? You'll need the Client ID of a Trakt app you've created."
 msgstr ""
 
 msgctxt "#30500"
@@ -1024,7 +1028,7 @@ msgid "Trakt"
 msgstr ""
 
 msgctxt "#30521"
-msgid "Trakt app Client ID"
+msgid "Your own Trakt app's Client ID (optional: leave empty to use SpongeTV's)"
 msgstr ""
 
 msgctxt "#30522"

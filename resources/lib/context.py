@@ -88,7 +88,9 @@ class App:
     @property
     def trakt(self):
         if getattr(self, "_trakt", None) is None:
-            self._trakt = Trakt(kodi.setting_str("trakt.client_id").strip(), self.http, SettingsTokens(),
+            # Your own Trakt app's Client ID if you've entered one, otherwise SpongeTV's built-in one.
+            client_id = kodi.setting_str("trakt.client_id").strip() or self._keys.get("trakt", "")
+            self._trakt = Trakt(client_id, self.http, SettingsTokens(),
                                 client_secret=kodi.setting_str("trakt.client_secret").strip(), store=self.store)
         return self._trakt
 

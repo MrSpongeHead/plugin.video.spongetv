@@ -70,10 +70,11 @@ def run(app):
     _optional_key(app, dialog, "fanart", "wizard_fanart_ask")
     _optional_key(app, dialog, "omdb", "wizard_omdb_ask")
 
-    if not app.signed_in and dialog.yesno("SpongeTV", kodi.text("wizard_trakt_ask"),
-                                          nolabel=kodi.text("not_now"), yeslabel=kodi.text("yes")):
-        if accounts.ask_client_id(app, dialog):
-            accounts.sign_in(app, dialog)
+    if not app.signed_in:
+        question = "wizard_trakt_ask" if app.trakt.configured else "wizard_trakt_ask_id"
+        if dialog.yesno("SpongeTV", kodi.text(question), nolabel=kodi.text("not_now"), yeslabel=kodi.text("yes")):
+            if app.trakt.configured or accounts.ask_client_id(app, dialog):
+                accounts.sign_in(app, dialog)
 
     app.store.set_meta(DONE_FLAG, "1")
     dialog.ok(kodi.text("wizard_title"), kodi.text("wizard_done"))

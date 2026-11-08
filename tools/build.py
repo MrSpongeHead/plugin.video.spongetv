@@ -2,9 +2,11 @@
 # Copyright (C) 2026 MrSpongeHead
 """Builds an installable zip in dist/.
 
-The zip contains no API keys: users enter their own in the setup wizard.
-For private testing only, `--with-keys` adds keys from keys.local.json (never committed),
-which looks like: {"tmdb": "...", "fanart": "", "omdb": ""}. Never publish a zip built that way.
+Keys come from keys.local.json (never committed): {"trakt": "...", "tmdb": "...", "fanart": "", "omdb": ""}.
+- The Trakt Client ID is always added: it isn't a secret (Trakt sends it openly with every request
+  and new apps have no secret), and it lets people sign in without creating their own Trakt app.
+- TMDB, Fanart.tv and OMDb keys are private, so users enter their own in the setup wizard. For
+  private testing only, `--with-keys` adds them too. Never publish a zip built that way.
 """
 
 import json
@@ -15,6 +17,7 @@ import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ADDON_ID = "plugin.video.spongetv"
+ALWAYS_INCLUDED = {"trakt"}
 INCLUDE = ["addon.xml", "main.py", "service.py", "LICENSE", "README.md", "resources"]
 SKIP_PARTS = {"__pycache__", ".pytest_cache"}
 
@@ -42,13 +45,11 @@ def files():
 def main(with_keys=False):
     keys_path = os.path.join(ROOT, "keys.local.json")
     keys = {}
-    if not with_keys:
-        pass
-    elif os.path.exists(keys_path):
+    if os.path.exists(keys_path):
         with open(keys_path, encoding="utf-8") as handle:
-            keys = {k: v for k, v in json.load(handle).items() if v}
+            keys = {k: v for k, v in json.load(handle).items() if v and (with_keys or k in ALWAYS_INCLUDED)}
     else:
-        print("Warning: keys.local.json not found; the zip will have no built-in API keys.")
+        print("Warning: keys.local.json not found; the zip will have no built-in Trakt Client ID.")
 
     os.makedirs(os.path.join(ROOT, "dist"), exist_ok=True)
     out = os.path.join(ROOT, "dist", f"{ADDON_ID}-{version()}.zip")

@@ -289,7 +289,7 @@ def test_sign_in_needs_a_client_id(world):
     FakeAddon.settings.update({"trakt.token": "", "trakt.client_id": ""})
     FakeDialog.script = [""]
     call("?action=trakt_sign_in")
-    assert any(m.startswith("SpongeTV needs your Trakt app's Client ID") for kind, m in FakeDialog.shown if kind == "ok")
+    assert any(m.startswith("This copy of SpongeTV has no Trakt Client ID built in") for kind, m in FakeDialog.shown if kind == "ok")
 
 
 def test_wizard_offers_trakt(world):
@@ -390,3 +390,28 @@ def test_list_deleted_on_trakt_disappears_straight_away(world):
     server.lists.pop()                     # deleted on trakt.tv
     call("?action=lists&source=0")
     assert labels() == ["Keep (0)"]
+
+
+def test_built_in_client_id_means_no_client_id_to_enter(world, monkeypatch):
+    monkeypatch.setattr(context, "builtin_keys", lambda: {"trakt": "built-in-id"})
+    FakeAddon.settings.update({"trakt.client_id": "", "trakt.token": ""})
+    assert fresh_app().trakt.client_id == "built-in-id"
+    world[1].device_statuses = [200]
+    call("?action=trakt_sign_in")
+    assert not any(kind == "input" for kind, _ in FakeDialog.shown)
+    assert json.loads(FakeAddon.settings["trakt.token"])["access_token"]
+    FakeAddon.settings["trakt.client_id"] = "my-own-app"   # your own app overrides it
+    assert fresh_app().trakt.client_id == "my-own-app"
+
+
+def test_wizard_with_built_in_client_id(world, monkeypatch):
+    monkeypatch.setattr(context, "builtin_keys", lambda: {"trakt": "built-in-id"})
+    FakeAddon.settings.update({"trakt.client_id": "", "trakt.token": ""})
+    app = fresh_app()
+    app.store.set_meta("wizard_done", "")
+    app.store.close()
+    world[1].device_statuses = [200]
+    FakeDialog.script = [-1, -1, "good", False, False, True]   # ...then "Connect to Trakt?" Yes
+    call("")
+    assert json.loads(FakeAddon.settings["trakt.token"])["access_token"]
+    assert FakeAddon.settings["trakt.client_id"] == ""   # nothing typed, nothing saved

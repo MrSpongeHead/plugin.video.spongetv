@@ -239,7 +239,7 @@ STRINGS = {
     "trakt_sign_out_as": (30472, "Sign out of Trakt ({name})"),
     "trakt_sign_in_steps": (30473, "On your phone or computer, go to {url} and enter this code:[CR][B]{code}[/B][CR]Waiting for you to approve SpongeTV\u2026"),
     "trakt_enter_client_id": (30474, "Enter your Trakt app's Client ID"),
-    "trakt_need_client_id": (30475, "SpongeTV needs your Trakt app's Client ID first. Create an app at developer.trakt.tv/apps, then enter its Client ID in Settings, Accounts."),
+    "trakt_need_client_id": (30475, "This copy of SpongeTV has no Trakt Client ID built in. Create an app at developer.trakt.tv/apps, then enter its Client ID in Settings, Accounts."),
     "trakt_signed_in": (30476, "Signed in to Trakt"),
     "trakt_signed_in_as": (30477, "Signed in to Trakt as {name}"),
     "trakt_sign_out_confirm": (30478, "Sign out of Trakt? Your watched marks and lists will disappear from SpongeTV until you sign in again. Nothing changes on Trakt."),
@@ -257,7 +257,8 @@ STRINGS = {
     "sync_forgotten": (30490, "The next sync will download everything"),
     "sync_rebuild": (30491, "Rebuild local Trakt data"),
     "sync_rebuild_confirm": (30492, "Delete SpongeTV's copy of your Trakt data and download it again? Nothing changes on Trakt."),
-    "wizard_trakt_ask": (30493, "Connect SpongeTV to Trakt? You'll need the Client ID of the Trakt app you created."),
+    "wizard_trakt_ask": (30493, "Connect SpongeTV to Trakt? You'll enter a short code at trakt.tv/activate on your phone or computer."),
+    "wizard_trakt_ask_id": (30496, "Connect SpongeTV to Trakt? You'll need the Client ID of a Trakt app you've created."),
     "not_now": (30494, "Not now"),
     # Trakt messages
     "trakt_err_signed_out": (30500, "Your Trakt sign-in has ended. Sign in again from Tools, Accounts and API keys."),
@@ -274,7 +275,7 @@ STRINGS = {
     "trakt_err_client_id": (30511, "Trakt didn't recognise that Client ID. Check it in Settings, Accounts."),
     # Trakt settings
     "grp_trakt_account": (30520, "Trakt"),
-    "set_trakt_client_id": (30521, "Trakt app Client ID"),
+    "set_trakt_client_id": (30521, "Your own Trakt app's Client ID (optional: leave empty to use SpongeTV's)"),
     "set_trakt_client_secret": (30522, "Trakt app Client Secret (only for older apps)"),
     "grp_trakt": (30523, "Trakt"),
     "set_sync_minutes": (30524, "Sync with Trakt every (minutes)"),
