@@ -49,9 +49,35 @@ def accounts_menu(plugin, app):
         trakt_item = (plugin.url(action="trakt_sign_out"), listing.folder_item(label, kodi.ICON, kodi.FANART), False)
     else:
         trakt_item = _item(plugin, "trakt_sign_in", "trakt_sign_in")
-    items = [trakt_item, _item(plugin, "premiumize_status", "premiumize_status"), _item(plugin, "run_wizard", "wizard"),
-             _item(plugin, "settings", "settings")]
+    token = app.premiumize_token
+    if token:
+        days = token_days_left(token)
+        label = kodi.text("pm_signed_in_status", days=days) if days is not None else kodi.text("pm_signed_in")
+        pm_items = [(plugin.url(action="premiumize_status"), listing.folder_item(label, kodi.ICON, kodi.FANART), False),
+                    _item(plugin, "pm_sign_out", "premiumize_sign_out")]
+    else:
+        pm_items = [_item(plugin, "pm_sign_in", "premiumize_sign_in")]
+        if kodi.setting_str("premiumize.api_key").strip():
+            pm_items.append(_item(plugin, "premiumize_status", "premiumize_status"))
+    items = [trakt_item] + pm_items + [_item(plugin, "run_wizard", "wizard"), _item(plugin, "settings", "settings")]
     plugin.finish(items, category=kodi.text("tools_accounts"), cache=False)
+
+
+def token_days_left(token, now=None):
+    import time
+    expires = token.get("expires_at")
+    return None if not expires else max(0, int((expires - (now or time.time())) // 86400))
+
+
+def premiumize_sign_in(plugin, app):
+    from resources.lib import accounts
+    if accounts.premiumize_sign_in(app):
+        xbmc.executebuiltin("Container.Refresh")
+
+
+def premiumize_sign_out(plugin, app):
+    from resources.lib import accounts
+    accounts.premiumize_sign_out(app)
 
 
 def premiumize_message(error):

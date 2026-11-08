@@ -2,8 +2,8 @@
 # Copyright (C) 2026 MrSpongeHead
 """Premiumize: account status, cache checks, turning a source into a playable link, and your cloud.
 
-Release 1 signs in with your account's API key (Settings, Accounts), sent as a Bearer token as
-Premiumize recommends. https://http.premiumize.me/api
+You sign in with a code at premiumize.me/device (SpongeTV's own client ID), or, at the Expert settings
+level, with your account's API key. Either is sent as a Bearer token. https://http.premiumize.me/api
 """
 
 import re
@@ -19,7 +19,7 @@ SAMPLE = re.compile(r"(^|[\W_])(sample|trailer|extras?|featurettes?)([\W_]|$)", 
 
 
 class PremiumizeError(Exception):
-    """kind: no_key, bad_key, not_premium, unreachable, failed, no_file"""
+    """kind: no_key, bad_key, not_premium, unreachable, failed, no_file, no_client_id, bad_client_id, denied"""
 
     def __init__(self, kind, detail=""):
         super().__init__(f"{kind}: {detail}" if detail else kind)
@@ -215,3 +215,63 @@ def _host_supported(source, hosts):
         match = re.match(r"https?://(?:www\.)?([^/:]+)", url)
         host = match.group(1).lower() if match else ""
     return any(host == h or host.endswith("." + h) or host.split(".")[0] == h.split(".")[0] for h in hosts)
+
+
+# -- signing in with a code (device sign-in) ------------------------------------------------------------
+TOKEN_URL = "https://www.premiumize.me/token"
+DEVICE_URL = "premiumize.me/device"
+
+
+def device_code(http, client_id):
+    """Ask Premiumize for a code to show. {"user_code", "device_code", "verification_uri", "expires_in", "interval"}"""
+    if not client_id:
+        raise PremiumizeError("no_client_id")
+    try:
+        response = http.send("POST", TOKEN_URL, form={"response_type": "device_code", "client_id": client_id})
+    except HttpError as error:
+        raise PremiumizeError("unreachable", str(error)) from error
+    data = response.data if isinstance(response.data, dict) else {}
+    if response.status != 200 or not data.get("device_code"):
+        if response.status in (400, 401, 403):
+            raise PremiumizeError("bad_client_id", data.get("error") or f"HTTP {response.status}")
+        raise PremiumizeError("unreachable", f"HTTP {response.status}")
+    return data
+
+
+def poll_device(http, client_id, code, should_stop=lambda: False, sleep=None, clock=None):
+    """Wait for you to approve the code at premiumize.me/device.
+    Returns {"access_token", "expires_at"}, or None if you cancelled or the code ran out."""
+    import time
+    sleep = sleep or time.sleep
+    clock = clock or time.time
+    interval = max(int(code.get("interval") or 5), 1)
+    deadline = clock() + int(code.get("expires_in") or 600)
+    while clock() < deadline:
+        for _ in range(interval * 4):          # check for Cancel every quarter of a second
+            if should_stop():
+                return None
+            sleep(0.25)
+        try:
+            response = http.send("POST", TOKEN_URL, form={"grant_type": "device_code", "code": code["device_code"],
+                                                          "client_id": client_id})
+        except HttpError:
+            continue                            # a network blip: keep waiting
+        data = response.data if isinstance(response.data, dict) else {}
+        if response.status == 200 and data.get("access_token"):
+            expires_in = data.get("expires_in")
+            return {"access_token": data["access_token"],
+                    "expires_at": int(clock() + int(expires_in)) if expires_in else None}
+        error = data.get("error")
+        if error == "authorization_pending":
+            continue
+        if error == "slow_down":
+            interval += 5
+            continue
+        if error == "access_denied":
+            raise PremiumizeError("denied")
+        if error in ("invalid_grant", "expired_token"):
+            return None
+        if response.status >= 500 or response.status == 429:
+            continue
+        raise PremiumizeError("failed", error or f"HTTP {response.status}")
+    return None

@@ -103,9 +103,25 @@ class App:
         return self.trakt.configured and self.trakt.signed_in
 
     @property
+    def premiumize_client_id(self):
+        """Your own Premiumize client ID if you've entered one (Expert level), otherwise SpongeTV's."""
+        return kodi.setting_str("premiumize.client_id").strip() or self._keys.get("premiumize", "")
+
+    @property
+    def premiumize_token(self):
+        """The code sign-in, {"access_token", "expires_at"}, or {} if you haven't signed in that way."""
+        try:
+            token = json.loads(kodi.setting_str("premiumize.token") or "{}")
+        except ValueError:
+            return {}
+        return token if token.get("access_token") else {}
+
+    @property
     def premiumize(self):
+        """Signed in with a code wins; otherwise the API key from Settings (Expert level)."""
         from resources.lib.premiumize import Premiumize
-        return Premiumize(self.http, kodi.setting_str("premiumize.api_key"), self.store)
+        bearer = self.premiumize_token.get("access_token") or kodi.setting_str("premiumize.api_key")
+        return Premiumize(self.http, bearer, self.store)
 
     @property
     def fanart(self):

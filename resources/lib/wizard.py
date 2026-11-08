@@ -76,5 +76,9 @@ def run(app):
             if app.trakt.configured or accounts.ask_client_id(app, dialog):
                 accounts.sign_in(app, dialog)
 
+    if not app.premiumize.ready and app.premiumize_client_id:
+        if dialog.yesno("SpongeTV", kodi.text("wizard_pm_ask"), nolabel=kodi.text("not_now"), yeslabel=kodi.text("yes")):
+            accounts.premiumize_sign_in(app, dialog)
+
     app.store.set_meta(DONE_FLAG, "1")
     dialog.ok(kodi.text("wizard_title"), kodi.text("wizard_done"))

@@ -2,6 +2,8 @@
 # Copyright (C) 2026 MrSpongeHead
 """Trakt sign-in and sign-out, running a sync, and turning Trakt errors into plain messages."""
 
+import json
+
 import xbmc
 import xbmcgui
 
@@ -116,3 +118,52 @@ def run_sync(app, force=False, visible=False):
     if visible:
         kodi.notify(kodi.text("trakt_sync_busy") if result is None else kodi.text("trakt_sync_done"))
     return result is not None
+
+
+# -- Premiumize -------------------------------------------------------------------------------------------
+PM_MESSAGES = {"no_client_id": "pm_err_no_client_id", "bad_client_id": "pm_err_bad_client_id", "denied": "pm_err_denied",
+               "unreachable": "pm_unreachable", "failed": "pm_unreachable"}
+
+
+def premiumize_sign_in(app, dialog=None):
+    """Code sign-in: show the code, wait for you to approve it at premiumize.me/device."""
+    from resources.lib import premiumize
+    dialog = dialog or xbmcgui.Dialog()
+    client_id = app.premiumize_client_id
+    try:
+        code = premiumize.device_code(app.http, client_id)
+    except premiumize.PremiumizeError as error:
+        dialog.ok(kodi.text("grp_premiumize"), kodi.text(PM_MESSAGES.get(error.kind, "pm_unreachable")))
+        return False
+    url = code.get("verification_uri") or premiumize.DEVICE_URL
+    progress = xbmcgui.DialogProgress()
+    progress.create(kodi.text("pm_sign_in"), kodi.text("pm_sign_in_steps", url=url.replace("https://", ""),
+                                                       code=code.get("user_code", "")))
+    try:
+        token = premiumize.poll_device(app.http, client_id, code, should_stop=progress.iscanceled)
+    except premiumize.PremiumizeError as error:
+        progress.close()
+        dialog.ok(kodi.text("grp_premiumize"), kodi.text(PM_MESSAGES.get(error.kind, "pm_unreachable")))
+        return False
+    progress.close()
+    if not token:
+        return False
+    kodi.set_setting_str("premiumize.token", json.dumps(token))
+    app.store.set_meta("premiumize:last_check", "0")      # the daily check looks at the new sign-in straight away
+    try:
+        client = app.premiumize
+        days = client.days_left(client.account())
+    except Exception:   # signed in either way; the status can wait
+        days = None
+    kodi.notify(kodi.text("pm_signed_in_days", days=days) if days is not None else kodi.text("pm_signed_in"))
+    return True
+
+
+def premiumize_sign_out(app, dialog=None):
+    dialog = dialog or xbmcgui.Dialog()
+    if not dialog.yesno(kodi.text("grp_premiumize"), kodi.text("pm_sign_out_confirm")):
+        return False
+    kodi.set_setting_str("premiumize.token", "")
+    kodi.notify(kodi.text("pm_signed_out"))
+    xbmc.executebuiltin("Container.Refresh")
+    return True

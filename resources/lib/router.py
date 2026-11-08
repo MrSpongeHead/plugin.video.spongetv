@@ -61,6 +61,8 @@ ACTIONS = {
     "tools_providers": providers_menu.menu,
     "providers_open": tools.open_providers,
     "premiumize_status": tools.premiumize_status,
+    "premiumize_sign_in": tools.premiumize_sign_in,
+    "premiumize_sign_out": tools.premiumize_sign_out,
     "install_url": providers_menu.install_url,
     "install_zip": providers_menu.install_zip,
     "install_test": providers_menu.install_test,
@@ -93,7 +95,7 @@ ACTIONS = {
 NOT_DIRECTORIES = {"play", "new_search", "set_sort", "clear_cache", "clear_search", "clear_all",
                    "home_menu_edit", "wizard", "clean_install", "settings", "create_list", "rename_list",
                    "trakt_menu", "trakt_sign_in", "trakt_sign_out", "sync_now", "sync_forget", "sync_rebuild",
-                   "providers_open", "premiumize_status", "install_url", "install_zip", "install_test", "providers_all", "provider_toggle",
+                   "providers_open", "premiumize_status", "premiumize_sign_in", "premiumize_sign_out", "install_url", "install_zip", "install_test", "providers_all", "provider_toggle",
                    "package_toggle", "package_settings", "package_update", "package_updates", "package_rollback",
                    "package_uninstall", "sort_rules", "clear_results", "window_test"}
 DIRECTORY_ACTIONS = set(ACTIONS) - NOT_DIRECTORIES

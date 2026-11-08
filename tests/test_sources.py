@@ -422,8 +422,7 @@ def test_play_searches_then_offers_sources(with_test_provider):
     call("?action=play&media=movie&tmdb_id=7")
     assert Directory.resolved is False
     # without a Premiumize API key the torrent can't be played, and SpongeTV says how to fix that
-    assert ("ok", "Add your Premiumize API key in Settings, Accounts. It's on your Premiumize account page.") \
-        in FakeDialog.shown
+    assert ("ok", "Sign in to Premiumize in Tools, Accounts, or in Settings, Accounts.") in FakeDialog.shown
     s = context.App().store
     saved = s.cache_get("sources:movie:7")
     assert saved and all(x["provider"] == "sample" for x in saved)
@@ -442,7 +441,7 @@ def test_play_reuses_saved_results(with_test_provider, monkeypatch):
 def test_play_an_episode(with_test_provider):
     FakeDialog.script = [1]
     call("?action=play&media=episode&tmdb_id=50&season=1&episode=1")
-    assert any("Premiumize API key" in m for kind, m in FakeDialog.shown if kind == "ok")
+    assert any("Sign in to Premiumize" in m for kind, m in FakeDialog.shown if kind == "ok")
 
 
 def test_providers_menu_lists_packages(with_test_provider):

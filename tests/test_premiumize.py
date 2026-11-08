@@ -163,3 +163,99 @@ def test_daily_expiry_warning(tmp_path, monkeypatch):
     assert ("notification", "Your Premiumize account expires in 5 days") in FakeDialog.shown
     assert service.check_premiumize(store, fake, now + 60) is None    # once a day
     store.close()
+
+
+# -- code sign-in ---------------------------------------------------------------------------------------
+class FakeDevice:
+    """Premiumize's /token: pending twice, asks to slow down once, then approves."""
+
+    def __init__(self, answers):
+        self.answers = list(answers)
+        self.forms = []
+
+    def send(self, method, url, params=None, json_body=None, headers=None, max_wait=None, form=None):
+        self.forms.append(form)
+        if form.get("response_type") == "device_code":
+            if form["client_id"] != "400":
+                return Response(400, {"error": "invalid_client"}, {})
+            return Response(200, {"device_code": "dev", "user_code": "ABCD-EFGH", "expires_in": 600, "interval": 5,
+                                  "verification_uri": "https://www.premiumize.me/device"}, {})
+        status, body = self.answers.pop(0)
+        return Response(status, body, {})
+
+
+def test_device_code_and_bad_client_id():
+    from resources.lib.premiumize import device_code
+    assert device_code(FakeDevice([]), "400")["user_code"] == "ABCD-EFGH"
+    with pytest.raises(PremiumizeError) as error:
+        device_code(FakeDevice([]), "999")
+    assert error.value.kind == "bad_client_id"
+    with pytest.raises(PremiumizeError) as error:
+        device_code(FakeDevice([]), "")
+    assert error.value.kind == "no_client_id"
+
+
+def test_poll_waits_slows_down_then_signs_in():
+    from resources.lib.premiumize import poll_device
+    now = [1000.0]
+    fake = FakeDevice([(400, {"error": "authorization_pending"}), (400, {"error": "slow_down"}),
+                       (400, {"error": "authorization_pending"}),
+                       (200, {"access_token": "tok", "token_type": "Bearer", "expires_in": 3600, "scope": "full"})])
+    slept = []
+
+    def sleep(seconds):
+        slept.append(seconds)
+        now[0] += seconds
+    token = poll_device(fake, "400", {"device_code": "dev", "interval": 5, "expires_in": 600},
+                        sleep=sleep, clock=lambda: now[0])
+    assert token["access_token"] == "tok" and token["expires_at"] == int(now[0]) + 3600
+    assert sum(slept) == 5 + 5 + 10 + 10          # waited longer after "slow down"
+    assert fake.forms[-1] == {"grant_type": "device_code", "code": "dev", "client_id": "400"}
+
+
+def test_poll_refused_expired_and_cancelled():
+    from resources.lib.premiumize import poll_device
+    now = [0.0]
+
+    def sleep(seconds):
+        now[0] += seconds
+    code = {"device_code": "dev", "interval": 5, "expires_in": 600}
+    with pytest.raises(PremiumizeError) as error:
+        poll_device(FakeDevice([(400, {"error": "access_denied"})]), "400", code, sleep=sleep, clock=lambda: now[0])
+    assert error.value.kind == "denied"
+    assert poll_device(FakeDevice([(400, {"error": "invalid_grant"})]), "400", code, sleep=sleep,
+                       clock=lambda: now[0]) is None
+    assert poll_device(FakeDevice([]), "400", code, should_stop=lambda: True, sleep=sleep, clock=lambda: now[0]) is None
+
+
+def test_sign_in_wins_over_api_key_and_sign_out(tmp_path, monkeypatch):
+    import json
+    from conftest import FakeAddon, FakeDialog
+    from resources.lib import accounts, context, premiumize
+    monkeypatch.setattr(context, "builtin_keys", lambda: {"premiumize": "400"})
+    monkeypatch.setattr(premiumize, "device_code", lambda http, cid: {"device_code": "d", "user_code": "AB-CD"})
+    monkeypatch.setattr(premiumize, "poll_device", lambda http, cid, code, should_stop: {"access_token": "tok",
+                                                                                           "expires_at": None})
+    FakeAddon.settings["premiumize.api_key"] = "key"
+    app = context.App()
+    assert app.premiumize_client_id == "400" and app.premiumize.api_key == "key"
+    monkeypatch.setattr(premiumize.Premiumize, "account", lambda self: {"premium_until": None, "limit_used": 0})
+    assert accounts.premiumize_sign_in(app)
+    assert json.loads(FakeAddon.settings["premiumize.token"])["access_token"] == "tok"
+    assert app.premiumize.api_key == "tok"          # the sign-in is used ahead of the API key
+    FakeDialog.script = [True]
+    assert accounts.premiumize_sign_out(app)
+    assert app.premiumize.api_key == "key"
+
+
+def test_daily_check_warns_before_the_sign_in_ends(tmp_path):
+    import json
+    from conftest import FakeAddon, FakeDialog
+    from resources.lib import service
+    store = Store(str(tmp_path / "t.db"))
+    fake = FakePm(key="tok")
+    now = 1000 + 25 * 86400
+    FakeAddon.settings["premiumize.token"] = json.dumps({"access_token": "tok", "expires_at": now + 3 * 86400})
+    service.check_premiumize(store, fake, now)
+    assert ("notification", "Your Premiumize sign-in ends in 3 days. Sign in again in Tools, Accounts.") in FakeDialog.shown
+    store.close()

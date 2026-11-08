@@ -38,9 +38,9 @@ def choice(sid_, label, keys, default, level=0, extra=""):
             f'                    <control type="list" format="string"/>\n                </setting>\n')
 
 
-def key(sid_, label):
+def key(sid_, label, level=0):
     return (f'                <setting id="{sid_}" type="string" label="{sid(label)}">\n'
-            f'                    <level>0</level>\n                    <default/>\n'
+            f'                    <level>{level}</level>\n                    <default/>\n'
             f'                    <constraints>\n                        <allowempty>true</allowempty>\n                    </constraints>\n'
             f'                    <control type="edit" format="string">\n                        <heading>{sid(label)}</heading>\n'
             f'                    </control>\n                </setting>\n')
@@ -122,16 +122,23 @@ def render():
                  + choice("artwork.still_size", "set_still_size", ["size_small_300", "size_original"], 0, extra=advanced_only)
                  + boolean("artwork.extras", "set_extras", True, extra=advanced_only))
     accounts = group("trakt_account", "grp_trakt_account",
-                     key("trakt.client_id", "set_trakt_client_id") + key("trakt.client_secret", "set_trakt_client_secret")
-                     + action("action.trakt_sign_in", "trakt_sign_in", "trakt_sign_in")
+                     action("action.trakt_sign_in", "trakt_sign_in", "trakt_sign_in")
                      + action("action.trakt_sign_out", "trakt_sign_out", "trakt_sign_out")
+                     # SpongeTV's own Client ID is built in: these are only for your own Trakt app (Expert level)
+                     + key("trakt.client_id", "set_trakt_client_id", level=3)
+                     + key("trakt.client_secret", "set_trakt_client_secret", level=3)
                      + hidden_text("trakt.token") + hidden_text("trakt.username"))
     accounts += group("premiumize", "grp_premiumize",
-                      key("premiumize.api_key", "set_premiumize_key")
+                      action("action.pm_sign_in", "pm_sign_in", "premiumize_sign_in")
+                      + action("action.pm_sign_out", "pm_sign_out", "premiumize_sign_out")
                       + boolean("premiumize.torrents", "set_pm_torrents", True)
                       + boolean("premiumize.hosters", "set_pm_hosters", True)
                       + boolean("premiumize.cloud", "set_pm_cloud", True)
-                      + action("action.premiumize_status", "premiumize_status", "premiumize_status"))
+                      + action("action.premiumize_status", "premiumize_status", "premiumize_status")
+                      # Expert level: an API key instead of signing in, or your own registered client ID
+                      + key("premiumize.api_key", "set_premiumize_key", level=3)
+                      + key("premiumize.client_id", "set_pm_client_id", level=3)
+                      + hidden_text("premiumize.token"))
     accounts += group("keys", "grp_keys", key("tmdb.api_key", "set_tmdb_key") + key("fanart.api_key", "set_fanart_key")
                       + key("omdb.api_key", "set_omdb_key") + action("action.wizard", "run_wizard", "wizard"))
     custom_only = visible_if("filter.preset", 0)

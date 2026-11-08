@@ -1740,7 +1740,7 @@ msgid "Premiumize"
 msgstr ""
 
 msgctxt "#30766"
-msgid "Premiumize API key"
+msgid "Premiumize API key (instead of signing in)"
 msgstr ""
 
 msgctxt "#30767"
@@ -1768,11 +1768,11 @@ msgid "This Premiumize account isn't premium, so it can't play sources."
 msgstr ""
 
 msgctxt "#30773"
-msgid "Add your Premiumize API key in Settings, Accounts. It's on your Premiumize account page."
+msgid "Sign in to Premiumize in Tools, Accounts, or in Settings, Accounts."
 msgstr ""
 
 msgctxt "#30774"
-msgid "Premiumize didn't accept the API key. Check it in Settings, Accounts."
+msgid "Premiumize didn't accept SpongeTV's sign-in or API key. Sign in again in Tools, Accounts."
 msgstr ""
 
 msgctxt "#30775"
@@ -1921,4 +1921,64 @@ msgstr ""
 
 msgctxt "#30811"
 msgid "No episode to play next: you've watched everything that's aired"
+msgstr ""
+
+msgctxt "#30812"
+msgid "Sign in to Premiumize"
+msgstr ""
+
+msgctxt "#30813"
+msgid "Sign out of Premiumize"
+msgstr ""
+
+msgctxt "#30814"
+msgid "On your phone or computer, go to[CR][B]{url}[/B][CR]and enter the code [B]{code}[/B]"
+msgstr ""
+
+msgctxt "#30815"
+msgid "Signed in to Premiumize"
+msgstr ""
+
+msgctxt "#30816"
+msgid "Signed in to Premiumize: {days} days of premium left"
+msgstr ""
+
+msgctxt "#30817"
+msgid "Signed out of Premiumize"
+msgstr ""
+
+msgctxt "#30818"
+msgid "Sign out of Premiumize? SpongeTV won't be able to play sources until you sign in again."
+msgstr ""
+
+msgctxt "#30819"
+msgid "SpongeTV's Premiumize client ID is missing from this build. Enter one in Settings, Accounts (Expert level), or use an API key there."
+msgstr ""
+
+msgctxt "#30820"
+msgid "Premiumize didn't accept the client ID. If you entered your own in Settings, Accounts (Expert level), check it."
+msgstr ""
+
+msgctxt "#30821"
+msgid "The sign-in was refused at premiumize.me/device."
+msgstr ""
+
+msgctxt "#30822"
+msgid "Signed in to Premiumize ({days} days left)"
+msgstr ""
+
+msgctxt "#30823"
+msgid "Your own Premiumize client ID (leave blank to use SpongeTV's)"
+msgstr ""
+
+msgctxt "#30824"
+msgid "Sign in to Premiumize now? It's what plays your sources."
+msgstr ""
+
+msgctxt "#30825"
+msgid "Your Premiumize sign-in ends in {days} days. Sign in again in Tools, Accounts."
+msgstr ""
+
+msgctxt "#30826"
+msgid "Premiumize no longer accepts SpongeTV's sign-in. Sign in again in Tools, Accounts."
 msgstr ""

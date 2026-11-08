@@ -17,7 +17,7 @@ import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ADDON_ID = "plugin.video.spongetv"
-ALWAYS_INCLUDED = {"trakt"}
+ALWAYS_INCLUDED = {"trakt", "premiumize"}   # client IDs, not secrets: needed for sign-in
 INCLUDE = ["addon.xml", "main.py", "service.py", "LICENSE", "README.md", "resources"]
 SKIP_PARTS = {"__pycache__", ".pytest_cache"}
 

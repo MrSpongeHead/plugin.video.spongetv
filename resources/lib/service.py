@@ -101,17 +101,25 @@ EXPIRY_WARN_DAYS = 7
 def check_premiumize(store, http, now):
     """Once a day: warn when the Premiumize account has a week or less left. Returns the days left."""
     from resources.lib.premiumize import Premiumize, PremiumizeError
-    client = Premiumize(http, kodi.setting_str("premiumize.api_key"), clock=lambda: now)
+    try:
+        token = json.loads(kodi.setting_str("premiumize.token") or "{}")
+    except ValueError:
+        token = {}
+    bearer = token.get("access_token") or kodi.setting_str("premiumize.api_key")
+    client = Premiumize(http, bearer, clock=lambda: now)
     if not client.ready or now - float(store.get_meta("premiumize:last_check") or 0) < PACKAGE_CHECK_EVERY:
         return None
+    store.set_meta("premiumize:last_check", str(now))
+    if token.get("expires_at"):   # the code sign-in has an end date: say so a week ahead
+        days_to_sign_in = int((token["expires_at"] - now) // 86400)
+        if days_to_sign_in <= EXPIRY_WARN_DAYS:
+            kodi.notify(kodi.text("pm_sign_in_again", days=max(0, days_to_sign_in)), 8000)
     try:
         account = client.account()
     except PremiumizeError as error:
         if error.kind == "bad_key":
-            store.set_meta("premiumize:last_check", str(now))
-            kodi.notify(kodi.text("pm_bad_key"), 8000)
+            kodi.notify(kodi.text("pm_sign_in_expired" if token.get("access_token") else "pm_bad_key"), 8000)
         return None
-    store.set_meta("premiumize:last_check", str(now))
     days = client.days_left(account)
     if days is not None and days <= EXPIRY_WARN_DAYS:
         kodi.notify(kodi.text("pm_expiring", days=days), 8000)
