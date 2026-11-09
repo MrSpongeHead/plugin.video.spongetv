@@ -36,6 +36,13 @@ def _elapsed(seconds):
     return f"{seconds // 60}:{seconds % 60:02d}"
 
 
+def providers_line(status):
+    """'4 of 7 providers finished', and how many found sources your filter hides, so the counts add up."""
+    line = kodi.text("providers_finished", done=status["done"], total=status["total"])
+    hidden = status["found"] - status.get("choosable", status["found"])
+    return line + kodi.text("hidden_by_filter", count=hidden) if hidden > 0 else line
+
+
 def ready_line(status):
     """How many can play straight away, saying so while Premiumize is still being asked."""
     if status.get("ready") is None:
@@ -56,11 +63,12 @@ CHECK_GRACE = 5   # seconds the window stays after the search, while Premiumize 
 def search_properties(status, title, early):
     """What the progress window shows, worked out from Search.status(). Shared by both versions."""
     found = status["found"]
+    choosable = status.get("choosable", found)   # what Source Select will show, after your filter
     lines = {
         "heading": kodi.text("finding_sources"),
         "title": title,
         "elapsed": _elapsed(status["elapsed"]),
-        "providers_line": kodi.text("providers_finished", done=status["done"], total=status["total"]),
+        "providers_line": providers_line(status),
         "count_4k": str(status["counts"]["4K"]),
         "count_1080p": str(status["counts"]["1080p"]),
         "count_720p": str(status["counts"]["720p"]),
@@ -72,9 +80,9 @@ def search_properties(status, title, early):
                        if status["early"] else kodi.text("early_stop_off")),
         "searching_line": (kodi.text("still_searching", names=", ".join(status["searching"][:6]))
                            if status["searching"] else ""),
-        "choose_label": kodi.text("choose_from_found", count=found) if found else kodi.text("waiting_for_sources"),
-        "can_choose": "1" if found else "",
-        "choose_outline": "FFF5A524" if found else "00FFFFFF",   # the amber outline only once it can be chosen
+        "choose_label": kodi.text("choose_from", count=choosable) if choosable else kodi.text("waiting_for_sources"),
+        "can_choose": "1" if choosable else "",
+        "choose_outline": "FFF5A524" if choosable else "00FFFFFF",   # the amber outline only once it can be chosen
         "cancel_label": kodi.text("cancel"),
     }
     percent = int(100 * status["done"] / status["total"]) if status["total"] else 100
@@ -178,9 +186,9 @@ def _run_search_simple(search, title, early, monitor):
             status = search.status()
             lines, percent = search_properties(status, title, early)
             dialog.update(percent, "[CR]".join(x for x in (title, lines["providers_line"], kodi.text(
-                "found_so_far", count=status["found"]), lines["early_line"]) if x))
+                "found_so_far", count=status.get("choosable", status["found"])), lines["early_line"]) if x))
             if dialog.iscanceled():
-                if status["found"]:
+                if status.get("choosable", status["found"]):
                     search.stop_now()
                     outcome = "chosen"
                 else:

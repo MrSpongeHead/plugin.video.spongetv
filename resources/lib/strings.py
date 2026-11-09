@@ -357,7 +357,6 @@ STRINGS = {
     "early_stop_line": (30665, "Stop early: {got} of {count} {quality} sources found"),
     "early_stop_off": (30666, "Stop early is off: waiting for every provider"),
     "still_searching": (30667, "Still searching: {names}"),
-    "choose_from_found": (30668, "Choose from {count} found"),
     "cancel": (30669, "Cancel"),
     "found_so_far": (30670, "{count} found so far (Cancel to choose from them)"),
     "status_cloud": (30671, "In your cloud"),
@@ -517,6 +516,8 @@ STRINGS = {
     "ready_now_checking": (30829, "{count} ready to play now (checking {more} more)"),
     "ready_check_failed": (30830, "Couldn't ask Premiumize which are ready"),
     "waiting_for_sources": (30831, "Waiting for sources…"),
+    "choose_from": (30832, "Choose from {count}"),
+    "hidden_by_filter": (30833, " · {count} hidden by your filter"),
     "window_test_live": (30764, "Window test: real search with your providers (made-up film)"),
 }
 

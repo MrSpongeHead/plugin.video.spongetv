@@ -1351,10 +1351,6 @@ msgctxt "#30667"
 msgid "Still searching: {names}"
 msgstr ""
 
-msgctxt "#30668"
-msgid "Choose from {count} found"
-msgstr ""
-
 msgctxt "#30669"
 msgid "Cancel"
 msgstr ""
@@ -1993,4 +1989,12 @@ msgstr ""
 
 msgctxt "#30831"
 msgid "Waiting for sources…"
+msgstr ""
+
+msgctxt "#30832"
+msgid "Choose from {count}"
+msgstr ""
+
+msgctxt "#30833"
+msgid " · {count} hidden by your filter"
 msgstr ""

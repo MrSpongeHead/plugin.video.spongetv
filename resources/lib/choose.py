@@ -155,6 +155,12 @@ def _checker(app):
     return check
 
 
+def visible_filter(media):
+    """What Source Select will show, for counting in the search window and for early stop."""
+    rules = filter_rules()[1]
+    return lambda sources: ranking.apply_filter(sources, rules, media)
+
+
 def find_sources(app, params, prepared=None, fresh=False):
     """Search (or reuse recent results). Returns (request, title, meta, poster, fanart, results, clear) or None.
     prepared: (request, title, meta, poster, fanart) instead of looking the title up on TMDB (window tests)."""
@@ -191,6 +197,7 @@ def find_sources(app, params, prepared=None, fresh=False):
         early = early_stop(ready_only=checker is not None)
         search = Search(providers, request, timeout=max(kodi.setting_int("sources.timeout"), 5), early_stop=early,
                         host_lists=_host_lists(app), call=_call_with_cloud(app), checker=checker,
+                        visible=visible_filter(request["media"]),
                         record=lambda p, status, count: p["kind"] == "cloud" or manager.record_result(
                             p["package"], p["kind"], p["name"], status, count)).start()
         outcome = windows.run_search(search, title, fanart, early)

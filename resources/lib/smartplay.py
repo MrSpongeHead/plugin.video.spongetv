@@ -60,7 +60,8 @@ def prepare(prepared, should_stop):
         checker = choose._checker(app)
         search = Search(providers, request, timeout=max(kodi.setting_int("sources.timeout"), 5),
                         early_stop=choose.early_stop(ready_only=checker is not None),
-                        host_lists=choose._host_lists(app), call=choose._call_with_cloud(app), checker=checker).start()
+                        host_lists=choose._host_lists(app), call=choose._call_with_cloud(app), checker=checker,
+                        visible=choose.visible_filter("episode")).start()
         search.wait(should_stop=should_stop)
         search.check_new()
         ordered = ranking.sort_sources(ranking.apply_filter(search.results(), choose.filter_rules()[1], "episode"),

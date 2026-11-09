@@ -251,8 +251,9 @@ class Search:
     CHECK_EVERY = 0.5
 
     def __init__(self, providers, request, timeout=30, early_stop=None, host_lists=([], []), call=call_provider,
-                 clock=time.time, record=None, checker=None):
+                 clock=time.time, record=None, checker=None, visible=None):
         self.providers = list(providers)
+        self.visible = visible     # the sources your filter lets through (what Source Select will show)
         self.request = request
         self.timeout = timeout
         self.early_stop = early_stop or EarlyStop(enabled=False)
@@ -371,7 +372,7 @@ class Search:
     def status(self):
         """A snapshot for the progress window, and a step of the search's bookkeeping."""
         self._collect()
-        if not self.finished and self.early_stop.met(self.results()):
+        if not self.finished and self.early_stop.met(self.choosable()):
             self.stopped_early = True
             self._finish_now()
         self._time_out()
@@ -383,7 +384,9 @@ class Search:
         done = sum(1 for s in self.statuses.values() if s != "searching")
         return {"elapsed": self.clock() - (self.started or self.clock()), "total": len(self.providers),
                 "done": done, "counts": counts, "found": len(sources), "finished": self.finished,
-                "early": (self.early_stop.progress(sources), self.early_stop.count) if self.early_stop.enabled else None,
+                "choosable": len(self.choosable()),
+                "early": (self.early_stop.progress(self.choosable()), self.early_stop.count)
+                if self.early_stop.enabled else None,
                 "searching": [label.split("/")[-1] for label, s in self.statuses.items() if s == "searching"],
                 "stopped_early": self.stopped_early,
                 "ready": sum(1 for s in sources if is_ready(s)) if self.checker else None,
@@ -394,6 +397,11 @@ class Search:
     def results(self):
         with self._lock:
             return list(self._sources.values())
+
+    def choosable(self):
+        """The sources Source Select will show: everything, unless a filter was given."""
+        sources = self.results()
+        return self.visible(sources) if self.visible else sources
 
     def wait(self, poll=0.2, sleep=time.sleep, should_stop=lambda: False):
         """Run to the end without a window (tests, and the simple fallback)."""

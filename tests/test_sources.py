@@ -365,7 +365,14 @@ def test_search_properties():
     lines, percent = windows.search_properties(status, "Film", EarlyStop(True, "1080p", 5))
     assert percent == 25 and lines["elapsed"] == "1:05" and lines["can_choose"] == "1"
     assert lines["early_line"] == "Stop early: 3 of 5 1080p sources found"
-    assert lines["choose_label"] == "Choose from 6 found" and lines["searching_line"] == "Still searching: a, b"
+    assert lines["choose_label"] == "Choose from 6" and lines["searching_line"] == "Still searching: a, b"
+    status = dict(status, choosable=1)              # your filter hides 5 of the 6
+    lines, _ = windows.search_properties(status, "Film", EarlyStop(True, "1080p", 5))
+    assert lines["choose_label"] == "Choose from 1"
+    assert lines["providers_line"] == "1 of 4 providers finished · 5 hidden by your filter"
+    status = dict(status, choosable=0)
+    lines, _ = windows.search_properties(status, "Film", EarlyStop(True, "1080p", 5))
+    assert lines["choose_label"] == "Waiting for sources…" and lines["can_choose"] == ""
 
 
 def test_status_words():
@@ -520,3 +527,19 @@ def test_provider_label_doesnt_hide_a_cam():
     assert source["quality"] == "CAM"
     custom = ranking.custom_filter((lambda k: k != "filter.exclude_hevc", lambda k: 0))
     assert ranking.apply_filter([source], custom, "movie") == []
+
+
+
+def test_early_stop_and_counts_use_only_what_your_filter_shows():
+    import time
+    results = {"a": [{"hash": f"{i:040x}", "release_title": "F.1080p.WEB", "size": 9000} for i in range(6)]}
+    hide_cam = lambda sources: [s for s in sources if s["size_mb"] < 5000]  # noqa: E731  (a 5 GB size limit)
+    call = fake_call(results, hang=("slow",))
+    search = Search([PROVIDERS[0], PROVIDERS[3]], {"media": "movie"}, call=call, visible=hide_cam,
+                    early_stop=EarlyStop(True, "1080p", 5)).start()
+    for _ in range(30):
+        status = search.status()
+        time.sleep(0.01)
+    call.gate.set()
+    assert status["found"] == 6 and status["choosable"] == 0
+    assert not status["stopped_early"]              # six copies your filter hides don't count towards it

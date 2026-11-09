@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.11" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.12" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.4.11: Clearer buttons in the search window: "Waiting for sources…" is greyed until something is found, Choose has an amber outline when it can be chosen, and only the button OK will press is solid amber.
+        <news>0.4.12: The search window's "Choose from N" now counts only the sources Source Select will show, and says how many your filter hides; early stop counts the same way.
+0.4.11: Clearer buttons in the search window: "Waiting for sources…" is greyed until something is found, Choose has an amber outline when it can be chosen, and only the button OK will press is solid amber.
 0.4.10: The search window's buttons work from the remote: Cancel has the focus at first, and Choose from N found takes it once there's something to choose.
 0.4.9: "Hide CAM and screener copies" now hides them all: cinema recordings labelled with a resolution ("1080p HDCAM", "HDTS 720p") and screeners such as DVDSCR were being read as normal copies.
 0.4.8: The search window says when it's still asking Premiumize which sources are ready, instead of showing 0, and stays a few seconds after the search if Premiumize is still answering, so the ready count is right. Sources found at the last moment are now checked too.
