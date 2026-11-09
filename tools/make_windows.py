@@ -123,12 +123,23 @@ def source_row(focused):
     else:
         parts.append(image(0, 0, ROW_W, ROW_H, "spongetv-r16.png", NAVY, 16, indent=i))
     parts.append(image(COL_Q, 15, 112, 48, "spongetv-r12.png", item("badge_bg"), 12, indent=i))
-    parts.append(label(COL_Q, 15, 112, 48, "font20_title", item("badge_fg"), item("quality"), align="center", indent=i))
+    # Text colours are fixed, chosen by visibility: Kodi only re-reads a colour taken from the list item
+    # while the list has focus, so text coloured that way vanished when you moved to Play best source.
+    dark_badge = "[String.IsEqual(ListItem.Property(quality),4K) | String.IsEqual(ListItem.Property(quality),1080p)]"
+    parts.append(label(COL_Q, 15, 112, 48, "font20_title", NAVY_DEEP, item("quality"), align="center",
+                       visible=dark_badge, indent=i))
+    parts.append(label(COL_Q, 15, 112, 48, "font20_title", TEXT, item("quality"), align="center",
+                       visible="!" + dark_badge, indent=i))
     parts.append(label(COL_REL, 6, 470, 38, "font25_title", TEXT, "$INFO[ListItem.Label]", indent=i))
     parts.append(label(COL_REL, 42, 470, 30, "font_flag", TEXT2, "$INFO[ListItem.Label2]", indent=i))
     parts.append(label(COL_SIZE, 0, 140, ROW_H, "font10", TEXT, item("size"), indent=i))
     parts.append(image(COL_STATUS, 33, 12, 12, "spongetv-dot.png", item("status_colour"), indent=i))
-    parts.append(label(COL_STATUS + 22, 0, 188, ROW_H, "font20_title", item("status_colour"), item("status"), indent=i))
+    for kind_test, colour in (("String.IsEqual(ListItem.Property(status_kind),cached)", TEAL),
+                              ("String.IsEqual(ListItem.Property(status_kind),cloud)", MINT),
+                              ("!String.IsEqual(ListItem.Property(status_kind),cached) + "
+                               "!String.IsEqual(ListItem.Property(status_kind),cloud)", MUTED)):
+        parts.append(label(COL_STATUS + 22, 0, 188, ROW_H, "font20_title", colour, item("status"), visible=kind_test,
+                           indent=i))
     parts.append(label(COL_FROM, 0, 200, ROW_H, "font10", TEXT2, item("from"), indent=i))
     return "\n".join(parts)
 

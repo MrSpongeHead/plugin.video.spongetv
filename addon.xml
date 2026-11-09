@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.15" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.16" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.4.15: Source Select, the search window and Playing Next now match the approved designs: SpongeTV logo, source and ready counts, filter and sort icons, coloured status dots, Premiumize cloud shown as such, the Playing Next countdown ring, and clearer wording. Buttons follow one rule everywhere: only the button OK will press is solid amber. Kodi's log names the file a season pack plays.
+        <news>0.4.16: Source Select keeps the quality and status text when you move to Play best source, Filter or Sort.
+0.4.15: Source Select, the search window and Playing Next now match the approved designs: SpongeTV logo, source and ready counts, filter and sort icons, coloured status dots, Premiumize cloud shown as such, the Playing Next countdown ring, and clearer wording. Buttons follow one rule everywhere: only the button OK will press is solid amber. Kodi's log names the file a season pack plays.
 0.4.14: More sources for episodes: providers that look an episode up by the show's IMDb ID now get it, in the same place Seren puts it (tvshow.imdb_id).
 0.4.13: "Choose from N" no longer shows a higher number for a moment before correcting itself: a source counts once Premiumize has said whether it's cached.
 0.4.12: The search window's "Choose from N" now counts only the sources Source Select will show, and says how many your filter hides; early stop counts the same way.

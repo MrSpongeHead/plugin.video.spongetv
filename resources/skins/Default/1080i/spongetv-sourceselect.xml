@@ -214,8 +214,15 @@
                 </control>
                 <control type="label">
                     <left>26</left><top>15</top><width>112</width><height>48</height>
-                    <font>font20_title</font><textcolor>$INFO[ListItem.Property(badge_fg)]</textcolor><align>center</align><aligny>center</aligny>
+                    <font>font20_title</font><textcolor>FF0A1428</textcolor><align>center</align><aligny>center</aligny>
                     <label>$INFO[ListItem.Property(quality)]</label>
+                    <visible>[String.IsEqual(ListItem.Property(quality),4K) | String.IsEqual(ListItem.Property(quality),1080p)]</visible>
+                </control>
+                <control type="label">
+                    <left>26</left><top>15</top><width>112</width><height>48</height>
+                    <font>font20_title</font><textcolor>FFEAF2FB</textcolor><align>center</align><aligny>center</aligny>
+                    <label>$INFO[ListItem.Property(quality)]</label>
+                    <visible>![String.IsEqual(ListItem.Property(quality),4K) | String.IsEqual(ListItem.Property(quality),1080p)]</visible>
                 </control>
                 <control type="label">
                     <left>162</left><top>6</top><width>470</width><height>38</height>
@@ -238,8 +245,21 @@
                 </control>
                 <control type="label">
                     <left>842</left><top>0</top><width>188</width><height>78</height>
-                    <font>font20_title</font><textcolor>$INFO[ListItem.Property(status_colour)]</textcolor><aligny>center</aligny>
+                    <font>font20_title</font><textcolor>FF2EC4B6</textcolor><aligny>center</aligny>
                     <label>$INFO[ListItem.Property(status)]</label>
+                    <visible>String.IsEqual(ListItem.Property(status_kind),cached)</visible>
+                </control>
+                <control type="label">
+                    <left>842</left><top>0</top><width>188</width><height>78</height>
+                    <font>font20_title</font><textcolor>FFDFFAF6</textcolor><aligny>center</aligny>
+                    <label>$INFO[ListItem.Property(status)]</label>
+                    <visible>String.IsEqual(ListItem.Property(status_kind),cloud)</visible>
+                </control>
+                <control type="label">
+                    <left>842</left><top>0</top><width>188</width><height>78</height>
+                    <font>font20_title</font><textcolor>FF8FA6C4</textcolor><aligny>center</aligny>
+                    <label>$INFO[ListItem.Property(status)]</label>
+                    <visible>!String.IsEqual(ListItem.Property(status_kind),cached) + !String.IsEqual(ListItem.Property(status_kind),cloud)</visible>
                 </control>
                 <control type="label">
                     <left>1054</left><top>0</top><width>200</width><height>78</height>
@@ -269,8 +289,15 @@
                 </control>
                 <control type="label">
                     <left>26</left><top>15</top><width>112</width><height>48</height>
-                    <font>font20_title</font><textcolor>$INFO[ListItem.Property(badge_fg)]</textcolor><align>center</align><aligny>center</aligny>
+                    <font>font20_title</font><textcolor>FF0A1428</textcolor><align>center</align><aligny>center</aligny>
                     <label>$INFO[ListItem.Property(quality)]</label>
+                    <visible>[String.IsEqual(ListItem.Property(quality),4K) | String.IsEqual(ListItem.Property(quality),1080p)]</visible>
+                </control>
+                <control type="label">
+                    <left>26</left><top>15</top><width>112</width><height>48</height>
+                    <font>font20_title</font><textcolor>FFEAF2FB</textcolor><align>center</align><aligny>center</aligny>
+                    <label>$INFO[ListItem.Property(quality)]</label>
+                    <visible>![String.IsEqual(ListItem.Property(quality),4K) | String.IsEqual(ListItem.Property(quality),1080p)]</visible>
                 </control>
                 <control type="label">
                     <left>162</left><top>6</top><width>470</width><height>38</height>
@@ -293,8 +320,21 @@
                 </control>
                 <control type="label">
                     <left>842</left><top>0</top><width>188</width><height>78</height>
-                    <font>font20_title</font><textcolor>$INFO[ListItem.Property(status_colour)]</textcolor><aligny>center</aligny>
+                    <font>font20_title</font><textcolor>FF2EC4B6</textcolor><aligny>center</aligny>
                     <label>$INFO[ListItem.Property(status)]</label>
+                    <visible>String.IsEqual(ListItem.Property(status_kind),cached)</visible>
+                </control>
+                <control type="label">
+                    <left>842</left><top>0</top><width>188</width><height>78</height>
+                    <font>font20_title</font><textcolor>FFDFFAF6</textcolor><aligny>center</aligny>
+                    <label>$INFO[ListItem.Property(status)]</label>
+                    <visible>String.IsEqual(ListItem.Property(status_kind),cloud)</visible>
+                </control>
+                <control type="label">
+                    <left>842</left><top>0</top><width>188</width><height>78</height>
+                    <font>font20_title</font><textcolor>FF8FA6C4</textcolor><aligny>center</aligny>
+                    <label>$INFO[ListItem.Property(status)]</label>
+                    <visible>!String.IsEqual(ListItem.Property(status_kind),cached) + !String.IsEqual(ListItem.Property(status_kind),cloud)</visible>
                 </control>
                 <control type="label">
                     <left>1054</left><top>0</top><width>200</width><height>78</height>
