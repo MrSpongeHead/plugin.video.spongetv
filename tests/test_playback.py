@@ -501,3 +501,20 @@ def test_list_reloads_after_something_was_watched(premiumize, monkeypatch):
     monkeypatch.setattr(xbmc, "getInfoLabel", lambda label: "videodb://movies/", raising=False)
     playback.refresh_when_back(xbmc.Monitor(), wait=1)
     assert "Container.Refresh" not in Directory.builtins      # not SpongeTV's list: leave it alone
+
+
+def test_watching_an_episode_to_the_end_marks_it_watched_straight_away(premiumize, monkeypatch):
+    import xbmc
+    trakt = FakeTrakt()
+    app = context.App()
+    monkeypatch.setattr(context.App, "signed_in", property(lambda self: True))
+    monkeypatch.setattr(context.App, "trakt", property(lambda self: trakt))
+    app.library.add("playback", "episode", show=50, season=1, episode=2, value=40.0, at="2026-11-01T00:00:00.000Z")
+    xbmc.Player.script = [(1200, 3000), (2990, 3000)]
+    target = playback.Target(app, {"media": "episode", "tmdb_id": 50, "season": 1, "episode": 2})
+    follower = playback.Follower(app, target, "plugin://x")
+    follower.follow()
+    assert follower.watched and trakt.sent[-1][0] == "stop"
+    assert app.library.watched_episodes(50)[(1, 2)][0] == 1
+    assert app.library.progress("episode", show=50, season=1, episode=2)[0] in (0, None)
+    assert app.store.cache_get("resume:episode:50:1:2") is None
