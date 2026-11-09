@@ -1978,3 +1978,15 @@ msgstr ""
 msgctxt "#30827"
 msgid "Search for sources again"
 msgstr ""
+
+msgctxt "#30828"
+msgid "Asking Premiumize which of {count} are ready…"
+msgstr ""
+
+msgctxt "#30829"
+msgid "{count} ready to play now (checking {more} more)"
+msgstr ""
+
+msgctxt "#30830"
+msgid "Couldn't ask Premiumize which are ready"
+msgstr ""

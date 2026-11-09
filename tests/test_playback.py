@@ -277,3 +277,36 @@ def test_kodi_playback_failed_message_is_closed(monkeypatch):
     assert closed == ["Dialog.Close(okdialog,true)"]
     shown["okdialog"] = False
     assert not plugin.dismiss_playback_failed(wait=0.3, monitor=Running())
+
+
+def test_ready_line_says_when_premiumize_is_still_being_asked():
+    from resources.lib import windows
+    assert windows.ready_line({"ready": None}) == ""
+    assert windows.ready_line({"ready": 0, "checking": 12}) == "Asking Premiumize which of 12 are ready…"
+    assert windows.ready_line({"ready": 3, "checking": 4}) == "3 ready to play now (checking 4 more)"
+    assert windows.ready_line({"ready": 3, "checking": 0}) == "3 ready to play now"
+    assert windows.ready_line({"ready": 0, "check_failed": True}) == "Couldn't ask Premiumize which are ready"
+
+
+def test_last_sources_are_checked_after_the_search_ends():
+    import time
+    seen = []
+
+    def checker(sources):
+        seen.extend(s["hash"] for s in sources)
+        for s in sources:
+            s["debrid"] = "cached"
+
+    def call_(provider, request, host_lists):
+        return [src(f"F.1080p.{provider['name']}", provider["name"] * 20)]
+    providers = [{"package": "P", "language": "en", "kind": "torrent", "name": n} for n in ("aa", "bb", "cc")]
+    search = Search(providers, {"media": "movie"}, call=call_, checker=checker).start()
+    for _ in range(200):
+        if search.status()["finished"]:
+            break
+        time.sleep(0.01)
+    for _ in range(100):                       # the checker thread finishes on its own
+        if search.status()["checking"] == 0:
+            break
+        time.sleep(0.02)
+    assert search.status()["checking"] == 0 and search.status()["ready"] == 3

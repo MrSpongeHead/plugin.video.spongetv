@@ -281,8 +281,9 @@ class Search:
 
     def _keep_checking(self):
         while not self.cancelled and not self.check_failed:
+            finished = self.finished
             self.check_new()
-            if self.finished:
+            if finished:          # one last check after the end, for sources that arrived at the last moment
                 return
             time.sleep(self.CHECK_EVERY)
 
@@ -379,7 +380,10 @@ class Search:
                 "early": (self.early_stop.progress(sources), self.early_stop.count) if self.early_stop.enabled else None,
                 "searching": [label.split("/")[-1] for label, s in self.statuses.items() if s == "searching"],
                 "stopped_early": self.stopped_early,
-                "ready": sum(1 for s in sources if is_ready(s)) if self.checker else None}
+                "ready": sum(1 for s in sources if is_ready(s)) if self.checker else None,
+                "checking": (sum(1 for s in sources if s.key not in self._checked)
+                             if self.checker and not self.check_failed and not self.cancelled else 0),
+                "check_failed": self.check_failed}
 
     def results(self):
         with self._lock:

@@ -6,6 +6,8 @@ The windows are Kodi skin files in resources/skins/Default/1080i. If one can't b
 chosen simple dialogs in Settings, Kodi's standard progress and list dialogs are used instead.
 """
 
+import time
+
 import xbmc
 import xbmcgui
 
@@ -34,6 +36,23 @@ def _elapsed(seconds):
     return f"{seconds // 60}:{seconds % 60:02d}"
 
 
+def ready_line(status):
+    """How many can play straight away, saying so while Premiumize is still being asked."""
+    if status.get("ready") is None:
+        return ""
+    if status.get("check_failed"):
+        return kodi.text("ready_check_failed")
+    checking = status.get("checking") or 0
+    if checking and not status["ready"]:
+        return kodi.text("ready_checking", count=checking)
+    if checking:
+        return kodi.text("ready_now_checking", count=status["ready"], more=checking)
+    return kodi.text("ready_now", count=status["ready"])
+
+
+CHECK_GRACE = 5   # seconds the window stays after the search, while Premiumize answers about the last sources
+
+
 def search_properties(status, title, early):
     """What the progress window shows, worked out from Search.status(). Shared by both versions."""
     found = status["found"]
@@ -47,7 +66,7 @@ def search_properties(status, title, early):
         "count_720p": str(status["counts"]["720p"]),
         "count_other": str(status["counts"]["Other"]),
         "other_label": kodi.text("quality_other"),
-        "ready_line": (kodi.text("ready_now", count=status["ready"]) if status.get("ready") is not None else ""),
+        "ready_line": ready_line(status),
         "early_line": (kodi.text("early_stop_line", got=min(status["early"][0], status["early"][1]),
                                  count=status["early"][1], quality=early.quality)
                        if status["early"] else kodi.text("early_stop_off")),
@@ -95,6 +114,7 @@ def _run_search_window(search, title, fanart, early, monitor):
     window.setProperty("fanart", fanart or "")
     window.show()
     outcome = "done"
+    finished_at = None
     try:
         while not monitor.abortRequested():
             status = search.status()
@@ -114,7 +134,9 @@ def _run_search_window(search, title, fanart, early, monitor):
                 outcome = "chosen"
                 break
             if status["finished"]:
-                break
+                finished_at = finished_at or time.monotonic()
+                if not status.get("checking") or time.monotonic() - finished_at > CHECK_GRACE:
+                    break
             if monitor.waitForAbort(0.2):
                 break
     finally:

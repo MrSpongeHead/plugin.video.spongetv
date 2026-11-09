@@ -513,6 +513,9 @@ STRINGS = {
     "pm_sign_in_again": (30825, "Your Premiumize sign-in ends in {days} days. Sign in again in Tools, Accounts."),
     "pm_sign_in_expired": (30826, "Premiumize no longer accepts SpongeTV's sign-in. Sign in again in Tools, Accounts."),
     "search_again": (30827, "Search for sources again"),
+    "ready_checking": (30828, "Asking Premiumize which of {count} are ready…"),
+    "ready_now_checking": (30829, "{count} ready to play now (checking {more} more)"),
+    "ready_check_failed": (30830, "Couldn't ask Premiumize which are ready"),
     "window_test_live": (30764, "Window test: real search with your providers (made-up film)"),
 }
 
