@@ -180,6 +180,9 @@ def test_spongetv_never_has_modules_packages_import_first():
 @pytest.mark.parametrize("title, quality", [
     ("Film.2024.2160p.WEB-DL.HDR.HEVC", "4K"), ("Film 2024 1080p BluRay", "1080p"), ("Film.720p.x264", "720p"),
     ("Film.2024.HDCAM", "CAM"), ("Film.DVDRip", "SD"), ("Film.UHD.Remux", "4K"),
+    ("Film.2024.1080p.HDCAM.x264", "CAM"), ("Film 2024 HDTS 720p", "CAM"), ("Film.2024.DVDSCR.XviD", "CAM"),
+    ("Film.2024.1080p.HD-TS", "CAM"), ("Film.2024.HDTC.1080p", "CAM"), ("Film.2024.WEBSCR.720p", "CAM"),
+    ("Film.2024.1080p.WEB-DL.DTS-HD.5.1", "1080p"), ("Shots.Fired.2024.1080p.WEB", "1080p"),
 ])
 def test_quality_of(title, quality):
     assert quality_of(title) == quality
@@ -507,3 +510,13 @@ def test_providers_import_one_at_a_time(store, tmp_path):
     for t in threads:
         t.join(10)
     assert errors == []
+
+
+
+def test_provider_label_doesnt_hide_a_cam():
+    """A provider may label a cinema recording 1080p; the release name still says CAM."""
+    source = normalise({"hash": "ab" * 20, "release_title": "Film.2024.1080p.HDCAM", "quality": "1080p"},
+                       {"name": "p", "package": "P"}, "torrent")
+    assert source["quality"] == "CAM"
+    custom = ranking.custom_filter((lambda k: k != "filter.exclude_hevc", lambda k: 0))
+    assert ranking.apply_filter([source], custom, "movie") == []

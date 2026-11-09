@@ -25,11 +25,15 @@ from resources.lib import kodi
 QUALITIES = ["4K", "1080p", "720p", "SD", "CAM"]
 QUALITY_RANK = {q: i for i, q in enumerate(QUALITIES)}
 
+# CAM comes first: a cinema recording is often labelled with a resolution too ("1080p HDCAM"), and it's
+# still a cinema recording. Screeners count as CAM, as they're hidden by the same setting.
+CAM_PATTERN = (r"\b(cam|camrip|hdcam|hdcamrip|hqcam|ts|tsrip|telesync|hdts|tc|hdtc|telecine|scr|screener|"
+               r"dvdscr|bdscr|webscr|hdscr|pdvd|predvd)\b")
 _QUALITY_PATTERNS = [
+    ("CAM", CAM_PATTERN),
     ("4K", r"\b(2160p|4k|uhd)\b"),
     ("1080p", r"\b(1080p|1080i|fhd)\b"),
     ("720p", r"\b720p\b"),
-    ("CAM", r"\b(cam|camrip|hdcam|ts|telesync|hdts|tc|telecine|scr|screener)\b"),
 ]
 _TAG_PATTERNS = [
     ("Dolby Vision", r"\b(dolby[ .-]?vision|dovi|dv)\b"),
@@ -104,7 +108,9 @@ def normalise(raw, provider, kind):
         seeds = int(raw.get("seeds") or 0)
     except (TypeError, ValueError):
         seeds = 0
-    quality = _quality_from_provider(raw.get("quality")) or quality_of(title)
+    # The release name wins over the provider's own label when it says it's a cinema recording or screener
+    quality = "CAM" if re.search(CAM_PATTERN, _words(title)) else (
+        _quality_from_provider(raw.get("quality")) or quality_of(title))
     extra = str(raw.get("info") or "")
     tags = tags_of(title + " " + (extra if isinstance(raw.get("info"), str) else " ".join(raw.get("info") or [])))
     return Source(type=kind, provider=provider["name"], package=provider["package"], release_title=title,

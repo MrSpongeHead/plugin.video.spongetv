@@ -5,6 +5,8 @@
 Stage 3 stops at your choice; turning a source into a playable link (Premiumize) and playing it
 arrives in stage 4."""
 
+import re
+
 import xbmcgui
 
 from resources.lib import artwork, kodi, ranking, windows
@@ -170,6 +172,9 @@ def find_sources(app, params, prepared=None, fresh=False):
     saved = app.store.cache_get(key) if hours > 0 and not fresh else None
     if saved:
         results = [Source(s) for s in saved]
+        for source in results:   # results saved by an older version may have a cinema recording labelled 1080p
+            if re.search(found_sources.CAM_PATTERN, found_sources._words(source.get("release_title"))):
+                source["quality"] = "CAM"
         checker = _checker(app)
         if checker:    # readiness changes faster than the results: check again
             try:

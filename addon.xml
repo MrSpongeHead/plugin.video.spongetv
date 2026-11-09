@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.8" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.9" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.4.8: The search window says when it's still asking Premiumize which sources are ready, instead of showing 0, and stays a few seconds after the search if Premiumize is still answering, so the ready count is right. Sources found at the last moment are now checked too.
+        <news>0.4.9: "Hide CAM and screener copies" now hides them all: cinema recordings labelled with a resolution ("1080p HDCAM", "HDTS 720p") and screeners such as DVDSCR were being read as normal copies.
+0.4.8: The search window says when it's still asking Premiumize which sources are ready, instead of showing 0, and stays a few seconds after the search if Premiumize is still answering, so the ready count is right. Sources found at the last moment are now checked too.
 0.4.7: Premiumize's cache check now asks with the torrent hash, as Seren does, so Ready shows for cached sources (it often said 0 ready before); torrents are still checked if Premiumize's hoster list can't be fetched. Source Select's Menu adds "Why is this source here?" for remotes without an Info button, and the bottom line is a single, clearer hint.
 0.4.6: Backing out of the search or Source Select no longer ends with Kodi's "Playback failed" message.
 0.4.5: No more pause or blank details after you stop a video: SpongeTV leaves Kodi's own resume point alone and lets Kodi ask about it, and asks itself only when Kodi won't. Lists no longer pick up the resolution and audio details Kodi records while playing. Fixed providers from one package sometimes failing when they all started at once.
