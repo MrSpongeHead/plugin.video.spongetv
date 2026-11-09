@@ -468,6 +468,8 @@ STRINGS = {
     "trying_source": (30781, "Trying source {number}: {quality}[CR]{name}"),
     "auto_play_failed": (30782, "None of the best sources would play. Choose one instead."),
     "source_failed": (30783, "That source wouldn't play. Choose another."),
+    "not_cached_next": (30858, "Not cached on {service}: playing the next ready source"),
+    "not_cached_none": (30859, "Not cached on {service}, and none below it is ready. Choose another."),
     "cat_playback": (30784, "Playback"),
     "grp_play_choice": (30785, "Choosing a source"),
     "set_play_movies": (30786, "Films"),

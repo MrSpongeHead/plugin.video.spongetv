@@ -11,6 +11,7 @@ import re
 from resources.lib.http import HttpError
 
 API = "https://www.premiumize.me/api"
+NAME = "Premiumize"            # how the service is named in messages ("Not cached on Premiumize")
 CACHE_BATCH = 100            # Premiumize doesn't publish a limit; this keeps each request modest
 HOSTS_SECONDS = 24 * 3600
 VIDEO_EXTENSIONS = (".mkv", ".mp4", ".avi", ".m4v", ".mov", ".wmv", ".ts", ".m2ts", ".webm", ".mpg", ".mpeg")

@@ -177,6 +177,12 @@ def resolve_first(app, target, candidates, attempts, progress=None):
     return None, None
 
 
+def debrid_name(app):
+    """The debrid service's name for messages. Premiumize is the only one for now."""
+    from resources.lib import premiumize
+    return premiumize.NAME
+
+
 def pick_and_resolve(app, target, found):
     """Auto Play or Source Select, then resolve with fall-through. Returns (source, link) or (None, None)."""
     request, title, meta, poster, fanart, results, clear = found
@@ -217,6 +223,12 @@ def pick_and_resolve(app, target, found):
             return None, None
         shown = chooser.visible()
         rest = shown[shown.index(picked) + 1:] if picked in shown else []
+        if picked.get("debrid") == "uncached":
+            # It can't play until the service downloads it, so say which way SpongeTV goes instead
+            if not any(s.get("debrid") != "uncached" for s in rest):
+                kodi.notify(kodi.text("not_cached_none", service=debrid_name(app)))
+                continue
+            kodi.notify(kodi.text("not_cached_next", service=debrid_name(app)))
         source, link = resolve_first(app, target, [picked] + rest, attempts, resolving)
         finish(None)
         if link:

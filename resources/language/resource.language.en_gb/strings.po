@@ -2078,3 +2078,11 @@ msgstr ""
 msgctxt "#30857"
 msgid "Wait this many seconds after the credits start"
 msgstr ""
+
+msgctxt "#30858"
+msgid "Not cached on {service}: playing the next ready source"
+msgstr ""
+
+msgctxt "#30859"
+msgid "Not cached on {service}, and none below it is ready. Choose another."
+msgstr ""

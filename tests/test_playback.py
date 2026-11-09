@@ -410,3 +410,33 @@ def test_playing_next_card_matches_the_mock_up():
     assert smartplay.countdown(12, 30) == {"ring": "spongetv-ring-16.png", "seconds": "12"}
     assert smartplay.countdown(30, 30)["ring"] == "spongetv-ring-40.png"
     assert smartplay.countdown(0, 30) == {"ring": "spongetv-ring-00.png", "seconds": "0"}
+
+
+def test_picking_a_source_premiumize_hasnt_cached(premiumize, monkeypatch):
+    """You're told it isn't cached, and the next ready source below it plays; with none ready below,
+    you're told so and stay in Source Select."""
+    from conftest import FakeDialog
+    from resources.lib import windows
+    app = context.App()
+    target = playback.Target(app, {"media": "movie", "tmdb_id": 603})
+    sources = [{"release_title": "A", "quality": "4K", "debrid": "uncached", "type": "torrent", "hash": "a"},
+               {"release_title": "B", "quality": "4K", "debrid": "cached", "type": "torrent", "hash": "b"},
+               {"release_title": "C", "quality": "4K", "debrid": "uncached", "type": "torrent", "hash": "c"}]
+    picks = [sources[2], sources[0]]
+
+    class FakeChooser:
+        def __init__(self, *args):
+            pass
+
+        def visible(self):
+            return sources
+    monkeypatch.setattr(windows, "Chooser", FakeChooser)
+    monkeypatch.setattr(windows, "choose_source", lambda chooser: picks.pop(0))
+    monkeypatch.setattr(playback, "mode_for", lambda media: playback.SOURCE_SELECT)
+    monkeypatch.setattr(playback, "resolve_link", lambda app, target, source: f"https://dl/{source['hash']}")
+    FakeDialog.shown.clear()
+    source, link = playback.pick_and_resolve(app, target, (None, "Film", "", "", "", sources, None))
+    assert link == "https://dl/b"
+    assert [m for kind, m in FakeDialog.shown if kind == "notification"] == [
+        "Not cached on Premiumize, and none below it is ready. Choose another.",
+        "Not cached on Premiumize: playing the next ready source"]
