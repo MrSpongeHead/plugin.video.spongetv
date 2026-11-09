@@ -253,20 +253,16 @@ def window_test(plugin, app):
         from resources.lib import smartplay
         import xbmc
         window = smartplay.PlayingNextWindow(smartplay.NEXT_XML, kodi.ADDON_PATH, "Default", "1080i")
-        values = {"heading": kodi.text("playing_next"), "show": "Harbour Lights",
-                  "episode": kodi.text("next_episode_line", season=2, episode=5, title="The Long Tide"),
-                  "thumb": kodi.FANART, "play_now": kodi.text("play_now"), "stop_after": kodi.text("stop_after")}
+        values = smartplay.card_values("The Harbour", {"name": "Tidewater", "runtime": 48}, 2, 5, kodi.FANART)
         for key, value in values.items():
             window.setProperty(key, value)
         window.show()
         monitor = xbmc.Monitor()
+        sample = {"quality": "1080p", "debrid": "cached"}
         for tenth in range(200, -1, -1):
-            status = kodi.text("next_ready") if tenth < 150 else kodi.text("next_finding")
-            window.setProperty("status", kodi.text("next_countdown", seconds=tenth // 10, status=status))
-            try:
-                window.getControl(4100).setPercent(tenth / 2)
-            except (RuntimeError, TypeError):
-                pass
+            status = smartplay.card_status(tenth < 150, sample if tenth < 150 else None)
+            for key, value in dict(status, **smartplay.countdown(tenth / 10, 20)).items():
+                window.setProperty(key, value)
             if window.choice or monitor.waitForAbort(0.1):
                 break
         window.close()
@@ -302,7 +298,8 @@ def window_test(plugin, app):
                 return {"elapsed": step * 0.2, "total": 7, "done": min(step // 6, 7),
                         "counts": {"4K": 1, "1080p": 2 + step // 20, "720p": 1, "Other": 0}, "found": 4 + step // 20,
                         "finished": self.polls > 60, "early": (3, 5), "searching": ["bubblesearch", "coral", "slow"],
-                        "stopped_early": False}
+                        "stopped_early": False, "ready": 3, "checking": 0, "cloud": "finished",
+                        "choosable": 4 + step // 20}
 
             def cancel(self):
                 pass

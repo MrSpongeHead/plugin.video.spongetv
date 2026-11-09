@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SpongeTV Playing Next: a card in the bottom-right corner over the video. -->
+<!-- SpongeTV Playing Next, a card over the video, from the approved mock-up. Written by tools/make_windows.py. -->
 <window>
     <defaultcontrol always="true">4001</defaultcontrol>
     <animation type="WindowOpen" reversible="false">
@@ -10,67 +10,121 @@
         <effect type="fade" start="100" end="0" time="200"/>
     </animation>
     <controls>
-        <control type="group">
-            <left>1110</left><top>676</top>
-            <control type="image">
-                <left>0</left><top>0</top><width>770</width><height>340</height>
-                <texture border="20" colordiffuse="FF24406A">spongetv-round.png</texture>
-            </control>
-            <control type="image">
-                <left>3</left><top>3</top><width>764</width><height>334</height>
-                <texture border="20" colordiffuse="F212233F">spongetv-round.png</texture>
-            </control>
-            <!-- episode still -->
-            <control type="image">
-                <left>28</left><top>28</top><width>280</width><height>158</height>
-                <texture>$INFO[Window.Property(thumb)]</texture>
-                <aspectratio>scale</aspectratio>
-            </control>
-            <control type="label">
-                <left>332</left><top>24</top><width>410</width><height>34</height>
-                <font>font12</font><textcolor>FFF5A524</textcolor>
-                <label>$INFO[Window.Property(heading)]</label>
-            </control>
-            <control type="label">
-                <left>332</left><top>60</top><width>410</width><height>40</height>
-                <font>font13</font><textcolor>FFEAF2FB</textcolor>
-                <label>$INFO[Window.Property(show)]</label>
-            </control>
-            <control type="textbox">
-                <left>332</left><top>102</top><width>410</width><height>84</height>
-                <font>font12</font><textcolor>FFA9BCD6</textcolor>
-                <label>$INFO[Window.Property(episode)]</label>
-            </control>
-            <!-- countdown -->
-            <control type="progress" id="4100">
-                <left>28</left><top>206</top><width>714</width><height>10</height>
-                <texturebg colordiffuse="FF24406A">spongetv-white.png</texturebg>
-                <midtexture colordiffuse="FFF5A524">spongetv-white.png</midtexture>
-            </control>
-            <control type="label">
-                <left>28</left><top>222</top><width>714</width><height>32</height>
-                <font>font12</font><textcolor>FF2EC4B6</textcolor>
-                <label>$INFO[Window.Property(status)]</label>
-            </control>
-            <!-- buttons -->
-            <control type="button" id="4001">
-                <left>28</left><top>262</top><width>330</width><height>56</height>
-                <font>font12</font><textcolor>FF0A1428</textcolor><focusedcolor>FF0A1428</focusedcolor>
-                <align>center</align><aligny>center</aligny>
-                <texturenofocus border="20" colordiffuse="CCF5A524">spongetv-pill.png</texturenofocus>
-                <texturefocus border="20" colordiffuse="FFF5A524">spongetv-pill.png</texturefocus>
-                <label>$INFO[Window.Property(play_now)]</label>
-                <onright>4002</onright>
-            </control>
-            <control type="button" id="4002">
-                <left>374</left><top>262</top><width>368</width><height>56</height>
-                <font>font12</font><textcolor>FFEAF2FB</textcolor><focusedcolor>FF0A1428</focusedcolor>
-                <align>center</align><aligny>center</aligny>
-                <texturenofocus border="20" colordiffuse="FF24406A">spongetv-pill.png</texturenofocus>
-                <texturefocus border="20" colordiffuse="FFF5A524">spongetv-pill.png</texturefocus>
-                <label>$INFO[Window.Property(stop_after)]</label>
-                <onleft>4001</onleft>
-            </control>
+        <control type="image">
+            <left>1020</left><top>678</top><width>820</width><height>322</height>
+            <texture border="28" colordiffuse="FF12233F">spongetv-r28.png</texture>
+        </control>
+        <control type="image">
+            <left>1020</left><top>678</top><width>820</width><height>322</height>
+            <texture border="28" colordiffuse="FF24406A">spongetv-r28-line2.png</texture>
+        </control>
+        <control type="image">
+            <left>1052</left><top>710</top><width>288</width><height>162</height>
+            <texture border="16" colordiffuse="FF18304F">spongetv-r16.png</texture>
+        </control>
+        <control type="image">
+            <left>1052</left><top>710</top><width>288</width><height>162</height>
+            <texture>$INFO[Window.Property(thumb)]</texture>
+            <aspectratio>scale</aspectratio>
+        </control>
+        <control type="image">
+            <left>1052</left><top>710</top><width>288</width><height>162</height>
+            <texture border="16" colordiffuse="FF24406A">spongetv-r16-line2.png</texture>
+        </control>
+        <control type="label">
+            <left>1368</left><top>708</top><width>324</width><height>28</height>
+            <font>font20_title</font><textcolor>FF2EC4B6</textcolor><aligny>center</aligny>
+            <label>[UPPERCASE]$INFO[Window.Property(heading)][/UPPERCASE]</label>
+        </control>
+        <control type="label">
+            <left>1368</left><top>736</top><width>324</width><height>44</height>
+            <font>font32_title</font><textcolor>FFEAF2FB</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(show)]</label>
+        </control>
+        <control type="label">
+            <left>1368</left><top>782</top><width>324</width><height>32</height>
+            <font>font10</font><textcolor>FFA9BCD6</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(episode)]</label>
+        </control>
+        <control type="image">
+            <left>1368</left><top>834</top><width>12</width><height>12</height>
+            <texture colordiffuse="$INFO[Window.Property(status_colour)]">spongetv-dot.png</texture>
+        </control>
+        <control type="label">
+            <left>1390</left><top>824</top><width>418</width><height>32</height>
+            <font>font10</font><textcolor>FFDFFAF6</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(status)]</label>
+        </control>
+        <control type="image">
+            <left>1720</left><top>710</top><width>88</width><height>88</height>
+            <texture colordiffuse="FF24406A">spongetv-ring-track.png</texture>
+        </control>
+        <control type="image">
+            <left>1720</left><top>710</top><width>88</width><height>88</height>
+            <texture colordiffuse="FFF5A524">$INFO[Window.Property(ring)]</texture>
+        </control>
+        <control type="label">
+            <left>1720</left><top>710</top><width>88</width><height>88</height>
+            <font>font30_title</font><textcolor>FFEAF2FB</textcolor><align>center</align><aligny>center</aligny>
+            <label>$INFO[Window.Property(seconds)]</label>
+        </control>
+        <control type="image">
+            <left>1052</left><top>900</top><width>230</width><height>68</height>
+            <texture border="16" colordiffuse="FF12233F">spongetv-r16.png</texture>
+        </control>
+        <control type="image">
+            <left>1052</left><top>900</top><width>230</width><height>68</height>
+            <texture border="16" colordiffuse="FFF5A524">spongetv-r16-line2.png</texture>
+            <visible>!Control.HasFocus(4001)</visible>
+        </control>
+        <control type="button" id="4001">
+            <left>1052</left><top>900</top><width>230</width><height>68</height>
+            <font>font25_title</font><textcolor>FFF5A524</textcolor><focusedcolor>FF0A1428</focusedcolor><disabledcolor>FF8FA6C4</disabledcolor>
+            <align>left</align><aligny>center</aligny>
+            <texturenofocus border="16" colordiffuse="00FFFFFF">spongetv-r16.png</texturenofocus>
+            <texturefocus border="16" colordiffuse="FFF5A524">spongetv-r16.png</texturefocus>
+            <label></label>
+            <onright>4002</onright>
+        </control>
+        <control type="image">
+            <left>1084</left><top>922</top><width>24</width><height>24</height>
+            <texture colordiffuse="FFF5A524">spongetv-play.png</texture>
+            <visible>!Control.HasFocus(4001)</visible>
+        </control>
+        <control type="image">
+            <left>1084</left><top>922</top><width>24</width><height>24</height>
+            <texture colordiffuse="FF0A1428">spongetv-play.png</texture>
+            <visible>Control.HasFocus(4001)</visible>
+        </control>
+        <control type="label">
+            <left>1122</left><top>900</top><width>144</width><height>68</height>
+            <font>font25_title</font><textcolor>FFF5A524</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(play_now)]</label>
+            <visible>!Control.HasFocus(4001)</visible>
+        </control>
+        <control type="label">
+            <left>1122</left><top>900</top><width>144</width><height>68</height>
+            <font>font25_title</font><textcolor>FF0A1428</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(play_now)]</label>
+            <visible>Control.HasFocus(4001)</visible>
+        </control>
+        <control type="image">
+            <left>1300</left><top>900</top><width>370</width><height>68</height>
+            <texture border="16" colordiffuse="FF12233F">spongetv-r16.png</texture>
+        </control>
+        <control type="image">
+            <left>1300</left><top>900</top><width>370</width><height>68</height>
+            <texture border="16" colordiffuse="FF24406A">spongetv-r16-line2.png</texture>
+            <visible>!Control.HasFocus(4002)</visible>
+        </control>
+        <control type="button" id="4002">
+            <left>1300</left><top>900</top><width>370</width><height>68</height>
+            <font>font25_title</font><textcolor>FFEAF2FB</textcolor><focusedcolor>FF0A1428</focusedcolor><disabledcolor>FF8FA6C4</disabledcolor>
+            <align>center</align><aligny>center</aligny>
+            <texturenofocus border="16" colordiffuse="00FFFFFF">spongetv-r16.png</texturenofocus>
+            <texturefocus border="16" colordiffuse="FFF5A524">spongetv-r16.png</texturefocus>
+            <label>$INFO[Window.Property(stop_after)]</label>
+            <onleft>4001</onleft>
         </control>
     </controls>
 </window>

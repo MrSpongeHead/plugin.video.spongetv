@@ -399,7 +399,9 @@ class Search:
                 "ready": sum(1 for s in sources if is_ready(s)) if self.checker else None,
                 "checking": (sum(1 for s in sources if s.key not in self._checked)
                              if self.checker and not self.check_failed and not self.cancelled else 0),
-                "check_failed": self.check_failed}
+                "check_failed": self.check_failed,
+                "cloud": next(("searching" if state == "searching" else "finished"
+                               for label, state in self.statuses.items() if label.split("/")[1] == "cloud"), None)}
 
     def results(self):
         with self._lock:

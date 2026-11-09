@@ -174,9 +174,14 @@ class Premiumize:
         if source.get("debrid") == "cloud" and source.get("url"):
             return source["url"]
         data = self._call("POST", "transfer/directdl", form={"src": src})
-        chosen = pick_file(data.get("content") or [], season, episode)
+        content = data.get("content") or []
+        chosen = pick_file(content, season, episode)
         if not chosen:
             raise PremiumizeError("no_file")
+        if len(content) > 1:   # a pack: say which file was picked, so it can be checked in Kodi's log
+            from resources.lib import kodi
+            kind = {"season": "Season pack", "show": "Show pack"}.get(source.get("pack"), "Pack")
+            kodi.log(f"{kind}: playing {chosen.get('path')} (one of {len(content)} files)")
         return chosen["link"]
 
     # -- your cloud ---------------------------------------------------------------------------------------

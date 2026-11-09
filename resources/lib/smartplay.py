@@ -75,6 +75,37 @@ def prepare(prepared, should_stop):
         prepared.done.set()
 
 
+# -- what the Playing Next card shows ---------------------------------------------------------------------
+TEAL, AMBER, MUTED = "FF2EC4B6", "FFF5A524", "FF8FA6C4"
+RING_FRAMES = 40
+
+
+def card_values(show_name, episode, season, number, thumb):
+    """'Up next', the show, 'Tidewater · S2 · E5 · 48 min', the still and the button labels."""
+    line = kodi.text("next_episode_meta", title=episode.get("name") or "", season=season, episode=number)
+    if episode.get("runtime"):
+        line += kodi.text("next_episode_minutes", minutes=episode["runtime"])
+    return {"heading": kodi.text("up_next"), "show": show_name, "episode": line, "thumb": thumb,
+            "play_now": kodi.text("play_now"), "stop_after": kodi.text("stop_after")}
+
+
+def card_status(ready, source):
+    """'Source ready: 1080p, cached' (teal), 'Finding a source…' (amber) or 'No source ready yet…' (grey)."""
+    if source:
+        how = {"cloud": "how_cloud", "cached": "how_cached"}.get(source.get("debrid"), "how_direct")
+        return {"status": kodi.text("next_source_ready", quality=source.get("quality", ""), how=kodi.text(how)),
+                "status_colour": TEAL}
+    if ready:
+        return {"status": kodi.text("next_not_found"), "status_colour": MUTED}
+    return {"status": kodi.text("next_finding"), "status_colour": AMBER}
+
+
+def countdown(left, total):
+    """The ring (one of 41 pictures, full to empty) and the seconds inside it."""
+    fraction = max(0.0, min(1.0, left / total)) if total else 0.0
+    return {"ring": f"spongetv-ring-{round(fraction * RING_FRAMES):02d}.png", "seconds": str(max(0, int(left + 0.99)))}
+
+
 class PlayingNextWindow(xbmcgui.WindowXMLDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
@@ -138,24 +169,18 @@ class SmartPlay:
             self.choice = "auto"
             return
         episode = self.next_target.episode_details
-        values = {"heading": kodi.text("playing_next"), "show": self.target.show.get("name", ""),
-                  "episode": kodi.text("next_episode_line", season=self.next[0], episode=self.next[1],
-                                       title=episode.get("name") or ""),
-                  "thumb": image_url(episode.get("still_path"), "w300") or "",
-                  "play_now": kodi.text("play_now"), "stop_after": kodi.text("stop_after")}
+        values = card_values(self.target.show.get("name", ""), episode, self.next[0], self.next[1],
+                             image_url(episode.get("still_path"), "w300") or "")
         for key, value in values.items():
             self.window.setProperty(key, value)
         self.window.show()
 
     def _update_card(self, left):
-        ready = self.prepared and self.prepared.done.is_set()
-        status = (kodi.text("next_ready") if ready and self.prepared.link
-                  else kodi.text("next_not_found") if ready else kodi.text("next_finding"))
-        self.window.setProperty("status", kodi.text("next_countdown", seconds=max(0, int(left)), status=status))
-        try:
-            self.window.getControl(4100).setPercent(100 * max(0.0, left) / self.card_seconds)
-        except (RuntimeError, TypeError):
-            pass
+        ready = bool(self.prepared and self.prepared.done.is_set())
+        for key, value in card_status(ready, self.prepared.source if ready and self.prepared.link else None).items():
+            self.window.setProperty(key, value)
+        for key, value in countdown(left, self.card_seconds).items():
+            self.window.setProperty(key, value)
 
     def _close_card(self):
         if self.window is not None:

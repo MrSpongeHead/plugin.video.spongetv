@@ -12,6 +12,7 @@ import xbmc
 import xbmcgui
 
 from resources.lib import kodi, ranking
+from resources.lib.sources import is_ready
 
 SEARCH_AGAIN = "search again"   # what choose_source returns when you ask for a fresh search
 BACK_ACTIONS = {9, 10, 92, 216, 247, 257, 275, 61467, 61448}
@@ -36,6 +37,23 @@ def _elapsed(seconds):
     return f"{seconds // 60}:{seconds % 60:02d}"
 
 
+def searching_line(status):
+    """'Still searching: 3 providers · Premiumize cloud finished'."""
+    names = [n for n in status["searching"] if n != CLOUD_NAME]
+    parts = []
+    if names:
+        parts.append(kodi.text("still_searching_n", count=len(names)))
+    cloud = status.get("cloud")
+    if cloud and (parts or cloud == "searching"):
+        parts.append(kodi.text("cloud_searching" if cloud == "searching" else "cloud_finished"))
+    if not parts:
+        return ""
+    return kodi.text("still_searching", names=" \u00b7 ".join(parts))
+
+
+CLOUD_NAME = "Your cloud"
+
+
 def providers_line(status):
     """'4 of 7 providers finished', and how many found sources your filter hides, so the counts add up."""
     line = kodi.text("providers_finished", done=status["done"], total=status["total"])
@@ -55,7 +73,7 @@ def ready_line(status):
         return kodi.text("ready_checking", count=checking)
     if checking:
         return kodi.text("ready_now_checking", count=status["ready"], more=checking)
-    return kodi.text("ready_now", count=status["ready"])
+    return kodi.text("ready_now_explained", count=status["ready"])
 
 
 CHECK_GRACE = 5   # seconds the window stays after the search, while Premiumize answers about the last sources
@@ -76,11 +94,11 @@ def search_properties(status, title, early):
         "count_other": str(status["counts"]["Other"]),
         "other_label": kodi.text("quality_other"),
         "ready_line": ready_line(status),
+        "logo": kodi.ICON,
         "early_line": (kodi.text("early_stop_line", got=min(status["early"][0], status["early"][1]),
                                  count=status["early"][1], quality=early.quality)
                        if status["early"] else kodi.text("early_stop_off")),
-        "searching_line": (kodi.text("still_searching", names=", ".join(status["searching"][:6]))
-                           if status["searching"] else ""),
+        "searching_line": searching_line(status),
         "choose_label": kodi.text("choose_from", count=choosable) if choosable else kodi.text("waiting_for_sources"),
         "can_choose": "1" if choosable else "",
         "choose_outline": "FFF5A524" if choosable else "00FFFFFF",   # the amber outline only once it can be chosen
@@ -226,14 +244,23 @@ def details_line(source):
     return " · ".join(parts)
 
 
+AMBER, TEAL, MINT, MUTED, NAVY_DEEP, TEXT = "FFF5A524", "FF2EC4B6", "FFDFFAF6", "FF8FA6C4", "FF0A1428", "FFEAF2FB"
+BADGES = {"4K": (AMBER, NAVY_DEEP), "1080p": (TEAL, NAVY_DEEP), "720p": ("FF2C4468", TEXT)}
+STATUS_COLOURS = {"cloud": MINT, "cached": TEAL, "uncached": MUTED, "unchecked": MUTED}
+
+
 def list_item(source):
     item = xbmcgui.ListItem(source.get("release_title") or source.get("url", ""), details_line(source), offscreen=True)
     words, kind = status_of(source)
+    badge_bg, badge_fg = BADGES.get(source["quality"], ("FF3A4A60", TEXT))
     item.setProperty("quality", source["quality"])
+    item.setProperty("badge_bg", badge_bg)
+    item.setProperty("badge_fg", badge_fg)
     item.setProperty("size", ranking.size_text(source.get("size_mb")))
     item.setProperty("status", words)
     item.setProperty("status_kind", kind)
-    item.setProperty("from", source.get("provider", ""))
+    item.setProperty("status_colour", STATUS_COLOURS[kind])
+    item.setProperty("from", kodi.text("from_cloud") if source.get("type") == "cloud" else source.get("provider", ""))
     return item
 
 
@@ -241,6 +268,22 @@ def simple_label(source):
     words, _ = status_of(source)
     bits = [source["quality"], ranking.size_text(source.get("size_mb")), words, source.get("provider", "")]
     return " · ".join(b for b in bits if b) + "  " + (source.get("release_title") or "")
+
+
+def select_subheading(title, shown, everything):
+    """'The Lighthouse Keeper (2024) · 8 sources · 6 ready to play now', saying when your filter hides some."""
+    parts = [title, kodi.text("n_sources", count=len(shown))]
+    if any(s.get("debrid") for s in everything):      # Premiumize was asked
+        parts.append(kodi.text("ready_now", count=sum(1 for s in shown if is_ready(s))))
+    if len(shown) < len(everything):
+        parts.append(kodi.text("n_hidden", count=len(everything) - len(shown)))
+    return " \u00b7 ".join(parts)
+
+
+def sort_label(rules):
+    """'Sort: ready first', from your first sort rule that's on."""
+    first = next((rule for rule, on in rules if on), None)
+    return kodi.text("sort_short_" + first) if first else kodi.text("sort_button")
 
 
 class Chooser:
@@ -295,10 +338,10 @@ class SourceSelectWindow(xbmcgui.WindowXMLDialog):
         self.shown = chooser.visible()
         label, _ = chooser.filter_rules()
         values = {
-            "heading": kodi.text("choose_a_source"),
-            "subheading": kodi.text("select_subheading", title=chooser.title, count=len(self.shown), total=len(chooser.all)),
+            "heading": kodi.text("choose_a_source"), "logo": kodi.ICON,
+            "subheading": select_subheading(chooser.title, self.shown, chooser.all),
             "filter_label": kodi.text("filter_button", name=label),
-            "sort_label": kodi.text("sort_button"),
+            "sort_label": sort_label(chooser.sort_rules()),
             "title": chooser.title, "meta": chooser.meta, "poster": chooser.poster or "", "fanart": chooser.fanart or "",
             "play_best": kodi.text("play_best"),
             "col_quality": kodi.text("col_quality"), "col_release": kodi.text("col_release"),

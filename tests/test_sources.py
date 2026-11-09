@@ -367,8 +367,8 @@ def test_search_properties():
               "early": (3, 5), "searching": ["a", "b"], "finished": False}
     lines, percent = windows.search_properties(status, "Film", EarlyStop(True, "1080p", 5))
     assert percent == 25 and lines["elapsed"] == "1:05" and lines["can_choose"] == "1"
-    assert lines["early_line"] == "Stop early: 3 of 5 1080p sources found"
-    assert lines["choose_label"] == "Choose from 6" and lines["searching_line"] == "Still searching: a, b"
+    assert lines["early_line"] == "Early stop: 3 of 5 sources at 1080p or better"
+    assert lines["choose_label"] == "Choose from 6" and lines["searching_line"] == "Still searching: 2 providers"
     status = dict(status, choosable=1)              # your filter hides 5 of the 6
     lines, _ = windows.search_properties(status, "Film", EarlyStop(True, "1080p", 5))
     assert lines["choose_label"] == "Choose from 1"

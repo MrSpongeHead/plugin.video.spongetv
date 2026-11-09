@@ -1340,11 +1340,11 @@ msgid "Other"
 msgstr ""
 
 msgctxt "#30665"
-msgid "Stop early: {got} of {count} {quality} sources found"
+msgid "Early stop: {got} of {count} sources at {quality} or better"
 msgstr ""
 
 msgctxt "#30666"
-msgid "Stop early is off: waiting for every provider"
+msgid "Early stop is off: waiting for every provider"
 msgstr ""
 
 msgctxt "#30667"
@@ -1408,7 +1408,7 @@ msgid "Sort rules"
 msgstr ""
 
 msgctxt "#30683"
-msgid "Play best"
+msgid "Play best source"
 msgstr ""
 
 msgctxt "#30684"
@@ -1835,14 +1835,6 @@ msgctxt "#30792"
 msgid "Window test: play a made-up film with your providers"
 msgstr ""
 
-msgctxt "#30793"
-msgid "Playing next"
-msgstr ""
-
-msgctxt "#30794"
-msgid "S{season:02d}E{episode:02d}  {title}"
-msgstr ""
-
 msgctxt "#30795"
 msgid "Play now"
 msgstr ""
@@ -1851,20 +1843,12 @@ msgctxt "#30796"
 msgid "Stop after this episode"
 msgstr ""
 
-msgctxt "#30797"
-msgid "ready to play"
-msgstr ""
-
 msgctxt "#30798"
-msgid "finding a source"
+msgid "Finding a source…"
 msgstr ""
 
 msgctxt "#30799"
-msgid "no source ready yet: you'll choose one"
-msgstr ""
-
-msgctxt "#30800"
-msgid "Starts in {seconds} s, {status}"
+msgid "No source ready yet: you'll choose one"
 msgstr ""
 
 msgctxt "#30801"
@@ -1997,4 +1981,92 @@ msgstr ""
 
 msgctxt "#30833"
 msgid " · {count} hidden by your filter"
+msgstr ""
+
+msgctxt "#30834"
+msgid "Premiumize cloud"
+msgstr ""
+
+msgctxt "#30835"
+msgid "{count} sources"
+msgstr ""
+
+msgctxt "#30836"
+msgid "{count} hidden"
+msgstr ""
+
+msgctxt "#30837"
+msgid "{count} ready to play now: cached in Premiumize or in your cloud"
+msgstr ""
+
+msgctxt "#30838"
+msgid "{count} providers"
+msgstr ""
+
+msgctxt "#30839"
+msgid "Premiumize cloud searching"
+msgstr ""
+
+msgctxt "#30840"
+msgid "Premiumize cloud finished"
+msgstr ""
+
+msgctxt "#30841"
+msgid "Sort: ready first"
+msgstr ""
+
+msgctxt "#30842"
+msgid "Sort: best first"
+msgstr ""
+
+msgctxt "#30843"
+msgid "Sort: HDR first"
+msgstr ""
+
+msgctxt "#30844"
+msgid "Sort: HEVC first"
+msgstr ""
+
+msgctxt "#30845"
+msgid "Sort: largest first"
+msgstr ""
+
+msgctxt "#30846"
+msgid "Sort: smallest first"
+msgstr ""
+
+msgctxt "#30847"
+msgid "Sort: most seeds first"
+msgstr ""
+
+msgctxt "#30848"
+msgid "Sort: direct first"
+msgstr ""
+
+msgctxt "#30849"
+msgid "Up next"
+msgstr ""
+
+msgctxt "#30850"
+msgid "{title} · S{season} · E{episode}"
+msgstr ""
+
+msgctxt "#30851"
+msgid " · {minutes} min"
+msgstr ""
+
+msgctxt "#30852"
+msgid "Source ready: {quality}, {how}"
+msgstr ""
+
+msgctxt "#30853"
+msgid "cached"
+msgstr ""
+
+msgctxt "#30854"
+msgid "in your cloud"
+msgstr ""
+
+msgctxt "#30855"
+msgid "direct"
 msgstr ""

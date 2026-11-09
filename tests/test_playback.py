@@ -284,7 +284,7 @@ def test_ready_line_says_when_premiumize_is_still_being_asked():
     assert windows.ready_line({"ready": None}) == ""
     assert windows.ready_line({"ready": 0, "checking": 12}) == "Asking Premiumize which of 12 are ready…"
     assert windows.ready_line({"ready": 3, "checking": 4}) == "3 ready to play now (checking 4 more)"
-    assert windows.ready_line({"ready": 3, "checking": 0}) == "3 ready to play now"
+    assert windows.ready_line({"ready": 3, "checking": 0}) == "3 ready to play now: cached in Premiumize or in your cloud"
     assert windows.ready_line({"ready": 0, "check_failed": True}) == "Couldn't ask Premiumize which are ready"
 
 
@@ -370,3 +370,43 @@ def test_choose_count_waits_for_premiumize_and_never_drops():
             break
         time.sleep(0.02)
     assert max(seen) == 1 and seen[-1] == 1          # never 5: only the one cached copy ever counted
+
+
+
+# -- the windows' wording, as in the mock-ups ---------------------------------------------------------------
+def test_search_lines_match_the_mock_up():
+    from resources.lib import windows
+    status = {"searching": ["a", "b", "Your cloud", "c"], "cloud": "searching"}
+    assert windows.searching_line(status) == "Still searching: 3 providers \u00b7 Premiumize cloud searching"
+    status = {"searching": ["a", "b", "c"], "cloud": "finished"}
+    assert windows.searching_line(status) == "Still searching: 3 providers \u00b7 Premiumize cloud finished"
+    assert windows.searching_line({"searching": [], "cloud": "finished"}) == ""
+
+
+def test_source_select_header_matches_the_mock_up():
+    from resources.lib import ranking, windows
+    from resources.lib.sources import normalise
+    p = {"name": "p", "package": "P"}
+    rows = [normalise({"hash": f"{i:040x}", "release_title": "F.1080p", "size": 1000}, p, "torrent") for i in range(8)]
+    for n, row in enumerate(rows):
+        row["debrid"] = "cached" if n < 6 else "uncached"
+    assert windows.select_subheading("Film (2024)", rows, rows) == \
+        "Film (2024) \u00b7 8 sources \u00b7 6 ready to play now"
+    assert windows.select_subheading("Film (2024)", rows[:6], rows).endswith("\u00b7 2 hidden")
+    assert windows.sort_label(ranking.DEFAULT_RULES) == "Sort: ready first"
+    assert windows.sort_label([("ready", False), ("quality", True)]) == "Sort: best first"
+    item = windows.list_item(dict(rows[0], type="cloud", debrid="cloud"))
+    assert item.properties["from"] == "Premiumize cloud" and item.properties["status_colour"] == "FFDFFAF6"
+    assert item.properties["badge_bg"] == "FF2EC4B6"
+
+
+def test_playing_next_card_matches_the_mock_up():
+    from resources.lib import smartplay
+    values = smartplay.card_values("The Harbour", {"name": "Tidewater", "runtime": 48}, 2, 5, "")
+    assert values["heading"] == "Up next" and values["episode"] == "Tidewater \u00b7 S2 \u00b7 E5 \u00b7 48 min"
+    assert smartplay.card_status(True, {"quality": "1080p", "debrid": "cached"}) == \
+        {"status": "Source ready: 1080p, cached", "status_colour": "FF2EC4B6"}
+    assert smartplay.card_status(False, None)["status"] == "Finding a source\u2026"
+    assert smartplay.countdown(12, 30) == {"ring": "spongetv-ring-16.png", "seconds": "12"}
+    assert smartplay.countdown(30, 30)["ring"] == "spongetv-ring-40.png"
+    assert smartplay.countdown(0, 30) == {"ring": "spongetv-ring-00.png", "seconds": "0"}

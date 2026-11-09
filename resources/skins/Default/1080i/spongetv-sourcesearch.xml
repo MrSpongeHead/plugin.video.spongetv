@@ -1,182 +1,194 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SpongeTV source search progress: a centred window over the dimmed fanart. -->
+<!-- SpongeTV source search progress, from the approved mock-up. Written by tools/make_windows.py. -->
 <window>
     <defaultcontrol always="true">3002</defaultcontrol>
     <animation type="WindowOpen" reversible="false">
         <effect type="fade" start="0" end="100" time="200"/>
     </animation>
+    <animation type="WindowClose" reversible="false">
+        <effect type="fade" start="100" end="0" time="150"/>
+    </animation>
     <controls>
         <control type="image">
             <left>0</left><top>0</top><width>1920</width><height>1080</height>
-            <texture colordiffuse="FF0A1428">spongetv-white.png</texture>
+            <texture colordiffuse="FF060C18">spongetv-white.png</texture>
         </control>
         <control type="image">
             <left>0</left><top>0</top><width>1920</width><height>1080</height>
             <texture>$INFO[Window.Property(fanart)]</texture>
             <aspectratio>scale</aspectratio>
-            <colordiffuse>59FFFFFF</colordiffuse>
         </control>
-
-        <!-- the panel -->
-        <control type="group">
-            <left>460</left><top>210</top>
-            <control type="image">
-                <left>0</left><top>0</top><width>1000</width><height>660</height>
-                <texture border="20" colordiffuse="FF24406A">spongetv-round.png</texture>
-            </control>
-            <control type="image">
-                <left>3</left><top>3</top><width>994</width><height>654</height>
-                <texture border="20" colordiffuse="F212233F">spongetv-round.png</texture>
-            </control>
-            <control type="label">
-                <left>56</left><top>44</top><width>700</width><height>56</height>
-                <font>font37</font><textcolor>FFEAF2FB</textcolor>
-                <label>$INFO[Window.Property(heading)]</label>
-            </control>
-            <control type="label">
-                <left>56</left><top>104</top><width>700</width><height>40</height>
-                <font>font13</font><textcolor>FFA9BCD6</textcolor>
-                <label>$INFO[Window.Property(title)]</label>
-            </control>
-            <control type="label">
-                <left>744</left><top>48</top><width>200</width><height>56</height>
-                <font>font37</font><textcolor>FFF5A524</textcolor><align>right</align>
-                <label>$INFO[Window.Property(elapsed)]</label>
-            </control>
-
-            <!-- progress -->
-            <control type="progress" id="3100">
-                <left>56</left><top>172</top><width>888</width><height>16</height>
-                <texturebg border="6" colordiffuse="FF24406A">spongetv-round.png</texturebg>
-                <midtexture border="6" colordiffuse="FFF5A524">spongetv-round.png</midtexture>
-            </control>
-            <control type="label">
-                <left>56</left><top>198</top><width>888</width><height>36</height>
-                <font>font12</font><textcolor>FFA9BCD6</textcolor>
-                <label>$INFO[Window.Property(providers_line)]</label>
-            </control>
-
-            <!-- counts by quality -->
-            <control type="grouplist">
-                <left>56</left><top>256</top><width>888</width><height>120</height>
-                <orientation>horizontal</orientation>
-                <itemgap>16</itemgap>
-                <usecontrolwidth>true</usecontrolwidth>
-                <control type="group">
-                    <width>210</width><height>120</height>
-                    <control type="image">
-                        <width>210</width><height>120</height>
-                        <texture border="20" colordiffuse="FF0A1428">spongetv-round.png</texture>
-                    </control>
-                    <control type="label">
-                        <left>24</left><top>16</top><width>170</width><height>34</height>
-                        <font>font12</font><textcolor>FFF5A524</textcolor>
-                        <label>4K</label>
-                    </control>
-                    <control type="label">
-                        <left>24</left><top>52</top><width>170</width><height>56</height>
-                        <font>font37</font><textcolor>FFEAF2FB</textcolor>
-                        <label>$INFO[Window.Property(count_4k)]</label>
-                    </control>
-                </control>
-                <control type="group">
-                    <width>210</width><height>120</height>
-                    <control type="image">
-                        <width>210</width><height>120</height>
-                        <texture border="20" colordiffuse="FF0A1428">spongetv-round.png</texture>
-                    </control>
-                    <control type="label">
-                        <left>24</left><top>16</top><width>170</width><height>34</height>
-                        <font>font12</font><textcolor>FF2EC4B6</textcolor>
-                        <label>1080p</label>
-                    </control>
-                    <control type="label">
-                        <left>24</left><top>52</top><width>170</width><height>56</height>
-                        <font>font37</font><textcolor>FFEAF2FB</textcolor>
-                        <label>$INFO[Window.Property(count_1080p)]</label>
-                    </control>
-                </control>
-                <control type="group">
-                    <width>210</width><height>120</height>
-                    <control type="image">
-                        <width>210</width><height>120</height>
-                        <texture border="20" colordiffuse="FF0A1428">spongetv-round.png</texture>
-                    </control>
-                    <control type="label">
-                        <left>24</left><top>16</top><width>170</width><height>34</height>
-                        <font>font12</font><textcolor>FFA9BCD6</textcolor>
-                        <label>720p</label>
-                    </control>
-                    <control type="label">
-                        <left>24</left><top>52</top><width>170</width><height>56</height>
-                        <font>font37</font><textcolor>FFEAF2FB</textcolor>
-                        <label>$INFO[Window.Property(count_720p)]</label>
-                    </control>
-                </control>
-                <control type="group">
-                    <width>210</width><height>120</height>
-                    <control type="image">
-                        <width>210</width><height>120</height>
-                        <texture border="20" colordiffuse="FF0A1428">spongetv-round.png</texture>
-                    </control>
-                    <control type="label">
-                        <left>24</left><top>16</top><width>170</width><height>34</height>
-                        <font>font12</font><textcolor>FF8FA6C4</textcolor>
-                        <label>$INFO[Window.Property(other_label)]</label>
-                    </control>
-                    <control type="label">
-                        <left>24</left><top>52</top><width>170</width><height>56</height>
-                        <font>font37</font><textcolor>FFEAF2FB</textcolor>
-                        <label>$INFO[Window.Property(count_other)]</label>
-                    </control>
-                </control>
-            </control>
-
-            <!-- status lines -->
-            <control type="label">
-                <left>56</left><top>404</top><width>888</width><height>36</height>
-                <font>font13</font><textcolor>FF2EC4B6</textcolor>
-                <label>$INFO[Window.Property(ready_line)]</label>
-            </control>
-            <control type="label">
-                <left>56</left><top>444</top><width>888</width><height>36</height>
-                <font>font13</font><textcolor>FFEAF2FB</textcolor>
-                <label>$INFO[Window.Property(early_line)]</label>
-            </control>
-            <control type="label">
-                <left>56</left><top>484</top><width>888</width><height>36</height>
-                <font>font12</font><textcolor>FFA9BCD6</textcolor>
-                <label>$INFO[Window.Property(searching_line)]</label>
-            </control>
-
-            <!-- buttons -->
-            <!-- Choose: navy and greyed while nothing's found ("Waiting for sources…"); navy with an amber
-                 outline when it can be chosen; solid amber only when focused, so solid amber always means
-                 "this is what OK will press". The navy pill sits behind the button for every state. -->
-            <control type="image">
-                <left>56</left><top>556</top><width>420</width><height>68</height>
-                <texture border="20" colordiffuse="FF24406A">spongetv-pill.png</texture>
-            </control>
-            <control type="button" id="3001">
-                <left>56</left><top>556</top><width>420</width><height>68</height>
-                <font>font13</font><textcolor>FFF5A524</textcolor><focusedcolor>FF0A1428</focusedcolor>
-                <disabledcolor>FF8FA6C4</disabledcolor>
-                <align>center</align><aligny>center</aligny>
-                <texturenofocus border="20" colordiffuse="$INFO[Window.Property(choose_outline)]">spongetv-pill-outline.png</texturenofocus>
-                <texturefocus border="20" colordiffuse="FFF5A524">spongetv-pill.png</texturefocus>
-                <label>$INFO[Window.Property(choose_label)]</label>
-                <enable>!String.IsEmpty(Window.Property(can_choose))</enable>
-                <onright>3002</onright>
-            </control>
-            <control type="button" id="3002">
-                <left>500</left><top>556</top><width>240</width><height>68</height>
-                <font>font13</font><textcolor>FFEAF2FB</textcolor><focusedcolor>FF0A1428</focusedcolor>
-                <align>center</align><aligny>center</aligny>
-                <texturenofocus border="20" colordiffuse="FF24406A">spongetv-pill.png</texturenofocus>
-                <texturefocus border="20" colordiffuse="FFF5A524">spongetv-pill.png</texturefocus>
-                <label>$INFO[Window.Property(cancel_label)]</label>
-                <onleft>3001</onleft>
-            </control>
+        <control type="image">
+            <left>0</left><top>0</top><width>1920</width><height>1080</height>
+            <texture colordiffuse="990D1A30">spongetv-white.png</texture>
+        </control>
+        <control type="image">
+            <left>400</left><top>185</top><width>1120</width><height>710</height>
+            <texture border="32" colordiffuse="FF12233F">spongetv-r32.png</texture>
+        </control>
+        <control type="image">
+            <left>400</left><top>185</top><width>1120</width><height>710</height>
+            <texture border="32" colordiffuse="FF24406A">spongetv-r32-line2.png</texture>
+        </control>
+        <control type="image">
+            <left>464</left><top>241</top><width>80</width><height>80</height>
+            <texture>$INFO[Window.Property(logo)]</texture>
+            <aspectratio>keep</aspectratio>
+        </control>
+        <control type="label">
+            <left>568</left><top>239</top><width>640</width><height>52</height>
+            <font>font40_title</font><textcolor>FFEAF2FB</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(heading)]</label>
+        </control>
+        <control type="label">
+            <left>568</left><top>289</top><width>640</width><height>34</height>
+            <font>font12</font><textcolor>FFA9BCD6</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(title)]</label>
+        </control>
+        <control type="label">
+            <left>1256</left><top>241</top><width>200</width><height>80</height>
+            <font>font32_title</font><textcolor>FFDFFAF6</textcolor><align>right</align><aligny>center</aligny>
+            <label>$INFO[Window.Property(elapsed)]</label>
+        </control>
+        <control type="image">
+            <left>464</left><top>357</top><width>992</width><height>18</height>
+            <texture border="9" colordiffuse="FF0A1428">spongetv-bar.png</texture>
+        </control>
+        <control type="progress" id="3100">
+            <left>464</left><top>357</top><width>992</width><height>18</height>
+            <texturebg colordiffuse="00FFFFFF">spongetv-bar.png</texturebg>
+            <midtexture border="9" colordiffuse="FF2EC4B6">spongetv-bar.png</midtexture>
+        </control>
+        <control type="label">
+            <left>464</left><top>389</top><width>992</width><height>30</height>
+            <font>font10</font><textcolor>FFA9BCD6</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(providers_line)]</label>
+        </control>
+        <control type="image">
+            <left>464</left><top>455</top><width>233</width><height>122</height>
+            <texture border="20" colordiffuse="FF0A1428">spongetv-r20.png</texture>
+        </control>
+        <control type="label">
+            <left>488</left><top>473</top><width>185</width><height>28</height>
+            <font>font20_title</font><textcolor>FFF5A524</textcolor><aligny>center</aligny>
+            <label>4K</label>
+        </control>
+        <control type="label">
+            <left>488</left><top>505</top><width>185</width><height>58</height>
+            <font>font52_title</font><textcolor>FFEAF2FB</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(count_4k)]</label>
+        </control>
+        <control type="image">
+            <left>717</left><top>455</top><width>233</width><height>122</height>
+            <texture border="20" colordiffuse="FF0A1428">spongetv-r20.png</texture>
+        </control>
+        <control type="label">
+            <left>741</left><top>473</top><width>185</width><height>28</height>
+            <font>font20_title</font><textcolor>FF2EC4B6</textcolor><aligny>center</aligny>
+            <label>1080p</label>
+        </control>
+        <control type="label">
+            <left>741</left><top>505</top><width>185</width><height>58</height>
+            <font>font52_title</font><textcolor>FFEAF2FB</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(count_1080p)]</label>
+        </control>
+        <control type="image">
+            <left>970</left><top>455</top><width>233</width><height>122</height>
+            <texture border="20" colordiffuse="FF0A1428">spongetv-r20.png</texture>
+        </control>
+        <control type="label">
+            <left>994</left><top>473</top><width>185</width><height>28</height>
+            <font>font20_title</font><textcolor>FFA9BCD6</textcolor><aligny>center</aligny>
+            <label>720p</label>
+        </control>
+        <control type="label">
+            <left>994</left><top>505</top><width>185</width><height>58</height>
+            <font>font52_title</font><textcolor>FFEAF2FB</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(count_720p)]</label>
+        </control>
+        <control type="image">
+            <left>1223</left><top>455</top><width>233</width><height>122</height>
+            <texture border="20" colordiffuse="FF0A1428">spongetv-r20.png</texture>
+        </control>
+        <control type="label">
+            <left>1247</left><top>473</top><width>185</width><height>28</height>
+            <font>font20_title</font><textcolor>FFA9BCD6</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(other_label)]</label>
+        </control>
+        <control type="label">
+            <left>1247</left><top>505</top><width>185</width><height>58</height>
+            <font>font52_title</font><textcolor>FFEAF2FB</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(count_other)]</label>
+        </control>
+        <control type="image">
+            <left>464</left><top>621</top><width>14</width><height>14</height>
+            <texture colordiffuse="FF2EC4B6">spongetv-dot.png</texture>
+            <visible>!String.IsEmpty(Window.Property(ready_line))</visible>
+        </control>
+        <control type="label">
+            <left>492</left><top>613</top><width>964</width><height>30</height>
+            <font>font10</font><textcolor>FFEAF2FB</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(ready_line)]</label>
+            <visible>!String.IsEmpty(Window.Property(ready_line))</visible>
+        </control>
+        <control type="image">
+            <left>464</left><top>665</top><width>14</width><height>14</height>
+            <texture colordiffuse="FFF5A524">spongetv-dot.png</texture>
+            <visible>!String.IsEmpty(Window.Property(early_line))</visible>
+        </control>
+        <control type="label">
+            <left>492</left><top>657</top><width>964</width><height>30</height>
+            <font>font10</font><textcolor>FFEAF2FB</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(early_line)]</label>
+            <visible>!String.IsEmpty(Window.Property(early_line))</visible>
+        </control>
+        <control type="image">
+            <left>464</left><top>709</top><width>14</width><height>14</height>
+            <texture colordiffuse="FF8FA6C4">spongetv-dot.png</texture>
+            <visible>!String.IsEmpty(Window.Property(searching_line))</visible>
+        </control>
+        <control type="label">
+            <left>492</left><top>701</top><width>964</width><height>30</height>
+            <font>font10</font><textcolor>FFA9BCD6</textcolor><aligny>center</aligny>
+            <label>$INFO[Window.Property(searching_line)]</label>
+            <visible>!String.IsEmpty(Window.Property(searching_line))</visible>
+        </control>
+        <control type="image">
+            <left>464</left><top>767</top><width>420</width><height>72</height>
+            <texture border="16" colordiffuse="FF12233F">spongetv-r16.png</texture>
+        </control>
+        <control type="image">
+            <left>464</left><top>767</top><width>420</width><height>72</height>
+            <texture border="16" colordiffuse="FFF5A524">spongetv-r16-line2.png</texture>
+            <visible>!Control.HasFocus(3001) + !String.IsEmpty(Window.Property(can_choose))</visible>
+        </control>
+        <control type="button" id="3001">
+            <left>464</left><top>767</top><width>420</width><height>72</height>
+            <font>font25_title</font><textcolor>FFF5A524</textcolor><focusedcolor>FF0A1428</focusedcolor><disabledcolor>FF8FA6C4</disabledcolor>
+            <align>center</align><aligny>center</aligny>
+            <texturenofocus border="16" colordiffuse="00FFFFFF">spongetv-r16.png</texturenofocus>
+            <texturefocus border="16" colordiffuse="FFF5A524">spongetv-r16.png</texturefocus>
+            <label>$INFO[Window.Property(choose_label)]</label>
+            <enable>!String.IsEmpty(Window.Property(can_choose))</enable>
+            <onright>3002</onright>
+        </control>
+        <control type="image">
+            <left>904</left><top>767</top><width>200</width><height>72</height>
+            <texture border="16" colordiffuse="FF12233F">spongetv-r16.png</texture>
+        </control>
+        <control type="image">
+            <left>904</left><top>767</top><width>200</width><height>72</height>
+            <texture border="16" colordiffuse="FF24406A">spongetv-r16-line2.png</texture>
+            <visible>!Control.HasFocus(3002)</visible>
+        </control>
+        <control type="button" id="3002">
+            <left>904</left><top>767</top><width>200</width><height>72</height>
+            <font>font25_title</font><textcolor>FFEAF2FB</textcolor><focusedcolor>FF0A1428</focusedcolor><disabledcolor>FF8FA6C4</disabledcolor>
+            <align>center</align><aligny>center</aligny>
+            <texturenofocus border="16" colordiffuse="00FFFFFF">spongetv-r16.png</texturenofocus>
+            <texturefocus border="16" colordiffuse="FFF5A524">spongetv-r16.png</texturefocus>
+            <label>$INFO[Window.Property(cancel_label)]</label>
+            <onleft>3001</onleft>
         </control>
     </controls>
 </window>
