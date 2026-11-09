@@ -488,6 +488,7 @@ STRINGS = {
     "grp_play_next": (30805, "Next episode"),
     "set_play_next": (30806, "Smart Play: get the next episode ready and play it"),
     "set_next_seconds": (30807, "Show Playing Next this many seconds before the end"),
+    "set_next_credits": (30856, "Show Playing Next when the end credits start"),
     "set_still_watching": (30808, "Ask if you're still watching after this many episodes (0 never)"),
     "window_test_next": (30809, "Window test: Playing Next"),
     "play_next_episode": (30810, "Play next episode"),

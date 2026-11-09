@@ -552,6 +552,11 @@
                         <popup>false</popup>
                     </control>
                 </setting>
+                <setting id="play.next_credits" type="boolean" label="30856">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="play.still_watching" type="integer" label="30808">
                     <level>0</level>
                     <default>3</default>

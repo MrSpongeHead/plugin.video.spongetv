@@ -19,6 +19,9 @@ from resources.lib.tmdb import image_url
 
 PREPARE_BEFORE = 300        # seconds before the end to start finding the next episode
 NEXT_XML = "spongetv-playingnext.xml"
+CREDITS_FROM_PERCENT = 90   # a last chapter that starts this late is taken to be the end credits...
+CREDITS_MAX_SECONDS = 300   # ...as long as it's no longer than this
+CREDITS_NAME_FROM = 80      # a chapter called "...credits" counts only this far in (not opening credits)
 
 
 def next_episode(app, show, season, episode):
@@ -73,6 +76,38 @@ def prepare(prepared, should_stop):
     finally:
         app.store.close()
         prepared.done.set()
+
+
+def credits_left(chapters, count, name, position, total):
+    """Seconds before the end that the end credits start, worked out from the video's chapters, or None.
+
+    chapters is Kodi's Player.Chapters (chapter boundaries as percentages, comma separated), count is
+    Player.ChapterCount and name is Player.ChapterName. Two ways to spot the credits:
+      - the chapter playing now is called something with "credit" in it, late in the episode; or
+      - there are at least 3 chapters and the last starts at 90% or later, within 5 minutes of the end.
+    """
+    if not total:
+        return None
+    if name and "credit" in name.lower() and position >= total * CREDITS_NAME_FROM / 100:
+        return total - position
+    try:
+        number = int(count or 0)
+        marks = [float(m) for m in (chapters or "").split(",") if m.strip()]
+    except ValueError:
+        return None
+    if number < 3 or not marks:
+        return None
+    last = max(marks)
+    left = (100 - last) / 100 * total
+    if last >= CREDITS_FROM_PERCENT and 0 < left <= CREDITS_MAX_SECONDS:
+        return left
+    return None
+
+
+def chapter_credits_left(position, total):
+    """credits_left for what's playing now."""
+    return credits_left(xbmc.getInfoLabel("Player.Chapters"), xbmc.getInfoLabel("Player.ChapterCount"),
+                        xbmc.getInfoLabel("Player.ChapterName"), position, total)
 
 
 # -- what the Playing Next card shows ---------------------------------------------------------------------
@@ -130,6 +165,9 @@ class SmartPlay:
         self.app, self.target, self.player = app, target, player
         self.enabled = kodi.setting_bool("play.next")
         self.card_seconds = max(10, kodi.setting_int("play.next_seconds") or 30)
+        self.use_credits = kodi.setting_bool("play.next_credits")
+        self.card_total = None      # seconds left when the card appeared: the countdown runs from this
+        self.credits_logged = False
         self.prepared = None
         self.window = None
         self.choice = None
@@ -147,10 +185,12 @@ class SmartPlay:
         if not self.next or not total:
             return
         left = total - position
-        if left <= PREPARE_BEFORE and self.prepared is None:
+        card_at = self.card_at(position, total)
+        if left <= max(PREPARE_BEFORE, card_at + 60) and self.prepared is None:
             self.prepared = Prepared(self.next_target)
             threading.Thread(target=prepare, args=(self.prepared, lambda: self.cancelled), daemon=True).start()
-        if left <= self.card_seconds and self.window is None and self.choice is None:
+        if left <= card_at and self.window is None and self.choice is None:
+            self.card_total = max(left, 1)
             self._show_card()
         if self.window is not None:
             self._update_card(left)
@@ -159,6 +199,19 @@ class SmartPlay:
                 self._close_card()
                 if self.choice == "now":
                     self.player.stop()
+
+    def card_at(self, position, total):
+        """How many seconds before the end the card appears: when the end credits start (if the video's
+        chapters show them and the setting is on), but never later than the Playing Next setting."""
+        if not self.use_credits or self.window is not None or self.choice is not None:
+            return self.card_seconds
+        credits = chapter_credits_left(position, total)
+        if credits is None:
+            return self.card_seconds
+        if not self.credits_logged:
+            kodi.log(f"Smart Play: end credits start {int(credits)} seconds before the end (from the chapters)")
+            self.credits_logged = True
+        return max(credits, self.card_seconds)
 
     def _show_card(self):
         try:
@@ -179,7 +232,7 @@ class SmartPlay:
         ready = bool(self.prepared and self.prepared.done.is_set())
         for key, value in card_status(ready, self.prepared.source if ready and self.prepared.link else None).items():
             self.window.setProperty(key, value)
-        for key, value in countdown(left, self.card_seconds).items():
+        for key, value in countdown(left, self.card_total or self.card_seconds).items():
             self.window.setProperty(key, value)
 
     def _close_card(self):

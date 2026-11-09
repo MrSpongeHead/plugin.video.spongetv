@@ -2070,3 +2070,7 @@ msgstr ""
 msgctxt "#30855"
 msgid "direct"
 msgstr ""
+
+msgctxt "#30856"
+msgid "Show Playing Next when the end credits start"
+msgstr ""

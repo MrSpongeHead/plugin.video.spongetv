@@ -179,6 +179,7 @@ def render():
     playback += group("play_next", "grp_play_next",
                       boolean("play.next", "set_play_next", True)
                       + number("play.next_seconds", "set_next_seconds", 30, 10, 120, step=5, slider=True, level=0)
+                      + boolean("play.next_credits", "set_next_credits", True)
                       + number("play.still_watching", "set_still_watching", 3, 0, 10, step=1, slider=True, level=0))
     views = "".join(number(f"view.{v}", f"set_view_{v}", 0, 0, 9999) for v in ("movies", "tvshows", "seasons", "episodes"))
     advanced = group("views", "grp_views", views)

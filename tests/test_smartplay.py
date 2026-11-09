@@ -72,6 +72,49 @@ def test_prepares_early_then_card_offers_play_now(show, monkeypatch):
     assert player.stopped and smart.finish(ended=False).link == "https://dl/next"
 
 
+def test_credits_from_chapters():
+    total = 3000
+    # Kodi's Player.Chapters: start,end pairs; the last value is where the last chapter starts
+    assert smartplay.credits_left("0.0,40.0,40.0,95.0", "03", "", 100, total) == pytest.approx(150)
+    assert smartplay.credits_left("0.0,40.0,40.0,85.0", "03", "", 100, total) is None    # starts too early
+    assert smartplay.credits_left("0.0,95.0", "02", "", 100, total) is None              # too few chapters
+    assert smartplay.credits_left("0.0,40.0,40.0,99.0,99.0,99.5", "04", "", 100, 100000) is None  # >5 minutes long
+    assert smartplay.credits_left("", "", "End Credits", 2900, total) == 100            # named, playing now
+    assert smartplay.credits_left("", "", "Opening Credits", 60, total) is None           # opening credits
+    assert smartplay.credits_left("x,y", "3", "", 100, total) is None
+    assert smartplay.credits_left("0,50,50,95", "3", "", 100, 0) is None
+
+
+def test_card_shows_when_the_credits_start(show, monkeypatch):
+    app = context.App()
+    monkeypatch.setattr(smartplay, "prepare", lambda prepared, should_stop: prepared.done.set())
+    labels = {"Player.Chapters": "0.0,40.0,40.0,95.0", "Player.ChapterCount": "03", "Player.ChapterName": ""}
+    monkeypatch.setattr(smartplay.xbmc, "getInfoLabel", lambda label: labels.get(label, ""), raising=False)
+    shown = []
+    monkeypatch.setattr(smartplay.SmartPlay, "_show_card", lambda self: (shown.append(1), setattr(self, "window", Card())))
+    FakeAddon.settings["play.next_credits"] = True
+    smart = smartplay.SmartPlay(app, target(app, 1, 1), FakePlayer())
+    smart.tick(2840, 3000)
+    assert shown == [] and smart.prepared is not None     # preparing, credits not started yet (150 s left)
+    smart.tick(2851, 3000)
+    assert shown == [1] and smart.card_total == 149        # the countdown runs from the start of the credits
+    # switched off: back to the fixed 30 seconds
+    FakeAddon.settings["play.next_credits"] = False
+    shown.clear()
+    smart = smartplay.SmartPlay(app, target(app, 1, 1), FakePlayer())
+    smart.tick(2851, 3000)
+    assert shown == []
+    smart.tick(2971, 3000)
+    assert shown == [1] and smart.card_total == 29
+    # very short credits: never later than the setting
+    FakeAddon.settings["play.next_credits"] = True
+    labels["Player.Chapters"] = "0.0,40.0,40.0,99.9"
+    shown.clear()
+    smart = smartplay.SmartPlay(app, target(app, 1, 1), FakePlayer())
+    smart.tick(2971, 3000)
+    assert shown == [1]
+
+
 class Card:
     choice = None
 
