@@ -399,8 +399,14 @@ class Search:
             return list(self._sources.values())
 
     def choosable(self):
-        """The sources Source Select will show: everything, unless a filter was given."""
+        """The sources Source Select will show: everything, unless a filter was given. While Premiumize is
+        being asked, a source only counts once it has answered for it, so the count doesn't jump up and
+        then drop back when the uncached ones are hidden."""
         sources = self.results()
+        if self.checker and not self.check_failed and not self.cancelled:
+            with self._lock:
+                checked = set(self._checked)
+            sources = [s for s in sources if s.key in checked]
         return self.visible(sources) if self.visible else sources
 
     def wait(self, poll=0.2, sleep=time.sleep, should_stop=lambda: False):

@@ -370,6 +370,8 @@ def test_search_properties():
     lines, _ = windows.search_properties(status, "Film", EarlyStop(True, "1080p", 5))
     assert lines["choose_label"] == "Choose from 1"
     assert lines["providers_line"] == "1 of 4 providers finished · 5 hidden by your filter"
+    lines, _ = windows.search_properties(dict(status, checking=5), "Film", EarlyStop(True, "1080p", 5))
+    assert lines["providers_line"] == "1 of 4 providers finished"      # still being checked, not hidden
     status = dict(status, choosable=0)
     lines, _ = windows.search_properties(status, "Film", EarlyStop(True, "1080p", 5))
     assert lines["choose_label"] == "Waiting for sources…" and lines["can_choose"] == ""

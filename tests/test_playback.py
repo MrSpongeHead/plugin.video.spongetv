@@ -338,3 +338,35 @@ def test_search_window_buttons_get_focus():
     window.focus = 3002                            # then you move back to Cancel yourself
     windows.focus_buttons(window, can_choose=True)
     assert window.focus == 3002
+
+
+
+def test_choose_count_waits_for_premiumize_and_never_drops():
+    """Sources count only once Premiumize has answered, so the count can't show 5 then fall to 1."""
+    import threading
+    import time
+    from resources.lib import ranking
+    gate = threading.Event()
+
+    def checker(sources):
+        gate.wait(5)                                 # Premiumize takes a moment to answer
+        for s in sources:
+            s["debrid"] = "cached" if s["hash"].startswith("aa") else "uncached"
+
+    def call_(provider, request, host_lists):
+        return [src("F.1080p.1", "aa" * 20)] + [src(f"F.1080p.{i}", f"b{i}" * 20) for i in range(2, 6)]
+    rules = dict(ranking.PRESETS[ranking.PRESET_EVERYTHING], ready_only=True)
+    providers = [{"package": "P", "language": "en", "kind": "torrent", "name": "a"}]
+    search = Search(providers, {"media": "movie"}, call=call_, checker=checker,
+                    visible=lambda sources: ranking.apply_filter(sources, rules, "movie")).start()
+    seen = []
+    for _ in range(20):
+        seen.append(search.status()["choosable"])
+        time.sleep(0.01)
+    gate.set()
+    for _ in range(100):
+        seen.append(search.status()["choosable"])
+        if seen[-1]:
+            break
+        time.sleep(0.02)
+    assert max(seen) == 1 and seen[-1] == 1          # never 5: only the one cached copy ever counted

@@ -39,7 +39,8 @@ def _elapsed(seconds):
 def providers_line(status):
     """'4 of 7 providers finished', and how many found sources your filter hides, so the counts add up."""
     line = kodi.text("providers_finished", done=status["done"], total=status["total"])
-    hidden = status["found"] - status.get("choosable", status["found"])
+    # sources Premiumize hasn't answered for yet are neither shown nor hidden yet
+    hidden = status["found"] - status.get("choosable", status["found"]) - (status.get("checking") or 0)
     return line + kodi.text("hidden_by_filter", count=hidden) if hidden > 0 else line
 
 
