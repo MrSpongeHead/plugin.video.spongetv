@@ -541,3 +541,11 @@ def test_newer_progress_from_another_device_wins(premiumize):
     # no Trakt resume point: SpongeTV's own; one saved before SpongeTV kept the time loses to Trakt's
     assert own_is_newer({"position": 5}, "")
     assert not own_is_newer({"position": 5}, iso(now))
+
+
+def test_no_trakt_data_leaves_kodis_own_watched_state():
+    from resources.lib import listing
+    import xbmcgui
+    item = xbmcgui.ListItem("x")
+    listing._played(item.getVideoInfoTag(), None, 6000)
+    assert "setPlaycount" not in item.getVideoInfoTag().calls

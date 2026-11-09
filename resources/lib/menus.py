@@ -158,7 +158,7 @@ def title_items(plugin, app, media, summaries, hide_menu=None):
         has_resume = media == "movie" and ((len(mark) > 1 and bool(mark[1])) or own_resume(app, f"movie:{d.get('id')}"))
         menu = context_menu(plugin, media, d.get("id"), signed_in, has_resume)
         if media == "movie":
-            li = listing.movie_item(d, art, display, ratings, menu, mark)
+            li = listing.movie_item(d, art, display, ratings, menu, mark if signed_in else None)
             asks = "1" if len(mark) > 1 and mark[1] else None   # Kodi asks "Resume from…" itself for this item
             items.append((plugin.url(action="play", media="movie", tmdb_id=d.get("id"), kr=asks), li, False))
         else:

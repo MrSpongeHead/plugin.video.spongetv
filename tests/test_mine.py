@@ -129,7 +129,8 @@ def test_watched_marks_and_resume_points(world):
     films = {i[1].label: i[1] for i in Directory.items}
     assert films["Film 7"].tag.calls["setPlaycount"] == [(1,)]
     assert films["Film 9"].tag.calls["setResumePoint"] == [(2400.0, 6000)]
-    assert "setPlaycount" not in films["Film 3"].tag.calls
+    # unwatched is said outright, so Kodi can't fill in its own play count (the tick stayed after Mark as unwatched)
+    assert films["Film 3"].tag.calls["setPlaycount"] == [(0,)]
 
 
 def test_show_and_season_progress(world):
@@ -141,6 +142,9 @@ def test_show_and_season_progress(world):
     seasons = {i[1].label: i[1] for i in Directory.items}
     assert set(seasons) == {"Season 1 (2/3)", "Season 2 (0/1)"}   # in the name, so every view shows it
     assert seasons["Season 1 (2/3)"].label2 == "2 of 3 watched"
+    call("?action=episodes&tmdb_id=51&season=1")
+    counts = [i[1].tag.calls["setPlaycount"][0][0] for i in Directory.items]
+    assert sorted(counts) == [0, 1, 1]                             # the unwatched one says 0, not nothing
 
 
 def test_hide_watched_per_menu(world):

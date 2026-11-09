@@ -91,7 +91,8 @@ def _episode_items(plugin, app, show, show_art, season_numbers, only=None, show_
             has_resume = bool(mark[1]) or menus.own_resume(app, f"episode:{show['id']}:{season}:{number}")
             menu += menus.play_entries(plugin, has_resume, media="episode", tmdb_id=show["id"], season=season,
                                        episode=number)
-            items.append((url, listing.episode_item(show, episode, art, display, fallback, mark, menu, show_in_label), False))
+            items.append((url, listing.episode_item(show, episode, art, display, fallback, mark if marks.active else None, menu,
+                                                              show_in_label), False))
     return items
 
 

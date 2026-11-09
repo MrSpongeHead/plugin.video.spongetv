@@ -73,10 +73,14 @@ def _no_stream_details(tag):
 
 
 def _played(tag, marks, duration):
-    """marks: (plays, resume percent) or (plays, percent, position, total) when SpongeTV saved the exact spot."""
-    plays, percent, position, total = (tuple(marks or ()) + (0, 0, 0, 0))[:4]
-    if plays:
-        tag.setPlaycount(int(plays))
+    """marks: (plays, resume percent) or (plays, percent, position, total) when SpongeTV saved the exact spot;
+    None when there's no Trakt data (not signed in), leaving Kodi's own watched state to show."""
+    if marks is None:
+        return
+    plays, percent, position, total = (tuple(marks) + (0, 0, 0, 0))[:4]
+    # Always set it, 0 included: if it isn't set, Kodi fills in its own play count for the video, so a tick
+    # would stay after "Mark as unwatched" (CVideoDatabase::GetPlayCounts only fills in counts not set)
+    tag.setPlaycount(int(plays or 0))
     if position and total:
         tag.setResumePoint(float(position), float(total))
     elif percent and duration:
