@@ -297,14 +297,9 @@
 
         <!-- remote hints and ranking note -->
         <control type="label">
-            <left>540</left><top>978</top><width>860</width><height>40</height>
+            <left>540</left><top>978</top><width>1320</width><height>40</height>
             <font>font12</font><textcolor>FFA9BCD6</textcolor>
             <label>$INFO[Window.Property(hints)]</label>
-        </control>
-        <control type="label">
-            <left>1300</left><top>978</top><width>560</width><height>40</height>
-            <font>font12</font><textcolor>FF8FA6C4</textcolor><align>right</align>
-            <label>$INFO[Window.Property(ranking_note)]</label>
         </control>
     </controls>
 </window>

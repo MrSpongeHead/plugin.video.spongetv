@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.6" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.7" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.4.6: Backing out of the search or Source Select no longer ends with Kodi's "Playback failed" message.
+        <news>0.4.7: Premiumize's cache check now asks with the torrent hash, as Seren does, so Ready shows for cached sources (it often said 0 ready before); torrents are still checked if Premiumize's hoster list can't be fetched. Source Select's Menu adds "Why is this source here?" for remotes without an Info button, and the bottom line is a single, clearer hint.
+0.4.6: Backing out of the search or Source Select no longer ends with Kodi's "Playback failed" message.
 0.4.5: No more pause or blank details after you stop a video: SpongeTV leaves Kodi's own resume point alone and lets Kodi ask about it, and asks itself only when Kodi won't. Lists no longer pick up the resolution and audio details Kodi records while playing. Fixed providers from one package sometimes failing when they all started at once.
 0.4.4: "Search for sources again" in the context menu of every film and episode, and in Source Select's menu, runs a fresh search instead of reusing saved results. "Clear resume point" is now in the context menu of any film or episode that has one, whether or not you're signed in to Trakt.
 0.4.3: Clear resume point now clears SpongeTV's own resume point and Kodi's as well as Trakt's. Lists show SpongeTV's exact resume point, and when Kodi asks "Resume from…" for an item, SpongeTV no longer asks again. After you stop a video, the list reloads so the item keeps its details.

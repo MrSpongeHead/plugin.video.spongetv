@@ -1436,11 +1436,7 @@ msgid "From"
 msgstr ""
 
 msgctxt "#30689"
-msgid "Menu: filter, sort, search again   Info: why is this here?"
-msgstr ""
-
-msgctxt "#30690"
-msgid "Sorted by your sort rules"
+msgid "Menu: filter, sort, search again, why it's here"
 msgstr ""
 
 msgctxt "#30691"

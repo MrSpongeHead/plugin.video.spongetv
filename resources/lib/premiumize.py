@@ -34,9 +34,9 @@ def magnet_for(source):
 
 
 def cache_item(source):
-    """What a cache check asks about: a plain magnet link for torrents (Premiumize's documentation asks
-    for links), the link itself for everything else."""
-    return f"magnet:?xt=urn:btih:{source['hash']}" if source.get("type") == "torrent" else source.get("url")
+    """What a cache check asks about: the bare info hash for torrents (as Seren sends, which Premiumize
+    answers correctly), the link itself for everything else."""
+    return source["hash"].lower() if source.get("type") == "torrent" else source.get("url")
 
 
 def episode_pattern(season, episode):
@@ -122,7 +122,14 @@ class Premiumize:
 
     def mark_ready(self, sources):
         """Set source["debrid"] to cached / uncached for torrents and hoster links Premiumize supports."""
-        hosts = self.hosts()
+        try:
+            hosts = self.hosts()
+        except PremiumizeError as error:   # only hoster links need this list: torrents can still be checked
+            if error.kind in ("no_key", "bad_key"):
+                raise
+            from resources.lib import kodi
+            kodi.log(f"Couldn't get Premiumize's hoster list: {error}")
+            hosts = []
         wanted = []
         for source in sources:
             if source.get("debrid") == "cloud":
@@ -136,6 +143,10 @@ class Premiumize:
             item = cache_item(source)
             if item in flags:
                 source["debrid"] = "cached" if flags[item] else "uncached"
+        if wanted:
+            from resources.lib import kodi
+            kodi.log(f"Premiumize cache check: {sum(1 for v in flags.values() if v)} of {len(flags)} ready "
+                     f"({len(wanted)} sources asked about)")
         return sources
 
     def hosts(self):

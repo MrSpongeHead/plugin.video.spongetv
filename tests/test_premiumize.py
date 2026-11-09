@@ -86,7 +86,7 @@ def test_network_trouble_is_not_a_bad_key():
 def test_cache_check_in_batches_and_mark_ready(tmp_path):
     fake = FakePm()
     sources = [torrent(f"Film.1080p.{i}", f"{i:040x}") for i in range(150)]
-    fake.cached = {f"magnet:?xt=urn:btih:{i:040x}": i % 2 == 0 for i in range(150)}
+    fake.cached = {f"{i:040x}": i % 2 == 0 for i in range(150)}
     hoster = normalise({"url": "https://rg.to/file/abc", "release_title": "Film.720p", "host": "rg.to"},
                        {"name": "h", "package": "P"}, "hosters")
     unsupported = normalise({"url": "https://nowhere.example/x", "release_title": "Film.720p"},
@@ -103,7 +103,7 @@ def test_cache_check_in_batches_and_mark_ready(tmp_path):
 
 
 def test_cache_item():
-    assert cache_item(torrent("x", "ab" * 20)) == "magnet:?xt=urn:btih:" + "ab" * 20
+    assert cache_item(torrent("x", "AB" * 20)) == "ab" * 20      # the bare hash, as Seren sends
 
 
 @pytest.mark.parametrize("name, season, episode, hit", [
@@ -278,3 +278,13 @@ def test_accounts_shows_premium_days_not_the_sign_in_length(monkeypatch):
     call("?action=tools_accounts")
     labels = [i[1].label for i in Directory.items]
     assert "Signed in to Premiumize (528 days of premium left)" in labels
+
+
+def test_torrents_still_checked_when_the_hoster_list_fails(tmp_path, monkeypatch):
+    fake = FakePm()
+    fake.cached = {"ab" * 20: True}
+    client = pm(fake)
+    monkeypatch.setattr(Premiumize, "hosts", lambda self: (_ for _ in ()).throw(PremiumizeError("failed")))
+    source = torrent("Film.1080p", "ab" * 20)
+    client.mark_ready([source])
+    assert source["debrid"] == "cached"

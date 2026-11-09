@@ -248,7 +248,7 @@ class SourceSelectWindow(xbmcgui.WindowXMLDialog):
             "play_best": kodi.text("play_best"),
             "col_quality": kodi.text("col_quality"), "col_release": kodi.text("col_release"),
             "col_size": kodi.text("col_size"), "col_status": kodi.text("col_status"), "col_from": kodi.text("col_from"),
-            "hints": kodi.text("select_hints"), "ranking_note": kodi.text("ranking_note"),
+            "hints": kodi.text("select_hints"),
         }
         for key, value in values.items():
             self.setProperty(key, value)
@@ -277,6 +277,8 @@ class SourceSelectWindow(xbmcgui.WindowXMLDialog):
             self.close()
         elif action_id in CONTEXT_ACTIONS:
             options = [kodi.text("menu_filter"), kodi.text("menu_sort"), kodi.text("search_again")]
+            if self.getFocusId() == 1000 and self.shown:
+                options.append(kodi.text("why_heading"))   # for remotes without an Info button
             picked = xbmcgui.Dialog().contextmenu(options)
             if picked == 0 and self.chooser.actions["filter"]():
                 self.fill()
@@ -285,9 +287,14 @@ class SourceSelectWindow(xbmcgui.WindowXMLDialog):
             elif picked == 2:
                 self.choice = SEARCH_AGAIN
                 self.close()
+            elif picked == 3:
+                self.show_why()
         elif action_id in INFO_ACTIONS and self.getFocusId() == 1000 and self.shown:
-            index = self.getControl(1000).getSelectedPosition()
-            xbmcgui.Dialog().textviewer(kodi.text("why_heading"), self.chooser.why(self.shown, index))
+            self.show_why()
+
+    def show_why(self):
+        index = self.getControl(1000).getSelectedPosition()
+        xbmcgui.Dialog().textviewer(kodi.text("why_heading"), self.chooser.why(self.shown, index))
 
 
 def choose_source(chooser):
