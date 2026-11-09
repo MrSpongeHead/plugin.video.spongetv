@@ -85,6 +85,7 @@ class SearchWindow(xbmcgui.WindowXMLDialog):
         super().__init__(*args)
         self.choose_now = False
         self.cancelled = False
+        self.choose_tries = 0
 
     def onClick(self, control_id):
         if control_id == 3001:
@@ -109,6 +110,27 @@ def run_search(search, title, fanart, early, monitor=None):
     return _run_search_simple(search, title, early, monitor)
 
 
+def focus_buttons(window, can_choose):
+    """Kodi can't focus "Choose from N found" while it's disabled (nothing found yet), so the window would
+    open with nothing focused and OK would do nothing. Focus Cancel at first, then move to Choose once
+    there's something to choose. Kodi enables the button on its next screen refresh, so moving there can
+    fail the first time: keep trying for a couple of seconds, until Choose has the focus."""
+    try:
+        focused = window.getFocusId()
+    except (RuntimeError, TypeError):
+        focused = 0
+    if focused == 3001:
+        window.choose_tries = CHOOSE_TRIES          # done: from now on, focus is yours to move
+    if can_choose and window.choose_tries < CHOOSE_TRIES and focused in (0, 3002):
+        window.choose_tries += 1
+        window.setFocusId(3001)
+    elif focused not in (3001, 3002):
+        window.setFocusId(3002)
+
+
+CHOOSE_TRIES = 10   # polls (a fifth of a second each)
+
+
 def _run_search_window(search, title, fanart, early, monitor):
     window = SearchWindow(SEARCH_XML, kodi.ADDON_PATH, "Default", "1080i")
     window.setProperty("fanart", fanart or "")
@@ -125,6 +147,7 @@ def _run_search_window(search, title, fanart, early, monitor):
                 window.getControl(3100).setPercent(percent)
             except (RuntimeError, TypeError):
                 pass
+            focus_buttons(window, bool(lines["can_choose"]))
             if window.cancelled:
                 search.cancel()
                 outcome = "cancelled"

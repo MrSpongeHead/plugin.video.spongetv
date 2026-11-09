@@ -310,3 +310,31 @@ def test_last_sources_are_checked_after_the_search_ends():
             break
         time.sleep(0.02)
     assert search.status()["checking"] == 0 and search.status()["ready"] == 3
+
+
+def test_search_window_buttons_get_focus():
+    from resources.lib import windows
+
+    class Window:
+        """Like Kodi: focusing a disabled button does nothing; buttons enable on the next refresh."""
+        def __init__(self):
+            self.focus, self.choose_tries, self.enabled = 0, 0, False
+
+        def getFocusId(self):
+            return self.focus
+
+        def setFocusId(self, control):
+            if control != 3001 or self.enabled:
+                self.focus = control
+    window = Window()
+    windows.focus_buttons(window, can_choose=False)
+    assert window.focus == 3002                    # nothing found yet: Cancel, so OK always does something
+    windows.focus_buttons(window, can_choose=True)
+    assert window.focus == 3002                    # Choose isn't enabled until the next refresh...
+    window.enabled = True
+    windows.focus_buttons(window, can_choose=True)
+    assert window.focus == 3001                    # ...so it tries again
+    windows.focus_buttons(window, can_choose=True)
+    window.focus = 3002                            # then you move back to Cancel yourself
+    windows.focus_buttons(window, can_choose=True)
+    assert window.focus == 3002

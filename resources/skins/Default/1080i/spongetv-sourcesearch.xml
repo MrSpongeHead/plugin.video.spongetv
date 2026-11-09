@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- SpongeTV source search progress: a centred window over the dimmed fanart. -->
 <window>
-    <defaultcontrol always="true">3001</defaultcontrol>
+    <defaultcontrol always="true">3002</defaultcontrol>
     <animation type="WindowOpen" reversible="false">
         <effect type="fade" start="0" end="100" time="200"/>
     </animation>
