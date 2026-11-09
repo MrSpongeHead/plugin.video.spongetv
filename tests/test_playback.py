@@ -518,3 +518,26 @@ def test_watching_an_episode_to_the_end_marks_it_watched_straight_away(premiumiz
     assert app.library.watched_episodes(50)[(1, 2)][0] == 1
     assert app.library.progress("episode", show=50, season=1, episode=2)[0] in (0, None)
     assert app.store.cache_get("resume:episode:50:1:2") is None
+
+
+def test_newer_progress_from_another_device_wins(premiumize):
+    import time
+    from resources.lib.marks import Marks, own_is_newer
+    app = context.App()
+    target = playback.Target(app, {"media": "movie", "tmdb_id": 7})
+    now = time.time()
+    iso = lambda t: time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(t))
+    # SpongeTV stopped at 20% an hour ago; Seren carried on to 60% ten minutes ago
+    app.store.cache_set("resume:movie:7", {"position": 1200, "total": 6000, "percent": 20, "saved": now - 3600}, 3600)
+    app.library.add("playback", "movie", 7, value=60.0, at=iso(now - 600))
+    assert target.runtime_seconds > 0
+    assert playback.saved_position(app, target) == pytest.approx(0.6 * target.runtime_seconds)
+    assert Marks(app.library).movie(7) == (0, 60.0)
+    # SpongeTV's own stop is the newest (Trakt's copy of it arrives a moment later): its exact spot wins
+    app.store.cache_set("resume:movie:7", {"position": 1200, "total": 6000, "percent": 20, "saved": now}, 3600)
+    app.library.add("playback", "movie", 7, value=20.0, at=iso(now + 3))
+    assert playback.saved_position(app, target) == 1200
+    assert Marks(app.library).movie(7) == (0, 20, 1200, 6000)
+    # no Trakt resume point: SpongeTV's own; one saved before SpongeTV kept the time loses to Trakt's
+    assert own_is_newer({"position": 5}, "")
+    assert not own_is_newer({"position": 5}, iso(now))

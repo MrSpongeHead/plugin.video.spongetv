@@ -94,13 +94,15 @@ def resume_key(target):
 
 def saved_position(app, target):
     """Seconds to resume from: SpongeTV's own point, or Trakt's percentage of the runtime."""
-    own = app.store.cache_get(resume_key(target))
-    if own and own.get("position", 0) >= MIN_RESUME:
-        return float(own["position"])
+    from resources.lib.marks import own_is_newer
     if target.media == "movie":
-        percent, _ = app.library.progress("movie", target.tmdb_id)
+        where = {"media": "movie", "tmdb_id": target.tmdb_id}
     else:
-        percent, _ = app.library.progress("episode", show=target.tmdb_id, season=target.season, episode=target.episode)
+        where = {"media": "episode", "show": target.tmdb_id, "season": target.season, "episode": target.episode}
+    own = app.store.cache_get(resume_key(target))
+    if own and own.get("position", 0) >= MIN_RESUME and own_is_newer(own, app.library.progress_at(**where)):
+        return float(own["position"])
+    percent, _ = app.library.progress(**where)
     seconds = percent / 100 * target.runtime_seconds
     return seconds if seconds >= MIN_RESUME and percent < WATCHED_AT else 0
 
@@ -349,7 +351,8 @@ class Follower(xbmc.Player):
             if finished:
                 self.app.store.cache_delete(key)
             return
-        self.app.store.cache_set(key, {"position": position, "total": total, "percent": percent}, 365 * 86400)
+        self.app.store.cache_set(key, {"position": position, "total": total, "percent": percent,
+                                       "saved": time.time()}, 365 * 86400)
 
 
 # -- the play action ---------------------------------------------------------------------------------------------

@@ -25,6 +25,26 @@ def aired_counts(details):
     return counts
 
 
+SAME_TIME = 120   # seconds: SpongeTV tells Trakt as it saves, so Trakt's copy of the same stop is a little later
+
+
+def own_is_newer(own, trakt_at):
+    """Should SpongeTV's own resume point (exact) win over Trakt's (a percentage, maybe from another
+    device)? Yes unless Trakt's was saved later, e.g. you carried on watching in Seren."""
+    if not trakt_at:
+        return True
+    saved = own.get("saved")
+    if not saved:
+        return False      # saved before SpongeTV kept the time: Trakt's is the safer guess
+    import datetime
+    try:
+        when = datetime.datetime.strptime(trakt_at[:19], "%Y-%m-%dT%H:%M:%S").replace(
+            tzinfo=datetime.timezone.utc).timestamp()
+    except ValueError:
+        return True
+    return saved >= when - SAME_TIME
+
+
 class Marks:
     """Answers "how watched is this?" for menus. Without a Trakt sign-in, everything is unwatched."""
 
@@ -35,10 +55,11 @@ class Marks:
     def active(self):
         return self.library is not None
 
-    def _own(self, key):
-        """SpongeTV's own resume point (saved while playing): (percent, position, total) or None."""
+    def _own(self, key, trakt_at=""):
+        """SpongeTV's own resume point (saved while playing): (percent, position, total), or None if
+        there isn't one or Trakt has a newer one."""
         saved = self.library.store.cache_get(f"resume:{key}")
-        if saved and saved.get("position") and saved.get("total"):
+        if saved and saved.get("position") and saved.get("total") and own_is_newer(saved, trakt_at):
             return saved.get("percent", 0), saved["position"], saved["total"]
         return None
 
@@ -47,7 +68,7 @@ class Marks:
         if not self.library:
             return 0, 0
         plays = self.library.movie_plays(tmdb_id)
-        own = self._own(f"movie:{tmdb_id}")
+        own = self._own(f"movie:{tmdb_id}", self.library.progress_at("movie", tmdb_id))
         return (plays,) + own if own else (plays, self.library.progress("movie", tmdb_id)[0])
 
     def _show_episodes(self, show_id):
@@ -76,7 +97,8 @@ class Marks:
         if not self.library:
             return 0, 0
         plays = self._show_episodes(show_id).get((season, episode), (0, ""))[0]
-        own = self._own(f"episode:{show_id}:{season}:{episode}")
+        own = self._own(f"episode:{show_id}:{season}:{episode}",
+                        self.library.progress_at("episode", show=show_id, season=season, episode=episode))
         return (plays,) + own if own else (plays, self.library.progress("episode", show=show_id, season=season,
                                                                          episode=episode)[0])
 

@@ -118,6 +118,16 @@ class Library:
         extra = json.loads(rows[0][1] or "{}")
         return float(rows[0][0] or 0), extra.get("playback_id")
 
+    def progress_at(self, media, tmdb_id=None, show=None, season=None, episode=None):
+        """When Trakt's resume point was saved (its paused_at, an ISO time), or ""."""
+        if media == "episode":
+            rows = self.store.query("SELECT at FROM library WHERE part = 'playback' AND media = 'episode' "
+                                    "AND show_tmdb_id = ? AND season = ? AND episode = ?", (show, season, episode))
+        else:
+            rows = self.store.query("SELECT at FROM library WHERE part = 'playback' AND media = 'movie' "
+                                    "AND tmdb_id = ?", (tmdb_id,))
+        return (rows[0][0] or "") if rows else ""
+
     def in_progress(self, media):
         """Films, or (show, season, episode) triples, with a resume point, newest first."""
         if media == "movie":
