@@ -440,3 +440,64 @@ def test_picking_a_source_premiumize_hasnt_cached(premiumize, monkeypatch):
     assert [m for kind, m in FakeDialog.shown if kind == "notification"] == [
         "Not cached on Premiumize, and none below it is ready. Choose another.",
         "Not cached on Premiumize: playing the next ready source"]
+
+
+class FakeTrakt:
+    def __init__(self, fail=False):
+        self.sent, self.fail = [], fail
+
+    def scrobble(self, action, body):
+        if self.fail:
+            raise RuntimeError("Trakt said no")
+        self.sent.append((action, body.get("progress")))
+
+
+def follow_film(monkeypatch, script, trakt):
+    import xbmc
+    app = context.App()
+    monkeypatch.setattr(context.App, "signed_in", property(lambda self: True))
+    monkeypatch.setattr(context.App, "trakt", property(lambda self: trakt))
+    app.library.add("playback", "movie", 7, value=32.0, at="2026-11-01T00:00:00.000Z")   # Trakt's old resume point
+    xbmc.Player.script = script
+    follower = playback.Follower(app, playback.Target(app, {"media": "movie", "tmdb_id": 7}), "plugin://x")
+    follower.follow()
+    return app, follower
+
+
+def test_watching_a_film_to_the_end_marks_it_watched_straight_away(premiumize, monkeypatch):
+    trakt = FakeTrakt()
+    app, follower = follow_film(monkeypatch, [(1930, 6000), (5990, 6000)], trakt)
+    assert follower.watched and trakt.sent[-1][0] == "stop"
+    assert app.library.movie_plays(7) == 1                     # the tick shows without waiting for a sync
+    assert app.library.progress("movie", 7)[0] in (0, None)    # and Trakt's old resume point has gone
+    assert app.store.cache_get("resume:movie:7") is None
+
+
+def test_stopping_part_way_keeps_it_unwatched(premiumize, monkeypatch):
+    app, follower = follow_film(monkeypatch, [(100, 6000), (3000, 6000)], FakeTrakt())
+    assert not follower.watched and app.library.movie_plays(7) == 0
+    assert app.store.cache_get("resume:movie:7")["position"] == 3000
+
+
+def test_past_80_percent_counts_as_watched_like_trakt(premiumize, monkeypatch):
+    app, follower = follow_film(monkeypatch, [(100, 6000), (4900, 6000)], FakeTrakt())   # 82%
+    assert follower.watched and app.library.movie_plays(7) == 1
+    assert app.store.cache_get("resume:movie:7") is None
+
+
+def test_not_marked_here_if_trakt_refused_the_scrobble(premiumize, monkeypatch):
+    app, follower = follow_film(monkeypatch, [(100, 6000), (5990, 6000)], FakeTrakt(fail=True))
+    assert follower.watched and app.library.movie_plays(7) == 0   # the next sync decides
+
+
+def test_list_reloads_after_something_was_watched(premiumize, monkeypatch):
+    import xbmc
+    monkeypatch.setattr(xbmc, "getInfoLabel",
+                        lambda label: "plugin://plugin.video.spongetv/?action=movies" if label == "Container.FolderPath"
+                        else "", raising=False)
+    playback.refresh_when_back(xbmc.Monitor(), wait=1)
+    assert "Container.Refresh" in Directory.builtins
+    Directory.builtins.clear()
+    monkeypatch.setattr(xbmc, "getInfoLabel", lambda label: "videodb://movies/", raising=False)
+    playback.refresh_when_back(xbmc.Monitor(), wait=1)
+    assert "Container.Refresh" not in Directory.builtins      # not SpongeTV's list: leave it alone

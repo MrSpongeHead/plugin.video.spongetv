@@ -20,7 +20,7 @@ from resources.lib.sources import movie_request
 
 SOURCE_SELECT, AUTO_PLAY = 0, 1
 SAVE_EVERY = 10            # seconds between local resume point saves
-WATCHED_AT = 90            # percent: past this, the resume point is cleared
+WATCHED_AT = 80            # percent: past this it counts as watched (Trakt's own rule) and the resume point is cleared
 MIN_RESUME = 60            # seconds: don't offer to resume from the first minute
 START_WAIT = 60            # seconds to wait for Kodi to start playing
 
@@ -247,6 +247,7 @@ class Follower(xbmc.Player):
         self.events = []
         self.on_tick = None          # Smart Play: called with (position, total) about once a second
         self.ended = False           # reached the end by itself (not stopped)
+        self.watched = False         # watched past WATCHED_AT: marked watched here and on Trakt
 
     def onAVStarted(self):
         self.events.append("started")
@@ -265,12 +266,15 @@ class Follower(xbmc.Player):
         self.ended = True
 
     def _scrobble(self, action, percent):
+        """True if Trakt took it (or it was queued to send later)."""
         if not self.app.signed_in or not self.target.tmdb_id:
-            return   # not signed in, or the made-up window-test film
+            return False   # not signed in, or the made-up window-test film
         try:
             self.app.trakt.scrobble(action, self.target.trakt_body(percent))
+            return True
         except Exception as error:   # never let Trakt stop playback
             kodi.log_error(f"Scrobble {action} failed: {error}")
+            return False
 
     def follow(self, monitor=None):
         """Wait for playback, then follow it to the end. Returns the last percentage watched."""
@@ -314,8 +318,13 @@ class Follower(xbmc.Player):
             if monitor.waitForAbort(1):
                 break
         percent = self._percent(position, total)
-        self._scrobble("stop", percent)
+        sent = self._scrobble("stop", percent)
         self.save(position, total, finished=True)
+        if percent >= WATCHED_AT and self.target.tmdb_id:
+            self.watched = True
+            kodi.log(f"Watched {self.target.key} to {percent:.0f}%" + ("" if sent else " (Trakt wasn't told)"))
+            if sent:
+                mark_finished(self.app, self.target)
         xbmcgui.Window(10000).setProperty("spongetv.sync_soon", "1")
         return percent
 
@@ -427,10 +436,52 @@ def play_show(plugin, app):
     play(plugin, app)
 
 
+def mark_finished(app, target):
+    """Mark it watched and drop its Trakt resume point here straight away, as Seren does, rather than
+    waiting for the next sync (Trakt doesn't always say its resume point has gone)."""
+    from resources.lib.actions import _now
+    lib = app.library
+    try:
+        if target.media == "movie":
+            lib.add("watched", "movie", target.tmdb_id, value=lib.movie_plays(target.tmdb_id) + 1, at=_now())
+            lib.remove("playback", "movie", target.tmdb_id)
+        else:
+            plays = lib.watched_episodes(target.tmdb_id).get((target.season, target.episode), (0, ""))[0]
+            lib.add("watched", "episode", show=target.tmdb_id, season=target.season, episode=target.episode,
+                    value=int(plays or 0) + 1, at=_now())
+            lib.remove("playback", "episode", show=target.tmdb_id, season=target.season, episode=target.episode)
+    except Exception as error:   # the next sync puts it right anyway
+        kodi.log_error(f"Couldn't mark {target.key} watched here: {error}")
+
+
+def refresh_when_back(monitor, wait=10.0):
+    """Once playback has closed and a SpongeTV list is showing, reload it so the watched tick shows
+    (Kodi may otherwise show its saved copy of the list). Only called after something was watched."""
+    waited = 0.0
+    while waited < wait:
+        if not xbmc.Player().isPlayingVideo() and not xbmc.getCondVisibility("Window.IsActive(fullscreenvideo)"):
+            if xbmc.getInfoLabel("Container.FolderPath").startswith("plugin://plugin.video.spongetv"):
+                xbmc.executebuiltin("Container.Refresh")
+            return
+        if monitor.waitForAbort(0.5):
+            return
+        waited += 0.5
+
+
 def follow_episodes(app, target, url, start_at):
+    """Follow playback (and Smart Play's next episodes), then reload the list if anything was watched."""
+    monitor = xbmc.Monitor()
+    watched = []
+    try:
+        _follow_episodes(app, target, url, start_at, monitor, watched)
+    finally:
+        if watched and not monitor.abortRequested():
+            refresh_when_back(monitor)
+
+
+def _follow_episodes(app, target, url, start_at, monitor, watched):
     """Follow playback, then keep going with the next episode for as long as Smart Play says so."""
     from resources.lib import smartplay
-    monitor = xbmc.Monitor()
     in_a_row = 1          # episodes watched in a row, including this one
     while True:
         follower = Follower(app, target, url, start_at)
@@ -439,6 +490,8 @@ def follow_episodes(app, target, url, start_at):
         try:
             follower.follow(monitor)
             ended = follower.ended
+            if follower.watched:
+                watched.append(target.key)
         finally:
             del follower   # Kodi players must be released before the script ends
         prepared = smart.finish(ended)
