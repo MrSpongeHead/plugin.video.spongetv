@@ -150,12 +150,19 @@
             </control>
 
             <!-- buttons -->
+            <!-- Choose: navy and greyed while nothing's found ("Waiting for sources…"); navy with an amber
+                 outline when it can be chosen; solid amber only when focused, so solid amber always means
+                 "this is what OK will press". The navy pill sits behind the button for every state. -->
+            <control type="image">
+                <left>56</left><top>556</top><width>420</width><height>68</height>
+                <texture border="20" colordiffuse="FF24406A">spongetv-pill.png</texture>
+            </control>
             <control type="button" id="3001">
                 <left>56</left><top>556</top><width>420</width><height>68</height>
-                <font>font13</font><textcolor>FF0A1428</textcolor><focusedcolor>FF0A1428</focusedcolor>
+                <font>font13</font><textcolor>FFF5A524</textcolor><focusedcolor>FF0A1428</focusedcolor>
                 <disabledcolor>FF8FA6C4</disabledcolor>
                 <align>center</align><aligny>center</aligny>
-                <texturenofocus border="20" colordiffuse="CCF5A524">spongetv-pill.png</texturenofocus>
+                <texturenofocus border="20" colordiffuse="$INFO[Window.Property(choose_outline)]">spongetv-pill-outline.png</texturenofocus>
                 <texturefocus border="20" colordiffuse="FFF5A524">spongetv-pill.png</texturefocus>
                 <label>$INFO[Window.Property(choose_label)]</label>
                 <enable>!String.IsEmpty(Window.Property(can_choose))</enable>

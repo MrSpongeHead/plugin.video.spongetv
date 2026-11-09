@@ -516,6 +516,7 @@ STRINGS = {
     "ready_checking": (30828, "Asking Premiumize which of {count} are ready…"),
     "ready_now_checking": (30829, "{count} ready to play now (checking {more} more)"),
     "ready_check_failed": (30830, "Couldn't ask Premiumize which are ready"),
+    "waiting_for_sources": (30831, "Waiting for sources…"),
     "window_test_live": (30764, "Window test: real search with your providers (made-up film)"),
 }
 

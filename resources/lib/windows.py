@@ -72,8 +72,9 @@ def search_properties(status, title, early):
                        if status["early"] else kodi.text("early_stop_off")),
         "searching_line": (kodi.text("still_searching", names=", ".join(status["searching"][:6]))
                            if status["searching"] else ""),
-        "choose_label": kodi.text("choose_from_found", count=found),
+        "choose_label": kodi.text("choose_from_found", count=found) if found else kodi.text("waiting_for_sources"),
         "can_choose": "1" if found else "",
+        "choose_outline": "FFF5A524" if found else "00FFFFFF",   # the amber outline only once it can be chosen
         "cancel_label": kodi.text("cancel"),
     }
     percent = int(100 * status["done"] / status["total"]) if status["total"] else 100

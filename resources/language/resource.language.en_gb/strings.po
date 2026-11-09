@@ -1990,3 +1990,7 @@ msgstr ""
 msgctxt "#30830"
 msgid "Couldn't ask Premiumize which are ready"
 msgstr ""
+
+msgctxt "#30831"
+msgid "Waiting for sources…"
+msgstr ""
