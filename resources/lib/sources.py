@@ -159,8 +159,15 @@ def episode_request(show, episode, airing=None):
     info = {"info": {"tvshowtitle": title, "title": episode.get("name"), "originaltitle": episode.get("name"),
                      "season": season, "episode": number, "year": year, "tvshow.year": year,
                      "imdb_id": external.get("imdb_id"), "tvdb_id": external.get("tvdb_id"), "tmdb_id": show.get("id"),
-                     "premiered": episode.get("air_date"), "country_origin": country.lower(), "genre": genres,
-                     "aliases": list(aliases)},
+                     "premiered": episode.get("air_date"), "aired": episode.get("air_date"),
+                     "country_origin": country.lower(), "genre": genres, "aliases": list(aliases),
+                     "mediatype": "episode",
+                     # Seren copies the show's IDs into each episode as tvshow.<id>; providers that look
+                     # an episode up by the show's IMDb ID read tvshow.imdb_id
+                     "tvshow.imdb_id": external.get("imdb_id"), "tvshow.tmdb_id": show.get("id"),
+                     "tvshow.tvdb_id": external.get("tvdb_id")},
+            "showInfo": {"ids": {"imdb": external.get("imdb_id"), "tmdb": show.get("id"),
+                                 "tvdb": external.get("tvdb_id")}},
             "season_count": len(seasons), "episode_count": simple["no_episodes"], "absoluteNumber": absolute,
             "is_airing": simple["is_airing"]}
     return {"media": "episode", "title": title, "year": year, "imdb": external.get("imdb_id"),

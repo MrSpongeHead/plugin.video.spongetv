@@ -218,6 +218,9 @@ def test_requests_are_built_like_serens():
     assert (simple["season_number"], simple["episode_number"], simple["absolute_number"]) == ("2", "3", "13")
     assert simple["no_seasons"] == "2" and simple["no_episodes"] == "18"
     assert request_key(episode) == "sources:episode:7:2:3"
+    # providers that look an episode up by the show's IMDb ID read it where Seren puts it
+    assert episode["info"]["info"]["tvshow.imdb_id"] == "tt7"
+    assert episode["info"]["showInfo"]["ids"]["imdb"] == "tt7"
 
 
 # -- the search ---------------------------------------------------------------------------------------
