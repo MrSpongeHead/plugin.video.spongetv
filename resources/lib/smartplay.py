@@ -166,8 +166,10 @@ class SmartPlay:
         self.enabled = kodi.setting_bool("play.next")
         self.card_seconds = max(10, kodi.setting_int("play.next_seconds") or 30)
         self.use_credits = kodi.setting_bool("play.next_credits")
+        self.credits_delay = max(0, kodi.setting_int("play.credits_delay"))
         self.card_total = None      # seconds left when the card appeared: the countdown runs from this
         self.credits_logged = False
+        self.credits_start = None
         self.prepared = None
         self.window = None
         self.choice = None
@@ -201,17 +203,23 @@ class SmartPlay:
                     self.player.stop()
 
     def card_at(self, position, total):
-        """How many seconds before the end the card appears: when the end credits start (if the video's
-        chapters show them and the setting is on), but never later than the Playing Next setting."""
+        """How many seconds before the end the card appears: a few seconds (the credits delay setting) after
+        the end credits start, if the video's chapters show them and the setting is on, but never later
+        than the Playing Next setting."""
         if not self.use_credits or self.window is not None or self.choice is not None:
             return self.card_seconds
         credits = chapter_credits_left(position, total)
         if credits is None:
+            self.credits_start = None     # not in the credits (or you went back before them)
             return self.card_seconds
+        # A chapter found by name is measured from where you are now, so remember where the credits began
+        if self.credits_start is None or credits > self.credits_start:
+            self.credits_start = credits
+        credits = self.credits_start
         if not self.credits_logged:
             kodi.log(f"Smart Play: end credits start {int(credits)} seconds before the end (from the chapters)")
             self.credits_logged = True
-        return max(credits, self.card_seconds)
+        return max(credits - self.credits_delay, self.card_seconds)
 
     def _show_card(self):
         try:

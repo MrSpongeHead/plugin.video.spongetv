@@ -2074,3 +2074,7 @@ msgstr ""
 msgctxt "#30856"
 msgid "Show Playing Next when the end credits start"
 msgstr ""
+
+msgctxt "#30857"
+msgid "Wait this many seconds after the credits start"
+msgstr ""

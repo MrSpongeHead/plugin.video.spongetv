@@ -557,6 +557,23 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="play.credits_delay" type="integer" label="30857">
+                    <level>0</level>
+                    <default>5</default>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="play.next_credits">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <constraints>
+                        <minimum>0</minimum>
+                        <step>5</step>
+                        <maximum>30</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
                 <setting id="play.still_watching" type="integer" label="30808">
                     <level>0</level>
                     <default>3</default>

@@ -93,11 +93,30 @@ def test_card_shows_when_the_credits_start(show, monkeypatch):
     shown = []
     monkeypatch.setattr(smartplay.SmartPlay, "_show_card", lambda self: (shown.append(1), setattr(self, "window", Card())))
     FakeAddon.settings["play.next_credits"] = True
+    FakeAddon.settings["play.credits_delay"] = 0
     smart = smartplay.SmartPlay(app, target(app, 1, 1), FakePlayer())
     smart.tick(2840, 3000)
     assert shown == [] and smart.prepared is not None     # preparing, credits not started yet (150 s left)
     smart.tick(2851, 3000)
     assert shown == [1] and smart.card_total == 149        # the countdown runs from the start of the credits
+    # with the default 5-second wait after the credits start
+    FakeAddon.settings["play.credits_delay"] = 5
+    shown.clear()
+    smart = smartplay.SmartPlay(app, target(app, 1, 1), FakePlayer())
+    smart.tick(2851, 3000)
+    assert shown == []
+    smart.tick(2855, 3000)
+    assert shown == [1] and smart.card_total == 145
+    # found by name: the wait counts from when the credits chapter began, not from each tick
+    labels.update({"Player.Chapters": "", "Player.ChapterCount": "", "Player.ChapterName": "End Credits"})
+    shown.clear()
+    smart = smartplay.SmartPlay(app, target(app, 1, 1), FakePlayer())
+    for second in range(2900, 2904):
+        smart.tick(second, 3000)
+    assert shown == []
+    smart.tick(2905, 3000)
+    assert shown == [1] and smart.card_total == 95
+    labels.update({"Player.Chapters": "0.0,40.0,40.0,95.0", "Player.ChapterCount": "03", "Player.ChapterName": ""})
     # switched off: back to the fixed 30 seconds
     FakeAddon.settings["play.next_credits"] = False
     shown.clear()

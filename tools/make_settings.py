@@ -55,12 +55,12 @@ def hidden_text(sid_):
             f'                    <control type="edit" format="string"/>\n                </setting>\n')
 
 
-def number(sid_, label, default, minimum, maximum, step=None, slider=False, level=2):
+def number(sid_, label, default, minimum, maximum, step=None, slider=False, level=2, extra=""):
     step_xml = f"\n                        <step>{step}</step>" if step else ""
     control = ('<control type="slider" format="integer">\n                        <popup>false</popup>\n                    </control>'
                if slider else f'<control type="edit" format="integer">\n                        <heading>{sid(label)}</heading>\n                    </control>')
     return (f'                <setting id="{sid_}" type="integer" label="{sid(label)}">\n'
-            f'                    <level>{level}</level>\n                    <default>{default}</default>\n'
+            f'                    <level>{level}</level>\n                    <default>{default}</default>{extra}\n'
             f'                    <constraints>\n                        <minimum>{minimum}</minimum>{step_xml}\n'
             f'                        <maximum>{maximum}</maximum>\n                    </constraints>\n'
             f'                    {control}\n                </setting>\n')
@@ -180,6 +180,8 @@ def render():
                       boolean("play.next", "set_play_next", True)
                       + number("play.next_seconds", "set_next_seconds", 30, 10, 120, step=5, slider=True, level=0)
                       + boolean("play.next_credits", "set_next_credits", True)
+                      + number("play.credits_delay", "set_credits_delay", 5, 0, 30, step=5, slider=True, level=0,
+                               extra=visible_if("play.next_credits", "true"))
                       + number("play.still_watching", "set_still_watching", 3, 0, 10, step=1, slider=True, level=0))
     views = "".join(number(f"view.{v}", f"set_view_{v}", 0, 0, 9999) for v in ("movies", "tvshows", "seasons", "episodes"))
     advanced = group("views", "grp_views", views)
