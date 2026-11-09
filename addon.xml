@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.19" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.20" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.4.19: Picking a source Premiumize hasn't cached now tells you so: "Not cached on Premiumize: playing the next ready source", or, if nothing below it is ready, asks you to choose another.
+        <news>0.4.20: Smart Play is more reliable: a moment when Kodi reports nothing playing (for example while the TV switches to 4K) no longer ends it, and an episode that plays to its natural end always counts as watched. Smart Play now writes each step to Kodi's log. "Mark as unwatched" now clears the tick on films and episodes. Resume uses whichever point is newer: SpongeTV's own or Trakt's from another device.
+0.4.19: Picking a source Premiumize hasn't cached now tells you so: "Not cached on Premiumize: playing the next ready source", or, if nothing below it is ready, asks you to choose another.
 0.4.18: When Playing Next waits for the end credits, it now gives them a few seconds first, so the card doesn't cover the final moments (Settings, Playback: "Wait this many seconds after the credits start", 5 by default). It still never appears later than your seconds setting.
 0.4.17: Playing Next can appear when the end credits start, if the episode has chapters that show where they begin (Settings, Playback: "Show Playing Next when the end credits start"). It never appears later than your seconds setting, and episodes without chapters work as before.
 0.4.16: Source Select keeps the quality and status text when you move to Play best source, Filter or Sort.

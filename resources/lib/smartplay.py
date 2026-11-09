@@ -200,6 +200,7 @@ class SmartPlay:
                 self.choice = self.window.choice
                 self._close_card()
                 if self.choice == "now":
+                    kodi.log("Smart Play: Play now pressed")
                     self.player.stop()
 
     def card_at(self, position, total):
@@ -254,9 +255,12 @@ class SmartPlay:
         self._close_card()
         if not self.next or self.choice == "stop":
             self.cancelled = True
+            if self.next:
+                kodi.log("Smart Play: stopping after this episode, as asked")
             return None
         if not ended and self.choice != "now":
             self.cancelled = True     # you stopped it yourself
+            kodi.log("Smart Play: not playing the next episode, because this one was stopped before the end")
             return None
         if self.prepared is None:
             self.prepared = Prepared(self.next_target)

@@ -549,3 +549,86 @@ def test_no_trakt_data_leaves_kodis_own_watched_state():
     item = xbmcgui.ListItem("x")
     listing._played(item.getVideoInfoTag(), None, 6000)
     assert "setPlaycount" not in item.getVideoInfoTag().calls
+
+
+class Quiet:
+    """A monitor that never aborts."""
+    def waitForAbort(self, seconds=0):
+        return False
+
+    def abortRequested(self):
+        return False
+
+
+def scripted(follower, readings):
+    """readings: (position, total) while playing, None for a moment when Kodi says nothing is playing,
+    "ended" / "stopped" / "started" for Kodi's callbacks."""
+    steps = list(readings)
+    first = next(i for i, r in enumerate(steps) if isinstance(r, tuple))
+    steps.insert(first, steps[first])      # follow() asks once while waiting for playback to start
+    state = {"now": None}
+
+    def is_playing():
+        while steps and isinstance(steps[0], str):
+            event = steps.pop(0)
+            {"ended": follower.onPlayBackEnded, "stopped": follower.onPlayBackStopped,
+             "started": follower.onAVStarted}[event]()
+        if not steps:
+            return False
+        state["now"] = steps.pop(0)
+        return state["now"] is not None
+    follower.isPlayingVideo = is_playing
+    follower.getTime = lambda: state["now"][0]
+    follower.getTotalTime = lambda: state["now"][1]
+
+
+def make_follower(monkeypatch, trakt):
+    app = context.App()
+    monkeypatch.setattr(context.App, "signed_in", property(lambda self: True))
+    monkeypatch.setattr(context.App, "trakt", property(lambda self: trakt))
+    target = playback.Target(app, {"media": "episode", "tmdb_id": 50, "season": 1, "episode": 2})
+    return app, playback.Follower(app, target, "plugin://x")
+
+
+def test_a_natural_end_counts_as_watched_whatever_the_last_reading(premiumize, monkeypatch):
+    app, follower = make_follower(monkeypatch, FakeTrakt())
+    scripted(follower, ["started", (2990, 3000), (0, 3000), "ended"])    # Kodi read 0 as it closed the file
+    follower.follow(Quiet())
+    assert follower.ended and follower.watched
+    assert app.library.watched_episodes(50)[(1, 2)][0] == 1
+
+
+def test_a_moment_with_nothing_playing_doesnt_end_following(premiumize, monkeypatch):
+    app, follower = make_follower(monkeypatch, FakeTrakt())
+    ticks = []
+    follower.on_tick = lambda position, total: ticks.append(position)
+    scripted(follower, ["started", (10, 3000), None, None, (12, 3000), (13, 3000), "stopped"])
+    follower.follow(Quiet())
+    assert ticks == [10, 12, 13]            # carried on after the TV's display switch
+    assert not follower.watched and app.store.cache_get("resume:episode:50:1:2") is None   # too early to save
+
+
+def test_nothing_playing_for_a_while_ends_following(premiumize, monkeypatch):
+    app, follower = make_follower(monkeypatch, FakeTrakt())
+    scripted(follower, ["started", (100, 3000)] + [None] * 20)
+    follower.follow(Quiet())
+    assert not follower.ended and not follower.watched
+
+
+def test_another_video_starting_ends_following(premiumize, monkeypatch):
+    app, follower = make_follower(monkeypatch, FakeTrakt())
+    ticks = []
+    follower.on_tick = lambda position, total: ticks.append(position)
+    scripted(follower, ["started", (100, 3000), "started", (5, 9000), (6, 9000)])
+    follower.follow(Quiet())
+    assert ticks == [100]
+
+
+def test_a_late_end_signal_from_the_previous_episode_is_ignored(premiumize, monkeypatch):
+    app, follower = make_follower(monkeypatch, FakeTrakt())
+    follower.onPlayBackEnded()                        # the previous episode's, arriving late
+    ticks = []
+    follower.on_tick = lambda position, total: ticks.append(position)
+    scripted(follower, ["started", (1, 3000), None, (3, 3000), (4, 3000), "stopped"])
+    follower.follow(Quiet())
+    assert ticks == [1, 3, 4] and not follower.ended and not follower.watched

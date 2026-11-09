@@ -23,6 +23,7 @@ SAVE_EVERY = 10            # seconds between local resume point saves
 WATCHED_AT = 80            # percent: past this it counts as watched (Trakt's own rule) and the resume point is cleared
 MIN_RESUME = 60            # seconds: don't offer to resume from the first minute
 START_WAIT = 60            # seconds to wait for Kodi to start playing
+GONE_FOR = 3               # seconds of "nothing playing" (without Kodi saying stopped or ended) before giving up
 
 
 # -- what's being played ----------------------------------------------------------------------------------
@@ -249,10 +250,15 @@ class Follower(xbmc.Player):
         self.events = []
         self.on_tick = None          # Smart Play: called with (position, total) about once a second
         self.ended = False           # reached the end by itself (not stopped)
+        self.stopped = False         # Kodi says it was stopped (by you, or by an error)
+        self.starts = 0              # videos Kodi has started since this follower was made
+        self.following = False       # set once this video is playing: end/stop signals before that are late
+                                     # ones about the previous video (Smart Play starts the next straight away)
         self.watched = False         # watched past WATCHED_AT: marked watched here and on Trakt
 
     def onAVStarted(self):
         self.events.append("started")
+        self.starts += 1
 
     def onPlayBackPaused(self):
         self.events.append("paused")
@@ -262,10 +268,15 @@ class Follower(xbmc.Player):
 
     def onPlayBackStopped(self):
         self.events.append("stopped")
+        self.stopped = self.stopped or self.following
+
+    def onPlayBackError(self):
+        self.events.append("stopped")
+        self.stopped = self.stopped or self.following
 
     def onPlayBackEnded(self):
         self.events.append("ended")
-        self.ended = True
+        self.ended = self.ended or self.following
 
     def _scrobble(self, action, percent):
         """True if Trakt took it (or it was queued to send later)."""
@@ -296,12 +307,31 @@ class Follower(xbmc.Player):
         position = self.start_at or 0.0
         self._scrobble("start", self._percent(position, total))
         last_save = self.clock()
-        while self.isPlayingVideo():
+        gone = 0.0
+        reason = "abort"
+        self.following = True
+        while True:
+            if not self.isPlayingVideo():
+                # Kodi can say nothing is playing for a moment (e.g. while the TV switches to 4K at 23.976 Hz),
+                # so only stop following once it says it ended or stopped, or nothing plays for a while
+                if self.ended or self.stopped or gone >= GONE_FOR:
+                    reason = "ended" if self.ended else "stopped" if self.stopped else "nothing playing"
+                    break
+                if monitor.waitForAbort(0.5):
+                    break
+                gone += 0.5
+                continue
+            if gone:
+                kodi.log(f"Kodi said nothing was playing for {gone:.1f}s, then carried on")
+                gone = 0.0
+            if self.starts >= 2:      # a second video started since this one: something else is playing now
+                reason = "another video started"
+                break
             try:
                 position = self.getTime()
                 total = self._total() or total
             except RuntimeError:
-                break
+                continue
             for event in self._take_events():
                 if event == "paused":
                     self._scrobble("pause", self._percent(position, total))
@@ -319,7 +349,11 @@ class Follower(xbmc.Player):
                     self.on_tick = None
             if monitor.waitForAbort(1):
                 break
+        if self.ended and total:
+            position = max(position, total)   # it played to the end, whatever the last reading said
         percent = self._percent(position, total)
+        kodi.log(f"Stopped following {self.target.key} at {int(position)} of {int(total)}s "
+                 f"({percent:.0f}%): {reason}")
         sent = self._scrobble("stop", percent)
         self.save(position, total, finished=True)
         if percent >= WATCHED_AT and self.target.tmdb_id:
@@ -502,12 +536,14 @@ def _follow_episodes(app, target, url, start_at, monitor, watched):
             return
         carry_on, asked = smartplay.still_watching(in_a_row)
         if not carry_on:
+            kodi.log("Smart Play: stopping, you're not still watching")
             return
         in_a_row = 1 if asked else in_a_row + 1
         smartplay.wait_for(prepared, monitor)
         target, start_at = prepared.target, 0
         link = prepared.link
         if not link:   # nothing ready: the normal way, with the search window and Source Select
+            kodi.log(f"Smart Play: nothing ready for {target.key}, searching")
             found = choose.find_sources(app, {"media": "episode", "tmdb_id": target.tmdb_id,
                                               "season": target.season, "episode": target.episode})
             if not found:
@@ -519,5 +555,7 @@ def _follow_episodes(app, target, url, start_at, monitor, watched):
             if not link:
                 return
         url = link   # played directly, so Kodi files its resume point against the link
+        source = prepared.source or {}
+        kodi.log(f"Smart Play: playing {target.key} from {source.get('provider')}: {source.get('release_title')}")
         xbmc.Player().play(link, target.list_item(app, link))
 
