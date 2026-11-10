@@ -153,6 +153,9 @@ class FakeAddon:
     def setSettingInt(self, key, value):
         FakeAddon.settings[key] = value
 
+    def setSettingBool(self, key, value):
+        FakeAddon.settings[key] = bool(value)
+
     def openSettings(self):
         pass
 

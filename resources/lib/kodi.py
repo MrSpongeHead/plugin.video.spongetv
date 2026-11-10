@@ -66,6 +66,10 @@ def set_setting_int(setting_id, value):
     _settings().setSettingInt(setting_id, value)
 
 
+def set_setting_bool(setting_id, value):
+    _settings().setSettingBool(setting_id, bool(value))
+
+
 def notify(message, time_ms=4000):
     sound = setting_bool("general.notification_sound")
     xbmcgui.Dialog().notification("SpongeTV", message, ICON, time_ms, sound)

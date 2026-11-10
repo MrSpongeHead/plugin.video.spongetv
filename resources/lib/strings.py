@@ -624,6 +624,14 @@ STRINGS = {
     "help_action_clear_all": (30939, "As Clear cache, and also forget your recent searches."),
     "help_windows_simple": (30940, "Use Kodi's plain dialogs for searching, Source Select and Playing Next instead of SpongeTV's own windows."),
     "help_developer_window_tests": (30941, "For testing SpongeTV's windows with made-up data. Adds Window tests to the Tools menu."),
+    "set_account_status": (30942, "Account"),
+    "status_not_signed_in": (30943, "Not signed in"),
+    "status_trakt_as": (30944, "Signed in as {name}"),
+    "status_signed_in": (30945, "Signed in"),
+    "status_pm_days": (30946, "Signed in: {days} days of premium left"),
+    "status_pm_free": (30947, "Signed in: no premium"),
+    "help_trakt_status": (30948, "Whether SpongeTV is signed in to Trakt, and as whom. It updates when you sign in or out."),
+    "help_premiumize_status": (30949, "Whether SpongeTV is signed in to Premiumize, and how many days of premium you have left. Updated daily."),
 }
 
 # Display languages offered, as (TMDB language code, string key). Index 0 means "same as Kodi".

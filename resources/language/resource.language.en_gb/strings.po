@@ -2414,3 +2414,35 @@ msgstr ""
 msgctxt "#30941"
 msgid "For testing SpongeTV's windows with made-up data. Adds Window tests to the Tools menu."
 msgstr ""
+
+msgctxt "#30942"
+msgid "Account"
+msgstr ""
+
+msgctxt "#30943"
+msgid "Not signed in"
+msgstr ""
+
+msgctxt "#30944"
+msgid "Signed in as {name}"
+msgstr ""
+
+msgctxt "#30945"
+msgid "Signed in"
+msgstr ""
+
+msgctxt "#30946"
+msgid "Signed in: {days} days of premium left"
+msgstr ""
+
+msgctxt "#30947"
+msgid "Signed in: no premium"
+msgstr ""
+
+msgctxt "#30948"
+msgid "Whether SpongeTV is signed in to Trakt, and as whom. It updates when you sign in or out."
+msgstr ""
+
+msgctxt "#30949"
+msgid "Whether SpongeTV is signed in to Premiumize, and how many days of premium you have left. Updated daily."
+msgstr ""

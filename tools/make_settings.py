@@ -67,9 +67,9 @@ def number(sid_, label, default, minimum, maximum, step=None, slider=False, leve
             f'                    {control}\n                </setting>\n')
 
 
-def action(sid_, label, plugin_action):
+def action(sid_, label, plugin_action, extra=""):
     return (f'                <setting id="{sid_}" type="action" label="{sid(label)}">\n'
-            f'                    <level>0</level>\n'
+            f'                    <level>0</level>{extra}\n'
             f'                    <data>RunPlugin(plugin://plugin.video.spongetv/?action={escape(plugin_action)})</data>\n'
             f'                    <constraints>\n                        <allowempty>true</allowempty>\n                    </constraints>\n'
             f'                    <control type="button" format="action">\n                        <close>true</close>\n'
@@ -82,6 +82,23 @@ def with_help(xml):
         key = "help_" + match.group(1).replace(".", "_")
         return f'{match.group(0)} help="{sid(key)}"' if key in STRINGS else match.group(0)
     return re.sub(r'<setting id="([^"]+)"', add, xml)
+
+
+def status(sid_, label):
+    """A greyed-out line SpongeTV fills in itself, such as which account you're signed in to."""
+    return (f'                <setting id="{sid_}" type="string" label="{sid(label)}">\n'
+            f'                    <level>0</level>\n                    <default/>\n                    <enable>false</enable>\n'
+            f'                    <constraints>\n                        <allowempty>true</allowempty>\n                    </constraints>\n'
+            f'                    <control type="edit" format="string">\n                        <heading>{sid(label)}</heading>\n'
+            f'                    </control>\n                </setting>\n')
+
+
+def hidden_flag(sid_):
+    """A yes/no SpongeTV keeps for itself, for showing the right buttons: never shown."""
+    return (f'                <setting id="{sid_}" type="boolean">\n'
+            f'                    <level>4</level>\n                    <default>false</default>\n'
+            f'                    <visible>false</visible>\n'
+            f'                    <control type="toggle"/>\n                </setting>\n')
 
 
 def group(gid, label, body):
@@ -131,19 +148,26 @@ def render():
                  + choice("artwork.still_size", "set_still_size", ["size_small_300", "size_original"], 0, extra=advanced_only)
                  + boolean("artwork.extras", "set_extras", True, extra=advanced_only))
     accounts = group("trakt_account", "grp_trakt_account",
-                     action("action.trakt_sign_in", "trakt_sign_in", "trakt_sign_in")
-                     + action("action.trakt_sign_out", "trakt_sign_out", "trakt_sign_out")
+                     status("trakt.status", "set_account_status") + hidden_flag("trakt.signed_in")
+                     + action("action.trakt_sign_in", "trakt_sign_in", "trakt_sign_in",
+                              extra=visible_if("trakt.signed_in", "false"))
+                     + action("action.trakt_sign_out", "trakt_sign_out", "trakt_sign_out",
+                              extra=visible_if("trakt.signed_in", "true"))
                      # SpongeTV's own Client ID is built in: these are only for your own Trakt app (Expert level)
                      + key("trakt.client_id", "set_trakt_client_id", level=3)
                      + key("trakt.client_secret", "set_trakt_client_secret", level=3)
                      + hidden_text("trakt.token") + hidden_text("trakt.username"))
     accounts += group("premiumize", "grp_premiumize",
-                      action("action.pm_sign_in", "pm_sign_in", "premiumize_sign_in")
-                      + action("action.pm_sign_out", "pm_sign_out", "premiumize_sign_out")
+                      status("premiumize.status", "set_account_status") + hidden_flag("premiumize.signed_in")
+                      + action("action.pm_sign_in", "pm_sign_in", "premiumize_sign_in",
+                               extra=visible_if("premiumize.signed_in", "false"))
+                      + action("action.pm_sign_out", "pm_sign_out", "premiumize_sign_out",
+                               extra=visible_if("premiumize.signed_in", "true"))
                       + boolean("premiumize.torrents", "set_pm_torrents", True)
                       + boolean("premiumize.hosters", "set_pm_hosters", True)
                       + boolean("premiumize.cloud", "set_pm_cloud", True)
-                      + action("action.premiumize_status", "premiumize_status", "premiumize_status")
+                      + action("action.premiumize_status", "premiumize_status", "premiumize_status",
+                               extra=visible_if("premiumize.signed_in", "true"))
                       # Expert level: an API key instead of signing in, or your own registered client ID
                       + key("premiumize.api_key", "set_premiumize_key", level=3)
                       + key("premiumize.client_id", "set_pm_client_id", level=3)

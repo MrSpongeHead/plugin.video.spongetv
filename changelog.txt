@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+0.5.1
+  Settings, Accounts now shows who you're signed in as: "Signed in as <name>" for Trakt, and your premium days left for Premiumize. Only the buttons that apply show: Sign in when you're signed out, Sign out (and Check Premiumize account) when you're signed in.
+
 0.5.0
   First Stage 5 (polish) build. Every setting now explains itself at the bottom of the settings screen. Clearing or trimming the cache no longer loses SpongeTV's own resume points. The full history of changes is in changelog.txt, so this note stays within Kodi's limit. Routine sync details only appear in Kodi's log with debug logging on.
 

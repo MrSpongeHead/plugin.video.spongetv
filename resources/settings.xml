@@ -590,8 +590,30 @@
         </category>
         <category id="accounts" label="30102">
             <group id="trakt_account" label="30520">
+                <setting id="trakt.status" help="30948" type="string" label="30942">
+                    <level>0</level>
+                    <default/>
+                    <enable>false</enable>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30942</heading>
+                    </control>
+                </setting>
+                <setting id="trakt.signed_in" type="boolean">
+                    <level>4</level>
+                    <default>false</default>
+                    <visible>false</visible>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="action.trakt_sign_in" help="30915" type="action" label="30470">
                     <level>0</level>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="trakt.signed_in">false</condition>
+                        </dependency>
+                    </dependencies>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=trakt_sign_in)</data>
                     <constraints>
                         <allowempty>true</allowempty>
@@ -602,6 +624,11 @@
                 </setting>
                 <setting id="action.trakt_sign_out" help="30916" type="action" label="30471">
                     <level>0</level>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="trakt.signed_in">true</condition>
+                        </dependency>
+                    </dependencies>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=trakt_sign_out)</data>
                     <constraints>
                         <allowempty>true</allowempty>
@@ -650,8 +677,30 @@
                 </setting>
             </group>
             <group id="premiumize" label="30765">
+                <setting id="premiumize.status" help="30949" type="string" label="30942">
+                    <level>0</level>
+                    <default/>
+                    <enable>false</enable>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30942</heading>
+                    </control>
+                </setting>
+                <setting id="premiumize.signed_in" type="boolean">
+                    <level>4</level>
+                    <default>false</default>
+                    <visible>false</visible>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="action.pm_sign_in" help="30919" type="action" label="30812">
                     <level>0</level>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="premiumize.signed_in">false</condition>
+                        </dependency>
+                    </dependencies>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=premiumize_sign_in)</data>
                     <constraints>
                         <allowempty>true</allowempty>
@@ -662,6 +711,11 @@
                 </setting>
                 <setting id="action.pm_sign_out" help="30920" type="action" label="30813">
                     <level>0</level>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="premiumize.signed_in">true</condition>
+                        </dependency>
+                    </dependencies>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=premiumize_sign_out)</data>
                     <constraints>
                         <allowempty>true</allowempty>
@@ -687,6 +741,11 @@
                 </setting>
                 <setting id="action.premiumize_status" help="30924" type="action" label="30770">
                     <level>0</level>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="premiumize.signed_in">true</condition>
+                        </dependency>
+                    </dependencies>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=premiumize_status)</data>
                     <constraints>
                         <allowempty>true</allowempty>

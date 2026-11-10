@@ -48,6 +48,45 @@ def ask_client_id(app, dialog):
     return value
 
 
+# -- the status lines in Settings, Accounts -------------------------------------------------------------
+NO_PREMIUM = "no premium"
+
+
+def _token(setting_id, field):
+    try:
+        return json.loads(kodi.setting_str(setting_id) or "{}").get(field)
+    except (ValueError, AttributeError):
+        return None
+
+
+def account_status(days=None):
+    """Fill in who you're signed in as in Settings, Accounts, and show only the buttons that apply.
+    days: Premiumize days of premium left if just found out (NO_PREMIUM for a free account); None keeps
+    the figure already shown. Only writes what changed, as each write tells the service settings changed."""
+    trakt_on = bool(_token("trakt.token", "refresh_token") or _token("trakt.token", "access_token"))
+    name = kodi.setting_str("trakt.username")
+    trakt_text = ((kodi.text("status_trakt_as", name=name) if name else kodi.text("status_signed_in"))
+                  if trakt_on else kodi.text("status_not_signed_in"))
+    pm_on = bool(_token("premiumize.token", "access_token") or kodi.setting_str("premiumize.api_key").strip())
+    shown = kodi.setting_str("premiumize.status")
+    if not pm_on:
+        pm_text = kodi.text("status_not_signed_in")
+    elif days == NO_PREMIUM:
+        pm_text = kodi.text("status_pm_free")
+    elif days is not None:
+        pm_text = kodi.text("status_pm_days", days=days)
+    elif shown and shown != kodi.text("status_not_signed_in"):
+        pm_text = shown                      # keep the days left from the last check
+    else:
+        pm_text = kodi.text("status_signed_in")
+    for setting_id, value in (("trakt.status", trakt_text), ("premiumize.status", pm_text)):
+        if kodi.setting_str(setting_id) != value:
+            kodi.set_setting_str(setting_id, value)
+    for setting_id, value in (("trakt.signed_in", trakt_on), ("premiumize.signed_in", pm_on)):
+        if kodi.setting_bool(setting_id) != value:
+            kodi.set_setting_bool(setting_id, value)
+
+
 def sign_in(app, dialog=None):
     """Device sign-in: show the code, wait for you to approve it on trakt.tv, then sync."""
     dialog = dialog or xbmcgui.Dialog()
@@ -78,6 +117,7 @@ def sign_in(app, dialog=None):
     except TraktError:
         name = ""
     kodi.set_setting_str("trakt.username", name)
+    account_status()
     kodi.notify(kodi.text("trakt_signed_in_as", name=name) if name else kodi.text("trakt_signed_in"))
     run_sync(app, force=True, visible=True)
     return True
@@ -91,6 +131,7 @@ def sign_out(app, dialog=None):
     app.library.clear()
     syncer(app).forget()
     kodi.set_setting_str("trakt.username", "")
+    account_status()
     kodi.notify(kodi.text("trakt_signed_out"))
     xbmc.executebuiltin("Container.Refresh")
     return True
@@ -155,6 +196,7 @@ def premiumize_sign_in(app, dialog=None):
         days = client.days_left(client.account())
     except Exception:   # signed in either way; the status can wait
         days = None
+    account_status(days)
     kodi.notify(kodi.text("pm_signed_in_days", days=days) if days is not None else kodi.text("pm_signed_in"))
     return True
 
@@ -165,6 +207,7 @@ def premiumize_sign_out(app, dialog=None):
         return False
     kodi.set_setting_str("premiumize.token", "")
     app.store.cache_delete("premiumize:days_left")
+    account_status()
     kodi.notify(kodi.text("pm_signed_out"))
     xbmc.executebuiltin("Container.Refresh")
     return True

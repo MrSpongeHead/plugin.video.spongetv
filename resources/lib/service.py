@@ -121,6 +121,8 @@ def check_premiumize(store, http, now):
             kodi.notify(kodi.text("pm_sign_in_expired" if token.get("access_token") else "pm_bad_key"), 8000)
         return None
     days = client.days_left(account)
+    from resources.lib import accounts
+    accounts.account_status(days if days is not None else accounts.NO_PREMIUM)
     if days is not None and days <= EXPIRY_WARN_DAYS:
         kodi.notify(kodi.text("pm_expiring", days=days), 8000)
     return days
@@ -167,6 +169,14 @@ def sync_once():
         app.store.close()
 
 
+def _account_status():
+    try:
+        from resources.lib import accounts
+        accounts.account_status()
+    except Exception as error:   # never let this stop the service
+        kodi.log_error(f"Couldn't update the account status: {error}")
+
+
 class Monitor(xbmc.Monitor):
     def __init__(self, scheduler, clock):
         super().__init__()
@@ -182,6 +192,7 @@ class Monitor(xbmc.Monitor):
             kodi.log_error(f"Key check failed: {error}")
         finally:
             store.close()
+        _account_status()   # e.g. an API key typed in: show it as signed in
         state = trakt_state()
         if state != self.state:
             self.state = state
@@ -199,6 +210,13 @@ def run(clock=None):
     monitor = Monitor(scheduler, clock)
     player = xbmc.Player()
     kodi.log(f"Service started (Kodi {kodi.kodi_major_version()})")
+    _account_status()
+    if kodi.setting_bool("premiumize.signed_in") and kodi.setting_str("premiumize.status") == kodi.text("status_signed_in"):
+        store = _store()      # Accounts doesn't show the days left yet: don't wait a day for the check
+        try:
+            store.set_meta("premiumize:last_check", "0")
+        finally:
+            store.close()
     last_tidy = 0
     package_check_at = clock() + PACKAGE_CHECK_AFTER
     while not monitor.abortRequested():
