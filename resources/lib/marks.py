@@ -38,8 +38,8 @@ def own_is_newer(own, trakt_at):
         return False      # saved before SpongeTV kept the time: Trakt's is the safer guess
     import datetime
     try:
-        when = datetime.datetime.strptime(trakt_at[:19], "%Y-%m-%dT%H:%M:%S").replace(
-            tzinfo=datetime.timezone.utc).timestamp()
+        # Not strptime: inside Kodi it can fail with "'NoneType' object is not callable" after its first use
+        when = datetime.datetime.fromisoformat(trakt_at[:19] + "+00:00").timestamp()
     except ValueError:
         return True
     return saved >= when - SAME_TIME

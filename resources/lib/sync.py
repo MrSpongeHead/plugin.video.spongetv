@@ -194,7 +194,8 @@ class Syncer:
                     entries = self.trakt.get_all(path, params, **({"limit": limit} if limit else {}))
                     if media == "episode":
                         self._fill_show_ids(entries)
-                        self._check_seasons(part, entries)
+                        if part == "watched":       # resume points come as single episodes, never seasons
+                            self._check_seasons(part, entries)
                 except TraktError as error:
                     if error.kind == "not_found":      # a part Trakt doesn't offer this account
                         self.store.set_meta(key, marker)

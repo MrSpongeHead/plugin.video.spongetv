@@ -81,3 +81,13 @@ def test_settings_that_appear_conditionally_share_a_group_with_their_switch():
             for condition in setting.iter("condition"):
                 assert condition.get("setting") in own_ids, \
                     f"{setting.get('id')} depends on {condition.get('setting')} in another group"
+
+
+def test_no_strptime_anywhere():
+    """datetime.strptime can fail inside Kodi ("'NoneType' object is not callable" after its first use in a
+    session), so SpongeTV parses dates with fromisoformat instead."""
+    import glob
+    import re
+    for path in glob.glob(os.path.join(ROOT, "resources", "lib", "*.py")):
+        code = "\n".join(line.split("#")[0] for line in open(path, encoding="utf-8"))
+        assert not re.search(r"strptime\s*\(", code), path

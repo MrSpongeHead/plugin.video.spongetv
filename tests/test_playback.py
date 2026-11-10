@@ -632,3 +632,10 @@ def test_a_late_end_signal_from_the_previous_episode_is_ignored(premiumize, monk
     scripted(follower, ["started", (1, 3000), None, (3, 3000), (4, 3000), "stopped"])
     follower.follow(Quiet())
     assert ticks == [1, 3, 4] and not follower.ended and not follower.watched
+
+
+def test_trakt_times_as_trakt_sends_them():
+    from resources.lib.marks import own_is_newer
+    assert own_is_newer({"saved": 1793000000}, "2026-11-10T17:20:39.000Z") is False   # Trakt's is later
+    assert own_is_newer({"saved": 1893000000}, "2026-11-10T17:20:39.000Z") is True
+    assert own_is_newer({"saved": 1}, "not a date") is True
