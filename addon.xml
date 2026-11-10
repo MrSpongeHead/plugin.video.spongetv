@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.5.2" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.5.3" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,10 +17,10 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.5.2: Fixes an error opening a season when an episode had both SpongeTV's own resume point and Trakt's (a fault in how Kodi's Python reads dates, introduced in 0.4.20). Also stops a meaningless &quot;no show came with its seasons&quot; error in Kodi's log after syncing resume points.
+        <news>0.5.3: An episode or film you've finished no longer shows as part-watched because of an old resume point Kodi kept for itself. When you're signed in to Trakt, SpongeTV now tells Kodi there's no resume point, rather than leaving Kodi to fill in its own.
+0.5.2: Fixes an error opening a season when an episode had both SpongeTV's own resume point and Trakt's (a fault in how Kodi's Python reads dates, introduced in 0.4.20). Also stops a meaningless &quot;no show came with its seasons&quot; error in Kodi's log after syncing resume points.
 0.5.1: Settings, Accounts now shows who you're signed in as: "Signed in as &lt;name&gt;" for Trakt, and your premium days left for Premiumize. Only the buttons that apply show: Sign in when you're signed out, Sign out (and Check Premiumize account) when you're signed in.
 0.5.0: First Stage 5 (polish) build. Every setting now explains itself at the bottom of the settings screen. Clearing or trimming the cache no longer loses SpongeTV's own resume points. The full history of changes is in changelog.txt, so this note stays within Kodi's limit. Routine sync details only appear in Kodi's log with debug logging on.
-0.4.20: Smart Play is more reliable: a moment when Kodi reports nothing playing (for example while the TV switches to 4K) no longer ends it, and an episode that plays to its natural end always counts as watched. Smart Play now writes each step to Kodi's log. "Mark as unwatched" now clears the tick on films and episodes. Resume uses whichever point is newer: SpongeTV's own or Trakt's from another device.
 Earlier changes: changelog.txt</news>
         <assets>
             <icon>resources/media/icon.png</icon>

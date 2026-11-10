@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+0.5.3
+  An episode or film you've finished no longer shows as part-watched because of an old resume point Kodi kept for itself. When you're signed in to Trakt, SpongeTV now tells Kodi there's no resume point, rather than leaving Kodi to fill in its own.
+
 0.5.2
   Fixes an error opening a season when an episode had both SpongeTV's own resume point and Trakt's (a fault in how Kodi's Python reads dates, introduced in 0.4.20). Also stops a meaningless "no show came with its seasons" error in Kodi's log after syncing resume points.
 

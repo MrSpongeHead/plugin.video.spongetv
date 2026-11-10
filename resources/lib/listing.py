@@ -85,6 +85,10 @@ def _played(tag, marks, duration):
         tag.setResumePoint(float(position), float(total))
     elif percent and duration:
         tag.setResumePoint(duration * float(percent) / 100.0, duration)
+    else:
+        # "No resume point", said outright: Kodi fills in its own when the add-on sets none (only a total
+        # above 0 counts as set), and its own can be stale, filed against a slightly different link
+        tag.setResumePoint(0.0, float(duration or 1))
 
 
 def _progress(item, tag, watched, aired):

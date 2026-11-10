@@ -131,6 +131,8 @@ def test_watched_marks_and_resume_points(world):
     assert films["Film 9"].tag.calls["setResumePoint"] == [(2400.0, 6000)]
     # unwatched is said outright, so Kodi can't fill in its own play count (the tick stayed after Mark as unwatched)
     assert films["Film 3"].tag.calls["setPlaycount"] == [(0,)]
+    resume = films["Film 3"].tag.calls["setResumePoint"][0]
+    assert resume[0] == 0 and resume[1] > 0     # "none", said so Kodi can't fill in a stale one of its own
 
 
 def test_show_and_season_progress(world):

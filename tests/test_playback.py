@@ -549,6 +549,7 @@ def test_no_trakt_data_leaves_kodis_own_watched_state():
     item = xbmcgui.ListItem("x")
     listing._played(item.getVideoInfoTag(), None, 6000)
     assert "setPlaycount" not in item.getVideoInfoTag().calls
+    assert "setResumePoint" not in item.getVideoInfoTag().calls
 
 
 class Quiet:
