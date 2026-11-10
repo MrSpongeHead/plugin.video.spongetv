@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+0.5.4
+  After you watch something to the end, SpongeTV now waits for Kodi to finish saving its own record of the video before reloading the list, so an episode you've just finished shouldn't flash up as part-watched. Kodi's log notes when Kodi saved, when the list reloaded, and how the item you watched shows afterwards.
+
 0.5.3
   An episode or film you've finished no longer shows as part-watched because of an old resume point Kodi kept for itself. When you're signed in to Trakt, SpongeTV now tells Kodi there's no resume point, rather than leaving Kodi to fill in its own.
 

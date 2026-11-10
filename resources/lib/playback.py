@@ -491,29 +491,97 @@ def mark_finished(app, target):
         kodi.log_error(f"Couldn't mark {target.key} watched here: {error}")
 
 
-def refresh_when_back(monitor, wait=10.0):
-    """Once playback has closed and a SpongeTV list is showing, reload it so the watched tick shows
-    (Kodi may otherwise show its saved copy of the list). Only called after something was watched."""
+def save_watcher(clock=time.time):
+    """A Kodi monitor that also notes when Kodi says it has saved a video's state (VideoLibrary.OnUpdate),
+    which it does when playback ends, add-on videos included. Made before playback ends so the notice
+    isn't missed. (The class is made here, from whatever xbmc.Monitor is at the time.)"""
+
+    class SaveWatcher(xbmc.Monitor):
+        def __init__(self):
+            super().__init__()
+            self.saved = []
+
+        def onNotification(self, sender, method, data):
+            if method == "VideoLibrary.OnUpdate":
+                self.saved.append(clock())
+
+    return SaveWatcher()
+
+
+KODI_SAVE_WAIT = 3.0   # seconds to wait for Kodi's notice once the list is back, before reloading anyway
+SAVE_RECENT = 15.0     # a notice this recent counts as the one for the video that just ended
+
+
+def _back_at_list(wait, monitor):
+    """Wait for playback to close; True once nothing is playing and the video window has gone."""
     waited = 0.0
     while waited < wait:
         if not xbmc.Player().isPlayingVideo() and not xbmc.getCondVisibility("Window.IsActive(fullscreenvideo)"):
-            if xbmc.getInfoLabel("Container.FolderPath").startswith("plugin://plugin.video.spongetv"):
-                xbmc.executebuiltin("Container.Refresh")
-            return
+            return True
         if monitor.waitForAbort(0.5):
-            return
+            return False
         waited += 0.5
+    return False
+
+
+def refresh_when_back(monitor, target=None, wait=10.0, clock=time.time):
+    """Once playback has closed and a SpongeTV list is showing, reload it so the watched tick shows.
+    Only called after something was watched. Kodi updates the item you played from in its own way as
+    playback ends, so the reload waits for Kodi's notice that it has saved its state, then goes last."""
+    started = clock()
+    if not _back_at_list(wait, monitor):
+        return
+    if not xbmc.getInfoLabel("Container.FolderPath").startswith("plugin://plugin.video.spongetv"):
+        return
+    saved = getattr(monitor, "saved", None)
+    if saved is not None:
+        back = clock()
+        while not any(t >= started - SAVE_RECENT for t in saved) and clock() - back < KODI_SAVE_WAIT:
+            if monitor.waitForAbort(0.1):
+                return
+        heard = [t for t in saved if t >= started - SAVE_RECENT]
+        kodi.log(f"Reloading the list: Kodi saved its state {heard[-1] - started:+.1f}s from the end"
+                 if heard else f"Reloading the list: no notice from Kodi after {KODI_SAVE_WAIT:.0f}s")
+    xbmc.executebuiltin("Container.Refresh")
+    if target is not None:
+        _log_after_reload(monitor, target)
+
+
+def _log_after_reload(monitor, target):
+    """Say in Kodi's log how the item just watched shows once the list has reloaded (if it's selected)."""
+    for _ in range(30):                                   # the reload starts a moment later
+        if xbmc.getCondVisibility("Container.IsUpdating"):
+            break
+        if monitor.waitForAbort(0.1):
+            return
+    for _ in range(100):                                  # up to 10 seconds to rebuild
+        if not xbmc.getCondVisibility("Container.IsUpdating"):
+            break
+        if monitor.waitForAbort(0.1):
+            return
+    path = xbmc.getInfoLabel("ListItem.FileNameAndPath")
+    wanted = {"media": target.media, "tmdb_id": str(target.tmdb_id)}
+    if target.media == "episode":
+        wanted.update({"season": str(target.season), "episode": str(target.episode)})
+    from urllib.parse import parse_qs, urlparse
+    params = {k: v[0] for k, v in parse_qs(urlparse(path).query).items()}
+    if any(params.get(k) != v for k, v in wanted.items()):
+        kodi.log(f"After the reload, the selected item isn't {target.key}")
+        return
+    resumable = xbmc.getCondVisibility("ListItem.IsResumable")
+    kodi.log(f"After the reload, {target.key} shows: played {xbmc.getInfoLabel('ListItem.PlayCount') or 0} "
+             f"times, {'part-watched' if resumable else 'no resume point'}")
 
 
 def follow_episodes(app, target, url, start_at):
     """Follow playback (and Smart Play's next episodes), then reload the list if anything was watched."""
-    monitor = xbmc.Monitor()
+    monitor = save_watcher()
     watched = []
     try:
         _follow_episodes(app, target, url, start_at, monitor, watched)
     finally:
         if watched and not monitor.abortRequested():
-            refresh_when_back(monitor)
+            refresh_when_back(monitor, watched[-1])
 
 
 def _follow_episodes(app, target, url, start_at, monitor, watched):
@@ -528,7 +596,7 @@ def _follow_episodes(app, target, url, start_at, monitor, watched):
             follower.follow(monitor)
             ended = follower.ended
             if follower.watched:
-                watched.append(target.key)
+                watched.append(target)
         finally:
             del follower   # Kodi players must be released before the script ends
         prepared = smart.finish(ended)
