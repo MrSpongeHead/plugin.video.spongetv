@@ -167,7 +167,7 @@ class Syncer:
     @staticmethod
     def _check_seasons(part, entries):
         without = sum(1 for e in entries if not e.get("seasons"))
-        kodi.log(f"Trakt {part}: {len(entries)} shows, {without} without seasons")
+        kodi.log_debug(f"Trakt {part}: {len(entries)} shows, {without} without seasons")
         if entries and without == len(entries):
             kodi.log_error(f"Trakt {part}: no show came with its seasons; episode marks can't be read")
 

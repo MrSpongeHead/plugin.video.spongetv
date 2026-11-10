@@ -44,6 +44,10 @@ MIGRATIONS = {
 }
 SCHEMA_VERSION = max(MIGRATIONS)
 
+# SpongeTV's own resume points live in the cache table (they expire after a year), but they're yours, not
+# a cache: clearing the cache or trimming it to size leaves them alone
+KEEP_PATTERN = "resume:%"
+
 
 class Store:
     def __init__(self, path, clock=time.time):
@@ -119,15 +123,17 @@ class Store:
             total = self._db.execute("SELECT COALESCE(SUM(size), 0) FROM cache").fetchone()[0]
             if total <= max_bytes:
                 return
-            for key, size in self._db.execute("SELECT key, size FROM cache ORDER BY created").fetchall():
+            for key, size in self._db.execute("SELECT key, size FROM cache WHERE key NOT LIKE ? ORDER BY created",
+                                              (KEEP_PATTERN,)).fetchall():
                 self._db.execute("DELETE FROM cache WHERE key = ?", (key,))
                 total -= size
                 if total <= max_bytes:
                     break
 
     def cache_clear(self):
+        """Everything except your resume points, which only "Clear resume point" or finishing removes."""
         with self._lock, self._db:
-            self._db.execute("DELETE FROM cache")
+            self._db.execute("DELETE FROM cache WHERE key NOT LIKE ?", (KEEP_PATTERN,))
 
     # -- search history -----------------------------------------------------------
     def add_search(self, kind, query):

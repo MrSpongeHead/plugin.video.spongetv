@@ -31,6 +31,11 @@ def log(message, level=xbmc.LOGINFO):
     xbmc.log(f"[{ADDON_ID}] {message}", level)
 
 
+def log_debug(message):
+    """Only in Kodi's log when debug logging is on: routine detail."""
+    log(message, xbmc.LOGDEBUG)
+
+
 def log_error(message):
     log(message, xbmc.LOGERROR)
 

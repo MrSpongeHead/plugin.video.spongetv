@@ -3,6 +3,7 @@
 """Writes resources/settings.xml from the layout below, using string IDs from strings.py."""
 
 import os
+import re
 import sys
 from xml.sax.saxutils import escape
 
@@ -73,6 +74,14 @@ def action(sid_, label, plugin_action):
             f'                    <constraints>\n                        <allowempty>true</allowempty>\n                    </constraints>\n'
             f'                    <control type="button" format="action">\n                        <close>true</close>\n'
             f'                    </control>\n                </setting>\n')
+
+
+def with_help(xml):
+    """Give every setting with a help_<id> string a help attribute (the line Kodi shows at the bottom)."""
+    def add(match):
+        key = "help_" + match.group(1).replace(".", "_")
+        return f'{match.group(0)} help="{sid(key)}"' if key in STRINGS else match.group(0)
+    return re.sub(r'<setting id="([^"]+)"', add, xml)
 
 
 def group(gid, label, body):
@@ -204,5 +213,5 @@ def render():
 
 if __name__ == "__main__":
     with open(os.path.join(ROOT, "resources", "settings.xml"), "w", encoding="utf-8", newline="\n") as handle:
-        handle.write(render())
+        handle.write(with_help(render()))
     print("Wrote resources/settings.xml")

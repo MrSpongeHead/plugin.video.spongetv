@@ -3,7 +3,7 @@
     <section id="plugin.video.spongetv">
         <category id="general" label="30100">
             <group id="display" label="30104">
-                <setting id="metadata.language" type="integer" label="30110">
+                <setting id="metadata.language" help="30860" type="integer" label="30110">
                     <level>0</level>
                     <default>0</default>
                     <constraints>
@@ -23,12 +23,12 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="metadata.original_titles" type="boolean" label="30112">
+                <setting id="metadata.original_titles" help="30861" type="boolean" label="30112">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="display.episode_label" type="integer" label="30304">
+                <setting id="display.episode_label" help="30862" type="integer" label="30304">
                     <level>0</level>
                     <default>0</default>
                     <constraints>
@@ -40,17 +40,17 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="display.flatten_seasons" type="boolean" label="30115">
+                <setting id="display.flatten_seasons" help="30863" type="boolean" label="30115">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="display.all_studios" type="boolean" label="30308">
+                <setting id="display.all_studios" help="30864" type="boolean" label="30308">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="display.highlight" type="integer" label="30309">
+                <setting id="display.highlight" help="30865" type="integer" label="30309">
                     <level>0</level>
                     <default>0</default>
                     <constraints>
@@ -65,71 +65,71 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="general.notification_sound" type="boolean" label="30316">
+                <setting id="general.notification_sound" help="30866" type="boolean" label="30316">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
             </group>
             <group id="hide" label="30300">
-                <setting id="hide.movie_lists.unreleased" type="boolean" label="30317">
+                <setting id="hide.movie_lists.unreleased" help="30867" type="boolean" label="30317">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.tv_lists.unaired" type="boolean" label="30318">
+                <setting id="hide.tv_lists.unaired" help="30868" type="boolean" label="30318">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.search.unreleased" type="boolean" label="30319">
+                <setting id="hide.search.unreleased" help="30869" type="boolean" label="30319">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.seasons.specials" type="boolean" label="30113">
+                <setting id="hide.seasons.specials" help="30870" type="boolean" label="30113">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.seasons.unaired" type="boolean" label="30114">
+                <setting id="hide.seasons.unaired" help="30871" type="boolean" label="30114">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.episodes.unaired" type="boolean" label="30320">
+                <setting id="hide.episodes.unaired" help="30872" type="boolean" label="30320">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.movie_lists.watched" type="boolean" label="30529">
+                <setting id="hide.movie_lists.watched" help="30873" type="boolean" label="30529">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.tv_lists.watched" type="boolean" label="30530">
+                <setting id="hide.tv_lists.watched" help="30874" type="boolean" label="30530">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.search.watched" type="boolean" label="30531">
+                <setting id="hide.search.watched" help="30875" type="boolean" label="30531">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.seasons.watched" type="boolean" label="30532">
+                <setting id="hide.seasons.watched" help="30876" type="boolean" label="30532">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="hide.episodes.watched" type="boolean" label="30533">
+                <setting id="hide.episodes.watched" help="30877" type="boolean" label="30533">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
             </group>
             <group id="trakt" label="30523">
-                <setting id="trakt.sync_minutes" type="integer" label="30524">
+                <setting id="trakt.sync_minutes" help="30878" type="integer" label="30524">
                     <level>0</level>
                     <default>15</default>
                     <constraints>
@@ -141,7 +141,7 @@
                         <popup>false</popup>
                     </control>
                 </setting>
-                <setting id="nextup.sort" type="integer" label="30525">
+                <setting id="nextup.sort" help="30879" type="integer" label="30525">
                     <level>0</level>
                     <default>0</default>
                     <constraints>
@@ -152,7 +152,7 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="trakt.resume_max_age" type="integer" label="30528">
+                <setting id="trakt.resume_max_age" help="30880" type="integer" label="30528">
                     <level>0</level>
                     <default>60</default>
                     <constraints>
@@ -168,7 +168,7 @@
         </category>
         <category id="artwork" label="30101">
             <group id="artwork" label="30101">
-                <setting id="artwork.preset" type="integer" label="30120">
+                <setting id="artwork.preset" help="30881" type="integer" label="30120">
                     <level>0</level>
                     <default>1</default>
                     <constraints>
@@ -181,7 +181,7 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="artwork.poster_size" type="integer" label="30321">
+                <setting id="artwork.poster_size" help="30882" type="integer" label="30321">
                     <level>0</level>
                     <default>2</default>
                     <constraints>
@@ -199,7 +199,7 @@
                     </dependencies>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="artwork.fanart_size" type="integer" label="30322">
+                <setting id="artwork.fanart_size" help="30883" type="integer" label="30322">
                     <level>0</level>
                     <default>1</default>
                     <constraints>
@@ -216,7 +216,7 @@
                     </dependencies>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="artwork.still_size" type="integer" label="30323">
+                <setting id="artwork.still_size" help="30884" type="integer" label="30323">
                     <level>0</level>
                     <default>0</default>
                     <constraints>
@@ -232,7 +232,7 @@
                     </dependencies>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="artwork.extras" type="boolean" label="30331">
+                <setting id="artwork.extras" help="30885" type="boolean" label="30331">
                     <level>0</level>
                     <default>true</default>
                     <dependencies>
@@ -246,7 +246,7 @@
         </category>
         <category id="sources" label="30726">
             <group id="search" label="30727">
-                <setting id="sources.timeout" type="integer" label="30728">
+                <setting id="sources.timeout" help="30886" type="integer" label="30728">
                     <level>0</level>
                     <default>30</default>
                     <constraints>
@@ -258,12 +258,12 @@
                         <popup>false</popup>
                     </control>
                 </setting>
-                <setting id="early.enabled" type="boolean" label="30729">
+                <setting id="early.enabled" help="30887" type="boolean" label="30729">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="early.quality" type="integer" label="30730">
+                <setting id="early.quality" help="30888" type="integer" label="30730">
                     <level>0</level>
                     <default>1</default>
                     <constraints>
@@ -281,7 +281,7 @@
                     </dependencies>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="early.count" type="integer" label="30731">
+                <setting id="early.count" help="30889" type="integer" label="30731">
                     <level>0</level>
                     <default>5</default>
                     <constraints>
@@ -293,7 +293,7 @@
                         <popup>false</popup>
                     </control>
                 </setting>
-                <setting id="sources.cache_hours" type="integer" label="30732">
+                <setting id="sources.cache_hours" help="30890" type="integer" label="30732">
                     <level>0</level>
                     <default>3</default>
                     <constraints>
@@ -305,14 +305,14 @@
                         <popup>false</popup>
                     </control>
                 </setting>
-                <setting id="sources.hide_uncached" type="boolean" label="30791">
+                <setting id="sources.hide_uncached" help="30891" type="boolean" label="30791">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
             </group>
             <group id="filter" label="30737">
-                <setting id="filter.preset" type="integer" label="30738">
+                <setting id="filter.preset" help="30892" type="integer" label="30738">
                     <level>0</level>
                     <default>0</default>
                     <constraints>
@@ -326,7 +326,7 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="filter.allow_4k" type="boolean" label="30739">
+                <setting id="filter.allow_4k" help="30893" type="boolean" label="30739">
                     <level>0</level>
                     <default>true</default>
                     <dependencies>
@@ -336,7 +336,7 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="filter.allow_1080p" type="boolean" label="30740">
+                <setting id="filter.allow_1080p" help="30894" type="boolean" label="30740">
                     <level>0</level>
                     <default>true</default>
                     <dependencies>
@@ -346,7 +346,7 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="filter.allow_720p" type="boolean" label="30741">
+                <setting id="filter.allow_720p" help="30895" type="boolean" label="30741">
                     <level>0</level>
                     <default>true</default>
                     <dependencies>
@@ -356,7 +356,7 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="filter.allow_sd" type="boolean" label="30742">
+                <setting id="filter.allow_sd" help="30896" type="boolean" label="30742">
                     <level>0</level>
                     <default>true</default>
                     <dependencies>
@@ -366,7 +366,7 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="filter.exclude_cam" type="boolean" label="30743">
+                <setting id="filter.exclude_cam" help="30897" type="boolean" label="30743">
                     <level>0</level>
                     <default>true</default>
                     <dependencies>
@@ -376,7 +376,7 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="filter.exclude_3d" type="boolean" label="30744">
+                <setting id="filter.exclude_3d" help="30898" type="boolean" label="30744">
                     <level>0</level>
                     <default>true</default>
                     <dependencies>
@@ -386,7 +386,7 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="filter.exclude_hevc" type="boolean" label="30745">
+                <setting id="filter.exclude_hevc" help="30899" type="boolean" label="30745">
                     <level>0</level>
                     <default>false</default>
                     <dependencies>
@@ -396,7 +396,7 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="filter.exclude_hdr" type="boolean" label="30746">
+                <setting id="filter.exclude_hdr" help="30900" type="boolean" label="30746">
                     <level>0</level>
                     <default>false</default>
                     <dependencies>
@@ -406,7 +406,7 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="filter.exclude_dv" type="boolean" label="30747">
+                <setting id="filter.exclude_dv" help="30901" type="boolean" label="30747">
                     <level>0</level>
                     <default>false</default>
                     <dependencies>
@@ -416,7 +416,7 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="filter.max_gb_movie" type="integer" label="30748">
+                <setting id="filter.max_gb_movie" help="30902" type="integer" label="30748">
                     <level>0</level>
                     <dependencies>
                         <dependency type="visible">
@@ -433,7 +433,7 @@
                         <popup>false</popup>
                     </control>
                 </setting>
-                <setting id="filter.max_gb_episode" type="integer" label="30749">
+                <setting id="filter.max_gb_episode" help="30903" type="integer" label="30749">
                     <level>0</level>
                     <dependencies>
                         <dependency type="visible">
@@ -452,7 +452,7 @@
                 </setting>
             </group>
             <group id="sorting" label="30750">
-                <setting id="action.sort_rules" type="action" label="30751">
+                <setting id="action.sort_rules" help="30904" type="action" label="30751">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=sort_rules)</data>
                     <constraints>
@@ -464,7 +464,7 @@
                 </setting>
             </group>
             <group id="packages" label="30752">
-                <setting id="packages.updates" type="integer" label="30753">
+                <setting id="packages.updates" help="30905" type="integer" label="30753">
                     <level>0</level>
                     <default>1</default>
                     <constraints>
@@ -476,7 +476,7 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="action.providers" type="action" label="30757">
+                <setting id="action.providers" help="30906" type="action" label="30757">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=providers_open)</data>
                     <constraints>
@@ -499,7 +499,7 @@
         </category>
         <category id="playback" label="30784">
             <group id="play_choice" label="30785">
-                <setting id="play.movies" type="integer" label="30786">
+                <setting id="play.movies" help="30907" type="integer" label="30786">
                     <level>0</level>
                     <default>0</default>
                     <constraints>
@@ -510,7 +510,7 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="play.episodes" type="integer" label="30787">
+                <setting id="play.episodes" help="30908" type="integer" label="30787">
                     <level>0</level>
                     <default>0</default>
                     <constraints>
@@ -521,7 +521,7 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
-                <setting id="play.attempts" type="integer" label="30790">
+                <setting id="play.attempts" help="30909" type="integer" label="30790">
                     <level>0</level>
                     <default>3</default>
                     <constraints>
@@ -535,12 +535,12 @@
                 </setting>
             </group>
             <group id="play_next" label="30805">
-                <setting id="play.next" type="boolean" label="30806">
+                <setting id="play.next" help="30910" type="boolean" label="30806">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="play.next_seconds" type="integer" label="30807">
+                <setting id="play.next_seconds" help="30911" type="integer" label="30807">
                     <level>0</level>
                     <default>30</default>
                     <constraints>
@@ -552,12 +552,12 @@
                         <popup>false</popup>
                     </control>
                 </setting>
-                <setting id="play.next_credits" type="boolean" label="30856">
+                <setting id="play.next_credits" help="30912" type="boolean" label="30856">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="play.credits_delay" type="integer" label="30857">
+                <setting id="play.credits_delay" help="30913" type="integer" label="30857">
                     <level>0</level>
                     <default>5</default>
                     <dependencies>
@@ -574,7 +574,7 @@
                         <popup>false</popup>
                     </control>
                 </setting>
-                <setting id="play.still_watching" type="integer" label="30808">
+                <setting id="play.still_watching" help="30914" type="integer" label="30808">
                     <level>0</level>
                     <default>3</default>
                     <constraints>
@@ -590,7 +590,7 @@
         </category>
         <category id="accounts" label="30102">
             <group id="trakt_account" label="30520">
-                <setting id="action.trakt_sign_in" type="action" label="30470">
+                <setting id="action.trakt_sign_in" help="30915" type="action" label="30470">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=trakt_sign_in)</data>
                     <constraints>
@@ -600,7 +600,7 @@
                         <close>true</close>
                     </control>
                 </setting>
-                <setting id="action.trakt_sign_out" type="action" label="30471">
+                <setting id="action.trakt_sign_out" help="30916" type="action" label="30471">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=trakt_sign_out)</data>
                     <constraints>
@@ -610,7 +610,7 @@
                         <close>true</close>
                     </control>
                 </setting>
-                <setting id="trakt.client_id" type="string" label="30521">
+                <setting id="trakt.client_id" help="30917" type="string" label="30521">
                     <level>3</level>
                     <default/>
                     <constraints>
@@ -620,7 +620,7 @@
                         <heading>30521</heading>
                     </control>
                 </setting>
-                <setting id="trakt.client_secret" type="string" label="30522">
+                <setting id="trakt.client_secret" help="30918" type="string" label="30522">
                     <level>3</level>
                     <default/>
                     <constraints>
@@ -650,7 +650,7 @@
                 </setting>
             </group>
             <group id="premiumize" label="30765">
-                <setting id="action.pm_sign_in" type="action" label="30812">
+                <setting id="action.pm_sign_in" help="30919" type="action" label="30812">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=premiumize_sign_in)</data>
                     <constraints>
@@ -660,7 +660,7 @@
                         <close>true</close>
                     </control>
                 </setting>
-                <setting id="action.pm_sign_out" type="action" label="30813">
+                <setting id="action.pm_sign_out" help="30920" type="action" label="30813">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=premiumize_sign_out)</data>
                     <constraints>
@@ -670,22 +670,22 @@
                         <close>true</close>
                     </control>
                 </setting>
-                <setting id="premiumize.torrents" type="boolean" label="30767">
+                <setting id="premiumize.torrents" help="30921" type="boolean" label="30767">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="premiumize.hosters" type="boolean" label="30768">
+                <setting id="premiumize.hosters" help="30922" type="boolean" label="30768">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="premiumize.cloud" type="boolean" label="30769">
+                <setting id="premiumize.cloud" help="30923" type="boolean" label="30769">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="action.premiumize_status" type="action" label="30770">
+                <setting id="action.premiumize_status" help="30924" type="action" label="30770">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=premiumize_status)</data>
                     <constraints>
@@ -695,7 +695,7 @@
                         <close>true</close>
                     </control>
                 </setting>
-                <setting id="premiumize.api_key" type="string" label="30766">
+                <setting id="premiumize.api_key" help="30925" type="string" label="30766">
                     <level>3</level>
                     <default/>
                     <constraints>
@@ -705,7 +705,7 @@
                         <heading>30766</heading>
                     </control>
                 </setting>
-                <setting id="premiumize.client_id" type="string" label="30823">
+                <setting id="premiumize.client_id" help="30926" type="string" label="30823">
                     <level>3</level>
                     <default/>
                     <constraints>
@@ -726,7 +726,7 @@
                 </setting>
             </group>
             <group id="keys" label="30105">
-                <setting id="tmdb.api_key" type="string" label="30130">
+                <setting id="tmdb.api_key" help="30927" type="string" label="30130">
                     <level>0</level>
                     <default/>
                     <constraints>
@@ -736,7 +736,7 @@
                         <heading>30130</heading>
                     </control>
                 </setting>
-                <setting id="fanart.api_key" type="string" label="30131">
+                <setting id="fanart.api_key" help="30928" type="string" label="30131">
                     <level>0</level>
                     <default/>
                     <constraints>
@@ -746,7 +746,7 @@
                         <heading>30131</heading>
                     </control>
                 </setting>
-                <setting id="omdb.api_key" type="string" label="30132">
+                <setting id="omdb.api_key" help="30929" type="string" label="30132">
                     <level>0</level>
                     <default/>
                     <constraints>
@@ -756,7 +756,7 @@
                         <heading>30132</heading>
                     </control>
                 </setting>
-                <setting id="action.wizard" type="action" label="30051">
+                <setting id="action.wizard" help="30930" type="action" label="30051">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=wizard)</data>
                     <constraints>
@@ -770,7 +770,7 @@
         </category>
         <category id="advanced" label="30103">
             <group id="views" label="30106">
-                <setting id="view.movies" type="integer" label="30140">
+                <setting id="view.movies" help="30931" type="integer" label="30140">
                     <level>2</level>
                     <default>0</default>
                     <constraints>
@@ -781,7 +781,7 @@
                         <heading>30140</heading>
                     </control>
                 </setting>
-                <setting id="view.tvshows" type="integer" label="30141">
+                <setting id="view.tvshows" help="30932" type="integer" label="30141">
                     <level>2</level>
                     <default>0</default>
                     <constraints>
@@ -792,7 +792,7 @@
                         <heading>30141</heading>
                     </control>
                 </setting>
-                <setting id="view.seasons" type="integer" label="30142">
+                <setting id="view.seasons" help="30933" type="integer" label="30142">
                     <level>2</level>
                     <default>0</default>
                     <constraints>
@@ -803,7 +803,7 @@
                         <heading>30142</heading>
                     </control>
                 </setting>
-                <setting id="view.episodes" type="integer" label="30143">
+                <setting id="view.episodes" help="30934" type="integer" label="30143">
                     <level>2</level>
                     <default>0</default>
                     <constraints>
@@ -816,7 +816,7 @@
                 </setting>
             </group>
             <group id="performance" label="30302">
-                <setting id="perf.workers" type="integer" label="30332">
+                <setting id="perf.workers" help="30935" type="integer" label="30332">
                     <level>2</level>
                     <default>8</default>
                     <constraints>
@@ -828,14 +828,14 @@
                         <popup>false</popup>
                     </control>
                 </setting>
-                <setting id="perf.menu_cache" type="boolean" label="30333">
+                <setting id="perf.menu_cache" help="30936" type="boolean" label="30333">
                     <level>2</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
             </group>
             <group id="maintenance" label="30107">
-                <setting id="cache.size_mb" type="integer" label="30150">
+                <setting id="cache.size_mb" help="30937" type="integer" label="30150">
                     <level>2</level>
                     <default>100</default>
                     <constraints>
@@ -847,7 +847,7 @@
                         <popup>false</popup>
                     </control>
                 </setting>
-                <setting id="action.clear_cache" type="action" label="30050">
+                <setting id="action.clear_cache" help="30938" type="action" label="30050">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=clear_cache)</data>
                     <constraints>
@@ -857,7 +857,7 @@
                         <close>true</close>
                     </control>
                 </setting>
-                <setting id="action.clear_all" type="action" label="30223">
+                <setting id="action.clear_all" help="30939" type="action" label="30223">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=clear_all)</data>
                     <constraints>
@@ -869,14 +869,14 @@
                 </setting>
             </group>
             <group id="windows" label="30758">
-                <setting id="windows.simple" type="boolean" label="30759">
+                <setting id="windows.simple" help="30940" type="boolean" label="30759">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
             </group>
             <group id="developer" label="30760">
-                <setting id="developer.window_tests" type="boolean" label="30761">
+                <setting id="developer.window_tests" help="30941" type="boolean" label="30761">
                     <level>3</level>
                     <default>false</default>
                     <control type="toggle"/>

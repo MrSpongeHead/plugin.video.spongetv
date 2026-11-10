@@ -46,6 +46,22 @@ def test_tidy_removes_expired_then_oldest(tmp_path):
     assert store.cache_get("second") == "z" * 100
 
 
+def test_clearing_or_trimming_the_cache_keeps_resume_points(tmp_path):
+    clock = Clock()
+    store = Store(str(tmp_path / "a.db"), clock=clock)
+    store.cache_set("resume:movie:7", {"position": 1200}, 10 ** 6)   # the oldest entry
+    clock.now += 10
+    store.cache_set("tmdb:a", "y" * 100, 1000)
+    clock.now += 10
+    store.cache_set("tmdb:b", "z" * 100, 1000)
+    store.cache_tidy(max_bytes=150)
+    assert store.cache_get("resume:movie:7") == {"position": 1200}   # not removed to fit, though oldest
+    assert store.cache_get("tmdb:a") is None
+    store.cache_clear()
+    assert store.cache_get("tmdb:b") is None
+    assert store.cache_get("resume:movie:7") == {"position": 1200}
+
+
 def test_search_history_newest_first(tmp_path):
     clock = Clock()
     store = Store(str(tmp_path / "a.db"), clock=clock)

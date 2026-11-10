@@ -2086,3 +2086,331 @@ msgstr ""
 msgctxt "#30859"
 msgid "Not cached on {service}, and none below it is ready. Choose another."
 msgstr ""
+
+msgctxt "#30860"
+msgid "The language TMDB uses for titles and plots. Same as Kodi follows Kodi's own language setting."
+msgstr ""
+
+msgctxt "#30861"
+msgid "Show films and shows under their original title, such as a Japanese film's Japanese title, instead of the translated one."
+msgstr ""
+
+msgctxt "#30862"
+msgid "How episode names appear in lists: just the title, or with the season and episode number in front."
+msgstr ""
+
+msgctxt "#30863"
+msgid "Opening a show lists every episode in one long list, instead of a list of seasons first."
+msgstr ""
+
+msgctxt "#30864"
+msgid "List every studio or network that made a title, instead of just the main one."
+msgstr ""
+
+msgctxt "#30865"
+msgid "The colour of SpongeTV's own entries in lists, such as Next page and Sort by, and the show name in Next up."
+msgstr ""
+
+msgctxt "#30866"
+msgid "Play Kodi's notification sound when SpongeTV shows a message in the corner of the screen."
+msgstr ""
+
+msgctxt "#30867"
+msgid "In film lists, leave out films not yet released in your country."
+msgstr ""
+
+msgctxt "#30868"
+msgid "In TV show lists, leave out shows that haven't started airing in your country."
+msgstr ""
+
+msgctxt "#30869"
+msgid "In search results, leave out titles not yet released in your country."
+msgstr ""
+
+msgctxt "#30870"
+msgid "Leave out Season 0 (specials) when you open a show."
+msgstr ""
+
+msgctxt "#30871"
+msgid "Leave out seasons that haven't started airing in your country."
+msgstr ""
+
+msgctxt "#30872"
+msgid "Leave out episodes that haven't aired yet in your country."
+msgstr ""
+
+msgctxt "#30873"
+msgid "In film lists, leave out films you've watched (needs Trakt)."
+msgstr ""
+
+msgctxt "#30874"
+msgid "In TV show lists, leave out shows where you've watched every aired episode (needs Trakt)."
+msgstr ""
+
+msgctxt "#30875"
+msgid "In search results, leave out titles you've watched (needs Trakt)."
+msgstr ""
+
+msgctxt "#30876"
+msgid "Leave out seasons you've finished (needs Trakt)."
+msgstr ""
+
+msgctxt "#30877"
+msgid "Leave out episodes you've watched (needs Trakt)."
+msgstr ""
+
+msgctxt "#30878"
+msgid "How often SpongeTV fetches your watched history, progress and lists from Trakt. It also syncs when Kodi starts and after you watch something."
+msgstr ""
+
+msgctxt "#30879"
+msgid "Order of Next up: the shows you watched most recently first, or the shows with the newest episodes first."
+msgstr ""
+
+msgctxt "#30880"
+msgid "Resume points older than this are ignored, so long-abandoned films and episodes stop asking to resume. 0 keeps them all."
+msgstr ""
+
+msgctxt "#30881"
+msgid "Bigger artwork looks sharper but takes longer to load. Choose Advanced to pick each size yourself."
+msgstr ""
+
+msgctxt "#30882"
+msgid "Size of posters fetched from TMDB. Larger looks sharper on big screens but loads more slowly."
+msgstr ""
+
+msgctxt "#30883"
+msgid "Size of background images fetched from TMDB. Larger looks sharper but loads more slowly."
+msgstr ""
+
+msgctxt "#30884"
+msgid "Size of episode images fetched from TMDB."
+msgstr ""
+
+msgctxt "#30885"
+msgid "Add clear logos and clear art where TMDB has them. With a Fanart.tv key, SpongeTV can find many more."
+msgstr ""
+
+msgctxt "#30886"
+msgid "The longest SpongeTV waits for providers when searching. Slow providers that haven't answered by then are left out."
+msgstr ""
+
+msgctxt "#30887"
+msgid "Finish the search as soon as enough good sources are ready, instead of waiting for every provider."
+msgstr ""
+
+msgctxt "#30888"
+msgid "The search can stop early once it has enough ready sources at this quality or better."
+msgstr ""
+
+msgctxt "#30889"
+msgid "How many ready sources at the chosen quality the search needs before it stops early."
+msgstr ""
+
+msgctxt "#30890"
+msgid "Reuse what a search found for this long, so playing the same title again is instant. 0 always searches afresh."
+msgstr ""
+
+msgctxt "#30891"
+msgid "Only list sources Premiumize already has, which play straight away. Others would need Premiumize to download them first."
+msgstr ""
+
+msgctxt "#30892"
+msgid "Which sources Source Select shows. Choose Custom to set each option below yourself."
+msgstr ""
+
+msgctxt "#30893"
+msgid "Custom filter: show 4K sources."
+msgstr ""
+
+msgctxt "#30894"
+msgid "Custom filter: show 1080p sources."
+msgstr ""
+
+msgctxt "#30895"
+msgid "Custom filter: show 720p sources."
+msgstr ""
+
+msgctxt "#30896"
+msgid "Custom filter: show standard-definition sources."
+msgstr ""
+
+msgctxt "#30897"
+msgid "Custom filter: hide copies recorded in a cinema (CAM, telesync) and pre-release screeners."
+msgstr ""
+
+msgctxt "#30898"
+msgid "Custom filter: hide 3D copies."
+msgstr ""
+
+msgctxt "#30899"
+msgid "Custom filter: hide HEVC (H.265) copies, for devices that can't play them smoothly."
+msgstr ""
+
+msgctxt "#30900"
+msgid "Custom filter: hide HDR copies, for TVs that show them with washed-out colours."
+msgstr ""
+
+msgctxt "#30901"
+msgid "Custom filter: hide Dolby Vision copies, for devices that show them with odd colours."
+msgstr ""
+
+msgctxt "#30902"
+msgid "Custom filter: hide film files larger than this. 0 means no limit."
+msgstr ""
+
+msgctxt "#30903"
+msgid "Custom filter: hide episode files larger than this. 0 means no limit."
+msgstr ""
+
+msgctxt "#30904"
+msgid "Choose the order Source Select lists sources in, and which source Play best picks."
+msgstr ""
+
+msgctxt "#30905"
+msgid "What SpongeTV does when a provider package you installed from a link has a newer version."
+msgstr ""
+
+msgctxt "#30906"
+msgid "Install, update and remove provider packages, and turn individual providers on or off."
+msgstr ""
+
+msgctxt "#30907"
+msgid "Pressing play on a film either shows Source Select so you choose, or plays the best ready source straight away."
+msgstr ""
+
+msgctxt "#30908"
+msgid "Pressing play on an episode either shows Source Select so you choose, or plays the best ready source straight away."
+msgstr ""
+
+msgctxt "#30909"
+msgid "If a source won't play, SpongeTV tries the next one, up to this many in total."
+msgstr ""
+
+msgctxt "#30910"
+msgid "While an episode plays, SpongeTV finds a source for the next one, shows Playing Next near the end, then plays it."
+msgstr ""
+
+msgctxt "#30911"
+msgid "Playing Next appears this many seconds before the end, or earlier when the end credits start."
+msgstr ""
+
+msgctxt "#30912"
+msgid "If the episode's chapters show where the end credits start, show Playing Next then, not just before the end."
+msgstr ""
+
+msgctxt "#30913"
+msgid "Give the end credits a few seconds before Playing Next appears, so it doesn't cover the final moments."
+msgstr ""
+
+msgctxt "#30914"
+msgid "After this many episodes in a row, Smart Play asks if you're still watching before it carries on. 0 never asks."
+msgstr ""
+
+msgctxt "#30915"
+msgid "Link SpongeTV to your Trakt account, for watched marks, progress, lists and Next up."
+msgstr ""
+
+msgctxt "#30916"
+msgid "Unlink SpongeTV from Trakt. Your Trakt data stays on Trakt."
+msgstr ""
+
+msgctxt "#30917"
+msgid "Only if you've made your own Trakt app. Leave empty to use SpongeTV's built-in one."
+msgstr ""
+
+msgctxt "#30918"
+msgid "Only needed for older Trakt apps that still require a secret. Leave empty otherwise."
+msgstr ""
+
+msgctxt "#30919"
+msgid "Link SpongeTV to your Premiumize account by entering a code at premiumize.me/device."
+msgstr ""
+
+msgctxt "#30920"
+msgid "Unlink SpongeTV from Premiumize."
+msgstr ""
+
+msgctxt "#30921"
+msgid "Play torrent sources through Premiumize."
+msgstr ""
+
+msgctxt "#30922"
+msgid "Play links from file hosts through Premiumize, for the hosts it supports."
+msgstr ""
+
+msgctxt "#30923"
+msgid "Also look in your own Premiumize cloud for the film or episode you're playing."
+msgstr ""
+
+msgctxt "#30924"
+msgid "Show your Premiumize premium days left and how much of your fair-use allowance you've used."
+msgstr ""
+
+msgctxt "#30925"
+msgid "An alternative to signing in: paste your Premiumize API key from your account page. Leave empty if you signed in."
+msgstr ""
+
+msgctxt "#30926"
+msgid "Only if you've registered your own Premiumize app. Leave empty to use SpongeTV's built-in one."
+msgstr ""
+
+msgctxt "#30927"
+msgid "Your free TMDB API key, which SpongeTV needs for titles, plots and artwork. Get one at themoviedb.org."
+msgstr ""
+
+msgctxt "#30928"
+msgid "Optional. Your free Fanart.tv personal key, for more clear logos and clear art."
+msgstr ""
+
+msgctxt "#30929"
+msgid "Optional. Your free OMDb key, which adds IMDb, Rotten Tomatoes and Metacritic ratings."
+msgstr ""
+
+msgctxt "#30930"
+msgid "Go through the setup steps again: language, artwork, your TMDB key and account sign-ins."
+msgstr ""
+
+msgctxt "#30931"
+msgid "The skin view ID to open film lists in. 0 leaves it to the skin."
+msgstr ""
+
+msgctxt "#30932"
+msgid "The skin view ID to open TV show lists in. 0 leaves it to the skin."
+msgstr ""
+
+msgctxt "#30933"
+msgid "The skin view ID to open season lists in. 0 leaves it to the skin."
+msgstr ""
+
+msgctxt "#30934"
+msgid "The skin view ID to open episode lists in. 0 leaves it to the skin."
+msgstr ""
+
+msgctxt "#30935"
+msgid "How many requests SpongeTV makes to TMDB at once when building a list. Lower it if a slow connection struggles."
+msgstr ""
+
+msgctxt "#30936"
+msgid "Let Kodi keep a copy of each list so going back is instant. SpongeTV reloads a list when something in it changes."
+msgstr ""
+
+msgctxt "#30937"
+msgid "The most space SpongeTV's cache can use. The oldest entries are removed when it's full."
+msgstr ""
+
+msgctxt "#30938"
+msgid "Forget saved details, artwork, lists and source results; they're fetched again when needed. Watched history and resume points are kept."
+msgstr ""
+
+msgctxt "#30939"
+msgid "As Clear cache, and also forget your recent searches."
+msgstr ""
+
+msgctxt "#30940"
+msgid "Use Kodi's plain dialogs for searching, Source Select and Playing Next instead of SpongeTV's own windows."
+msgstr ""
+
+msgctxt "#30941"
+msgid "For testing SpongeTV's windows with made-up data. Adds Window tests to the Tools menu."
+msgstr ""

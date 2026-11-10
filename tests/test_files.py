@@ -30,7 +30,7 @@ def test_strings_po_is_up_to_date():
 
 
 def test_settings_xml_is_up_to_date():
-    assert read("resources", "settings.xml") == make_settings.render()
+    assert read("resources", "settings.xml") == make_settings.with_help(make_settings.render())
 
 
 def test_string_ids_unique_and_in_the_add_on_range():

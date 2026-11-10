@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.4.20" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.5.0" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,41 +17,11 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.4.20: Smart Play is more reliable: a moment when Kodi reports nothing playing (for example while the TV switches to 4K) no longer ends it, and an episode that plays to its natural end always counts as watched. Smart Play now writes each step to Kodi's log. "Mark as unwatched" now clears the tick on films and episodes. Resume uses whichever point is newer: SpongeTV's own or Trakt's from another device.
-0.4.19: Picking a source Premiumize hasn't cached now tells you so: "Not cached on Premiumize: playing the next ready source", or, if nothing below it is ready, asks you to choose another.
+        <news>0.5.0: First Stage 5 (polish) build. Every setting now explains itself at the bottom of the settings screen. Clearing or trimming the cache no longer loses SpongeTV's own resume points. The full history of changes is in changelog.txt, so this note stays within Kodi's limit. Routine sync details only appear in Kodi's log with debug logging on.
+0.4.20: Smart Play is more reliable: a moment when Kodi reports nothing playing (for example while the TV switches to 4K) no longer ends it, and an episode that plays to its natural end always counts as watched. Smart Play now writes each step to Kodi's log. "Mark as unwatched" now clears the tick on films and episodes. Resume uses whichever point is newer: SpongeTV's own or Trakt's from another device.
+0.4.19: Picking a source Premiumize hasn't cached now tells you so: "Not cached on Premiumize: playing the next ready source", or, if nothing below it is ready, asks you to choose another. Watching to the end marks it watched straight away (reached most people with 0.4.20).
 0.4.18: When Playing Next waits for the end credits, it now gives them a few seconds first, so the card doesn't cover the final moments (Settings, Playback: "Wait this many seconds after the credits start", 5 by default). It still never appears later than your seconds setting.
-0.4.17: Playing Next can appear when the end credits start, if the episode has chapters that show where they begin (Settings, Playback: "Show Playing Next when the end credits start"). It never appears later than your seconds setting, and episodes without chapters work as before.
-0.4.16: Source Select keeps the quality and status text when you move to Play best source, Filter or Sort.
-0.4.15: Source Select, the search window and Playing Next now match the approved designs: SpongeTV logo, source and ready counts, filter and sort icons, coloured status dots, Premiumize cloud shown as such, the Playing Next countdown ring, and clearer wording. Buttons follow one rule everywhere: only the button OK will press is solid amber. Kodi's log names the file a season pack plays.
-0.4.14: More sources for episodes: providers that look an episode up by the show's IMDb ID now get it, in the same place Seren puts it (tvshow.imdb_id).
-0.4.13: "Choose from N" no longer shows a higher number for a moment before correcting itself: a source counts once Premiumize has said whether it's cached.
-0.4.12: The search window's "Choose from N" now counts only the sources Source Select will show, and says how many your filter hides; early stop counts the same way.
-0.4.11: Clearer buttons in the search window: "Waiting for sources…" is greyed until something is found, Choose has an amber outline when it can be chosen, and only the button OK will press is solid amber.
-0.4.10: The search window's buttons work from the remote: Cancel has the focus at first, and Choose from N found takes it once there's something to choose.
-0.4.9: "Hide CAM and screener copies" now hides them all: cinema recordings labelled with a resolution ("1080p HDCAM", "HDTS 720p") and screeners such as DVDSCR were being read as normal copies.
-0.4.8: The search window says when it's still asking Premiumize which sources are ready, instead of showing 0, and stays a few seconds after the search if Premiumize is still answering, so the ready count is right. Sources found at the last moment are now checked too.
-0.4.7: Premiumize's cache check now asks with the torrent hash, as Seren does, so Ready shows for cached sources (it often said 0 ready before); torrents are still checked if Premiumize's hoster list can't be fetched. Source Select's Menu adds "Why is this source here?" for remotes without an Info button, and the bottom line is a single, clearer hint.
-0.4.6: Backing out of the search or Source Select no longer ends with Kodi's "Playback failed" message.
-0.4.5: No more pause or blank details after you stop a video: SpongeTV leaves Kodi's own resume point alone and lets Kodi ask about it, and asks itself only when Kodi won't. Lists no longer pick up the resolution and audio details Kodi records while playing. Fixed providers from one package sometimes failing when they all started at once.
-0.4.4: "Search for sources again" in the context menu of every film and episode, and in Source Select's menu, runs a fresh search instead of reusing saved results. "Clear resume point" is now in the context menu of any film or episode that has one, whether or not you're signed in to Trakt.
-0.4.3: Clear resume point now clears SpongeTV's own resume point and Kodi's as well as Trakt's. Lists show SpongeTV's exact resume point, and when Kodi asks "Resume from…" for an item, SpongeTV no longer asks again. After you stop a video, the list reloads so the item keeps its details.
-0.4.2: Tools, Accounts shows your Premiumize premium days left, not how long the sign-in lasts.
-0.4.1: Sign in to Premiumize with a code, as in Seren: Tools, Accounts (or Settings, Accounts), then enter the code at premiumize.me/device. The setup wizard offers it too. The Premiumize API key and the Trakt Client ID and Secret move to the Expert settings level.
-0.4.0: Playback. Add your Premiumize API key in Settings, Accounts. Sources show Ready, In your cloud or Not cached, and your Premiumize cloud is searched too. Pressing play offers to resume, then plays the best source (Auto Play) or shows Source Select, set separately for films and episodes; a source that won't play moves on to the next. Season packs play the right episode. SpongeTV scrobbles to Trakt, keeps its own resume points and clears Kodi's, so you see one resume prompt. Smart Play gets the next episode ready, Playing Next offers Play now or Stop after this episode, and Still Watching asks after a few episodes in a row. Shows have Play next episode in their context menu.
-0.3.0: Sources. Install provider packages (Seren format) from a web address, a zip file or the built-in test provider; turn providers on and off, change package settings, update, roll back and uninstall them (Tools, Providers and sources). Pressing play now searches every provider at once in SpongeTV's progress window, with early stop and Choose from N found, then opens Source Select with filters, sort rules you can reorder, and Info to see why a source is where it is. New Sources settings. Playback itself arrives in stage 4.
-0.2.7: Seasons show how many aired episodes you've watched in their name, such as Season 1 (7/10), so it appears in every view and sort order.
-0.2.6: SpongeTV's Trakt Client ID is built in, so signing in only needs the code at trakt.tv/activate. You can still use your own Trakt app in Settings, Accounts.
-0.2.5: Your own and liked Trakt lists are read fresh each time, so lists created, deleted or changed on trakt.tv show straight away.
-0.2.4: Trending and Popular lists, and big lists, now open quickly: they load a page at a time with a Next page item. Adding to or removing from a list shows straight away.
-0.2.3: Upcoming and Recent episodes start each line with when it airs or aired, in your time zone (Today 21:00, Tomorrow 02:00, Sat 14 Nov 20:00).
-0.2.2: In Next up, Upcoming episodes and Recent episodes the show name now uses your Highlight colour ("No highlight" keeps it plain).
-0.2.1: Fixed watched episodes not downloading from Trakt (Trakt now sends seasons only when asked), which left Next up and Shows in progress empty. Your watch history downloads again in full on the next sync. Next up now says why when it's empty.
-0.2.0: Trakt. Sign in with a code on trakt.tv; My films, My TV shows with Next up, shows in progress, upcoming and recent episodes, recommendations and Trakt lists; watched marks, resume points and season progress; Trakt actions on every title (watched, collection, watchlist, favourites, lists, rate, hide, clear resume point); background sync of only what changed; Trakt sync in Tools.
-0.1.4: Advanced artwork sizes now sit directly under Artwork quality, with no empty heading left behind.
-0.1.3: One search for films, TV shows and people; actors' and directors' pages; related titles and cast (context menu); TV networks, new shows and streaming services; sortable lists; hide options per menu; customisable home menu; episode title styles; highlight colour; Advanced artwork sizes; API keys checked when entered; grouped Tools with Clear all caches.
-0.1.2: Fixed search, genres and years.
-0.1.1: The setup wizard asks for your own TMDB key.
-0.1.0: First Stage 1 test build.</news>
+Earlier changes: changelog.txt</news>
         <assets>
             <icon>resources/media/icon.png</icon>
             <fanart>resources/media/fanart.jpg</fanart>

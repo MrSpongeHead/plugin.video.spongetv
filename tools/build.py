@@ -18,13 +18,19 @@ import zipfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ADDON_ID = "plugin.video.spongetv"
 ALWAYS_INCLUDED = {"trakt", "premiumize"}   # client IDs, not secrets: needed for sign-in
-INCLUDE = ["addon.xml", "main.py", "service.py", "LICENSE", "README.md", "resources"]
+INCLUDE = ["addon.xml", "main.py", "service.py", "LICENSE", "README.md", "changelog.txt", "resources"]
+NEWS_LIMIT = 1500           # Kodi's schema refuses longer <news>
 SKIP_PARTS = {"__pycache__", ".pytest_cache"}
 
 
 def version():
     with open(os.path.join(ROOT, "addon.xml"), encoding="utf-8") as handle:
-        match = re.search(r'<addon[^>]*\sversion="([^"]+)"', handle.read())
+        text = handle.read()
+    news = re.search(r"<news>(.*?)</news>", text, re.S)
+    if news and len(news.group(1)) > NEWS_LIMIT:
+        raise SystemExit(f"addon.xml <news> is {len(news.group(1))} characters; Kodi allows {NEWS_LIMIT}. "
+                         "Move older entries to changelog.txt.")
+    match = re.search(r'<addon[^>]*\sversion="([^"]+)"', text)
     return match.group(1)
 
 

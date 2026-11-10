@@ -132,8 +132,8 @@ def next_up_entries(app):
         found = next_episode(details, library.watched_episodes(details["id"]))
         if found:
             entries.append((details, found[0], found[1], last_watched.get(details["id"], "")))
-    kodi.log(f"Next up: {len(watched_shows) + len(skipped)} shows with watched episodes, {len(skipped)} hidden or "
-             f"dropped, {len(details_found)} found on TMDB, {len(entries)} with an episode to watch next")
+    kodi.log_debug(f"Next up: {len(watched_shows) + len(skipped)} shows with watched episodes, {len(skipped)} hidden or "
+                   f"dropped, {len(details_found)} found on TMDB, {len(entries)} with an episode to watch next")
     if kodi.setting_int("nextup.sort") == 1:   # newest air date first
         entries.sort(key=lambda e: ((e[0].get("last_air_date") or ""), e[3]), reverse=True)
     else:                                      # most recently watched first
