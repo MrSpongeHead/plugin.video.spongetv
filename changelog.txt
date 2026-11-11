@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+0.5.9
+  "Let Kodi choose the views" now shows its help line at the bottom of the settings screen.
+
 0.5.8
   Clearer wording for views: lists without a chosen view now say "Kodi's choice", and the button to clear them is "Let Kodi choose the views", since Kodi then uses the view it remembers for each list, not the skin's original one.
 

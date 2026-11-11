@@ -993,7 +993,7 @@
                     <visible>false</visible>
                     <control type="edit" format="string"/>
                 </setting>
-                <setting id="action.reset_views" type="action" label="30961">
+                <setting id="action.reset_views" help="30963" type="action" label="30961">
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.spongetv/?action=reset_views)</data>
                     <constraints>

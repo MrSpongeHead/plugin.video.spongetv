@@ -91,3 +91,11 @@ def test_no_strptime_anywhere():
     for path in glob.glob(os.path.join(ROOT, "resources", "lib", "*.py")):
         code = "\n".join(line.split("#")[0] for line in open(path, encoding="utf-8"))
         assert not re.search(r"strptime\s*\(", code), path
+
+
+def test_every_visible_setting_has_help():
+    """Kodi shows a setting's help at the bottom of the settings screen; a missing one leaves it blank."""
+    import xml.etree.ElementTree as ET
+    root = ET.parse(os.path.join(ROOT, "resources", "settings.xml")).getroot()
+    visible = [s for s in root.iter("setting") if s.find("level").text != "4"]
+    assert visible and [s.get("id") for s in visible if not s.get("help")] == []

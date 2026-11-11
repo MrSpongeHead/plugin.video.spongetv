@@ -645,7 +645,7 @@ STRINGS = {
     "view_number": (30960, "View {number}"),
     "reset_views": (30961, "Let Kodi choose the views"),
     "views_reset": (30962, "SpongeTV no longer switches views: lists open in the view Kodi remembers"),
-    "help_reset_views": (30963, "SpongeTV stops switching views, and each list opens in the view Kodi remembers for it, usually the last one you picked."),
+    "help_action_reset_views": (30963, "SpongeTV stops switching views, and each list opens in the view Kodi remembers for it, usually the last one you picked."),
 }
 
 # Display languages offered, as (TMDB language code, string key). Index 0 means "same as Kodi".
