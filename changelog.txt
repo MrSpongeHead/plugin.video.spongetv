@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+0.5.5
+  After you watch something to the end, SpongeTV now also waits for Kodi to finish redrawing the list before reloading it, so the list no longer comes back in Estuary's picture layout (WideList without watched icons). If a reloaded list is ever missing its content type, SpongeTV reloads it once more.
+
 0.5.4
   After you watch something to the end, SpongeTV now waits for Kodi to finish saving its own record of the video before reloading the list, so an episode you've just finished shouldn't flash up as part-watched. Kodi's log notes when Kodi saved, when the list reloaded, and how the item you watched shows afterwards.
 

@@ -662,15 +662,25 @@ class Clocked:
         return False
 
 
-def back_at_list(monkeypatch, folder, item_path="", resumable=False):
+def back_at_list(monkeypatch, folder, item_path="", resumable=False, content="episodes", settled=True):
+    """Pretend Kodi is back at a list. state can be changed by a test while SpongeTV waits."""
     import xbmc
-    labels = {"Container.FolderPath": folder, "ListItem.FileNameAndPath": item_path, "ListItem.PlayCount": "1"}
-    monkeypatch.setattr(xbmc, "getInfoLabel", lambda label: labels.get(label, ""), raising=False)
-    monkeypatch.setattr(xbmc, "getCondVisibility",
-                        lambda c: resumable if c == "ListItem.IsResumable" else False, raising=False)
+    state = {"labels": {"Container.FolderPath": folder, "ListItem.FileNameAndPath": item_path,
+                        "ListItem.PlayCount": "1", "Container.Content": content, "Container.Viewmode": "List"},
+             "settled": settled, "resumable": resumable}
+    monkeypatch.setattr(xbmc, "getInfoLabel", lambda label: state["labels"].get(label, ""), raising=False)
+
+    def visible(condition):
+        if condition == "ListItem.IsResumable":
+            return state["resumable"]
+        if condition == "Window.IsActive(videos)":
+            return state["settled"]
+        return False
+    monkeypatch.setattr(xbmc, "getCondVisibility", visible, raising=False)
     logged = []
     monkeypatch.setattr(playback.kodi, "log", lambda message, *a: logged.append(message))
     Directory.builtins.clear()
+    back_at_list.state = state
     return logged
 
 
@@ -685,19 +695,57 @@ def test_reload_waits_for_kodis_save_notice(premiumize, monkeypatch):
     playback.refresh_when_back(monitor, target, clock=monitor.clock)
     assert [b for b, _ in issued] == ["Container.Refresh"]
     assert issued[0][1] < 1001.5                               # straight after the notice, not after 3s
-    assert "Kodi saved its state +1.2s" in logged[0]
-    assert logged[-1] == "After the reload, episode:50:1:2 shows: played 1 times, no resume point"
+    assert "Kodi saved its state +1.2s from the end, list settled" in logged[0]
+    assert logged[-1] == "After the reload (episodes, List view), episode:50:1:2 shows: played 1 times, no resume point"
+
+
+def test_reload_waits_for_the_list_to_settle_after_the_notice(premiumize, monkeypatch):
+    logged = back_at_list(monkeypatch, "plugin://plugin.video.spongetv/?action=episodes", settled=False)
+    monitor = Clocked(notice_at=1000.2)
+    import xbmc
+    issued = []
+
+    def wait(seconds=0):
+        monitor.now += seconds
+        if monitor.now >= 1000.2 and not monitor.saved:
+            monitor.saved.append(monitor.now)
+        if monitor.now >= 1001.5:
+            back_at_list.state["settled"] = True               # Kodi has finished redrawing the list
+        return False
+    monitor.waitForAbort = wait
+    monkeypatch.setattr(xbmc, "executebuiltin", lambda b, *a: issued.append((b, monitor.now)), raising=False)
+    playback.refresh_when_back(monitor, None, clock=monitor.clock)
+    assert len(issued) == 1 and 1001.5 <= issued[0][1] < 1002   # not at the notice: once the list settled
+    assert "list settled" in logged[0]
 
 
 def test_reload_goes_ahead_without_a_notice(premiumize, monkeypatch):
     logged = back_at_list(monkeypatch, "plugin://plugin.video.spongetv/?action=movies", resumable=True,
-                          item_path="plugin://plugin.video.spongetv/?action=play&media=movie&tmdb_id=7&kr=1")
+                          item_path="plugin://plugin.video.spongetv/?action=play&media=movie&tmdb_id=7&kr=1",
+                          content="movies")
     monitor = Clocked()
     target = playback.Target(context.App(), {"media": "movie", "tmdb_id": 7})
     playback.refresh_when_back(monitor, target, clock=monitor.clock)
     assert Directory.builtins == ["Container.Refresh"]
     assert "no notice from Kodi after 3s" in logged[0]
-    assert logged[-1] == "After the reload, movie:7 shows: played 1 times, part-watched"
+    assert logged[-1] == "After the reload (movies, List view), movie:7 shows: played 1 times, part-watched"
+
+
+def test_a_list_without_its_content_type_is_reloaded_once_more(premiumize, monkeypatch):
+    logged = back_at_list(monkeypatch, "plugin://plugin.video.spongetv/?action=episodes", content="")
+    monitor = Clocked(notice_at=1000.5)
+    import xbmc
+
+    def refresh(builtin, *a):
+        Directory.builtins.append(builtin)
+        if len(Directory.builtins) == 2:
+            back_at_list.state["labels"]["Container.Content"] = "episodes"
+    monkeypatch.setattr(xbmc, "executebuiltin", refresh, raising=False)
+    target = playback.Target(context.App(), {"media": "episode", "tmdb_id": 50, "season": 1, "episode": 2})
+    playback.refresh_when_back(monitor, target, clock=monitor.clock)
+    assert Directory.builtins == ["Container.Refresh", "Container.Refresh"]
+    assert any("has no content type" in m for m in logged)
+    assert "(episodes, List view)" in logged[-1]
 
 
 def test_no_reload_outside_spongetv(premiumize, monkeypatch):
@@ -713,4 +761,4 @@ def test_a_different_selected_item_is_said_so(premiumize, monkeypatch):
     monitor = Clocked(notice_at=1000.5)
     target = playback.Target(context.App(), {"media": "episode", "tmdb_id": 50, "season": 1, "episode": 2})
     playback.refresh_when_back(monitor, target, clock=monitor.clock)
-    assert logged[-1] == "After the reload, the selected item isn't episode:50:1:2"
+    assert logged[-1] == "After the reload (episodes, List view), the selected item isn't episode:50:1:2"

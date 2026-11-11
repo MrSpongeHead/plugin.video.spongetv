@@ -524,41 +524,75 @@ def _back_at_list(wait, monitor):
     return False
 
 
+SETTLE_WAIT = 5.0      # seconds to wait for Kodi to finish redrawing the list, before reloading anyway
+
+
+def _list_settled():
+    """Kodi has finished putting the list back after playback: the videos window is showing, it isn't
+    loading, and it has its content type again (until then Estuary shows WideList with pictures)."""
+    return (xbmc.getCondVisibility("Window.IsActive(videos)")
+            and not xbmc.getCondVisibility("Container.IsUpdating")
+            and bool(xbmc.getInfoLabel("Container.Content")))
+
+
 def refresh_when_back(monitor, target=None, wait=10.0, clock=time.time):
     """Once playback has closed and a SpongeTV list is showing, reload it so the watched tick shows.
     Only called after something was watched. Kodi updates the item you played from in its own way as
-    playback ends, so the reload waits for Kodi's notice that it has saved its state, then goes last."""
+    playback ends, then redraws the list; reloading in the middle of that can leave the list without its
+    content type. So the reload waits for Kodi's notice that it has saved its state and for the list to
+    settle, then goes last."""
     started = clock()
     if not _back_at_list(wait, monitor):
         return
+    saved = getattr(monitor, "saved", None)
+    back = clock()
+    notice = "no notice"
+    while clock() - back < max(KODI_SAVE_WAIT, SETTLE_WAIT):
+        heard = [t for t in saved if t >= started - SAVE_RECENT] if saved is not None else [started]
+        waited = clock() - back
+        if (heard or waited >= KODI_SAVE_WAIT) and (_list_settled() or waited >= SETTLE_WAIT):
+            break
+        if monitor.waitForAbort(0.1):
+            return
+    if saved is not None:
+        heard = [t for t in saved if t >= started - SAVE_RECENT]
+        notice = (f"Kodi saved its state {heard[-1] - started:+.1f}s from the end" if heard
+                  else f"no notice from Kodi after {KODI_SAVE_WAIT:.0f}s")
     if not xbmc.getInfoLabel("Container.FolderPath").startswith("plugin://plugin.video.spongetv"):
         return
-    saved = getattr(monitor, "saved", None)
-    if saved is not None:
-        back = clock()
-        while not any(t >= started - SAVE_RECENT for t in saved) and clock() - back < KODI_SAVE_WAIT:
-            if monitor.waitForAbort(0.1):
-                return
-        heard = [t for t in saved if t >= started - SAVE_RECENT]
-        kodi.log(f"Reloading the list: Kodi saved its state {heard[-1] - started:+.1f}s from the end"
-                 if heard else f"Reloading the list: no notice from Kodi after {KODI_SAVE_WAIT:.0f}s")
+    settled = "list settled" if _list_settled() else f"list not settled after {SETTLE_WAIT:.0f}s"
+    kodi.log(f"Reloading the list: {notice}, {settled} {clock() - back:.1f}s after playback closed")
     xbmc.executebuiltin("Container.Refresh")
     if target is not None:
         _log_after_reload(monitor, target)
 
 
-def _log_after_reload(monitor, target):
-    """Say in Kodi's log how the item just watched shows once the list has reloaded (if it's selected)."""
+def _wait_for_reload(monitor):
     for _ in range(30):                                   # the reload starts a moment later
         if xbmc.getCondVisibility("Container.IsUpdating"):
             break
         if monitor.waitForAbort(0.1):
-            return
+            return False
     for _ in range(100):                                  # up to 10 seconds to rebuild
         if not xbmc.getCondVisibility("Container.IsUpdating"):
             break
         if monitor.waitForAbort(0.1):
+            return False
+    return True
+
+
+def _log_after_reload(monitor, target):
+    """Say in Kodi's log how the list and the item just watched show once the list has reloaded, and
+    reload once more if the list came back without its content type."""
+    if not _wait_for_reload(monitor):
+        return
+    if not xbmc.getInfoLabel("Container.Content"):
+        kodi.log(f"After the reload, the list has no content type (view: {xbmc.getInfoLabel('Container.Viewmode')}); "
+                 "reloading once more")
+        xbmc.executebuiltin("Container.Refresh")
+        if not _wait_for_reload(monitor):
             return
+    view = f"{xbmc.getInfoLabel('Container.Content') or 'no content type'}, {xbmc.getInfoLabel('Container.Viewmode')} view"
     path = xbmc.getInfoLabel("ListItem.FileNameAndPath")
     wanted = {"media": target.media, "tmdb_id": str(target.tmdb_id)}
     if target.media == "episode":
@@ -566,11 +600,12 @@ def _log_after_reload(monitor, target):
     from urllib.parse import parse_qs, urlparse
     params = {k: v[0] for k, v in parse_qs(urlparse(path).query).items()}
     if any(params.get(k) != v for k, v in wanted.items()):
-        kodi.log(f"After the reload, the selected item isn't {target.key}")
+        kodi.log(f"After the reload ({view}), the selected item isn't {target.key}")
         return
     resumable = xbmc.getCondVisibility("ListItem.IsResumable")
-    kodi.log(f"After the reload, {target.key} shows: played {xbmc.getInfoLabel('ListItem.PlayCount') or 0} "
-             f"times, {'part-watched' if resumable else 'no resume point'}")
+    kodi.log(f"After the reload ({view}), {target.key} shows: played "
+             f"{xbmc.getInfoLabel('ListItem.PlayCount') or 0} times, "
+             f"{'part-watched' if resumable else 'no resume point'}")
 
 
 def follow_episodes(app, target, url, start_at):
