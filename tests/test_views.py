@@ -43,7 +43,7 @@ def test_using_a_view_saves_its_number_name_and_skin(kodi_screen):
     views.save_view(FakePlugin(kind="episodes"), None, monitor=Quiet())
     s = FakeAddon.settings
     assert (s["view.episodes"], s["view.episodes_name"], s["view.episodes_skin"]) == (50, "List", "skin.estuary")
-    assert s["view.episodes_status"] == "List" and s["view.movies_status"] == "Skin default"
+    assert s["view.episodes_status"] == "List" and s["view.movies_status"] == "Kodi's choice"
     assert notes == ["Episodes will now open in List view"]
     assert views.saved_view("episodes") == 50 and views.saved_view("movies") == 0
 
@@ -54,7 +54,7 @@ def test_a_view_saved_under_another_skin_is_ignored(kodi_screen):
     state["skin"] = "skin.arctic.zephyr.mod"
     assert views.saved_view("seasons") == 0                 # view numbers belong to the skin
     views.view_status()
-    assert FakeAddon.settings["view.seasons_status"] == "Skin default"
+    assert FakeAddon.settings["view.seasons_status"] == "Kodi's choice"
     state["skin"] = "skin.estuary"
     assert views.saved_view("seasons") == 50
 
@@ -74,7 +74,7 @@ def test_reset_goes_back_to_the_skin(kodi_screen):
     views.save_view(FakePlugin(kind="tvshows"), None, monitor=Quiet())
     views.reset_views()
     assert views.saved_view("tvshows") == 0
-    assert FakeAddon.settings["view.tvshows_status"] == "Skin default"
+    assert FakeAddon.settings["view.tvshows_status"] == "Kodi's choice"
 
 
 def test_lists_offer_the_entry_and_open_in_the_saved_view(kodi_screen, monkeypatch):

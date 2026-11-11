@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.5.7" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.5.8" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,10 +17,10 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.5.7: Choosing views no longer needs view numbers. In any film, TV show, season or episode list, pick a view from Kodi's side menu, then choose &quot;Use this view for episodes&quot; (or films, TV shows, seasons) from the context menu. SpongeTV reads the view from your skin, and Settings, Advanced, Views shows which view each kind of list uses. A view chosen under one skin is ignored under another.
+        <news>0.5.8: Clearer wording for views: lists without a chosen view now say &quot;Kodi&apos;s choice&quot;, and the button to clear them is &quot;Let Kodi choose the views&quot;, since Kodi then uses the view it remembers for each list, not the skin&apos;s original one.
+0.5.7: Choosing views no longer needs view numbers. In any film, TV show, season or episode list, pick a view from Kodi's side menu, then choose &quot;Use this view for episodes&quot; (or films, TV shows, seasons) from the context menu. SpongeTV reads the view from your skin, and Settings, Advanced, Views shows which view each kind of list uses. A view chosen under one skin is ignored under another.
 0.5.6: Going back to a list now always shows watched status as it is now. Kodi no longer keeps its own copy of lists that show watched status (films, shows, seasons, episodes, the calendar and Trakt lists), so after marking something watched or unwatched, or watching it, the season and show counts are right. Plain menus are still kept for instant going back.
 0.5.5: After you watch something to the end, SpongeTV now also waits for Kodi to finish redrawing the list before reloading it, so the list no longer comes back in Estuary's picture layout (WideList without watched icons). If a reloaded list is ever missing its content type, SpongeTV reloads it once more.
-0.5.4: After you watch something to the end, SpongeTV now waits for Kodi to finish saving its own record of the video before reloading the list, so an episode you've just finished shouldn't flash up as part-watched. Kodi's log notes when Kodi saved, when the list reloaded, and how the item you watched shows afterwards.
 Earlier changes: changelog.txt</news>
         <assets>
             <icon>resources/media/icon.png</icon>

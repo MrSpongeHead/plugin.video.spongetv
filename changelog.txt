@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+0.5.8
+  Clearer wording for views: lists without a chosen view now say "Kodi's choice", and the button to clear them is "Let Kodi choose the views", since Kodi then uses the view it remembers for each list, not the skin's original one.
+
 0.5.7
   Choosing views no longer needs view numbers. In any film, TV show, season or episode list, pick a view from Kodi's side menu, then choose "Use this view for episodes" (or films, TV shows, seasons) from the context menu. SpongeTV reads the view from your skin, and Settings, Advanced, Views shows which view each kind of list uses. A view chosen under one skin is ignored under another.
 

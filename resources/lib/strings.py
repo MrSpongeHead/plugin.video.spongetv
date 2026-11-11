@@ -616,7 +616,7 @@ STRINGS = {
     "help_view_movies": (30931, "The view film lists open in. To change it, open a film list, choose a view from Kodi's side menu (press left), then choose “Use this view for films” from the context menu."),
     "help_view_tvshows": (30932, "The view TV show lists open in. To change it, open a TV show list, choose a view from Kodi's side menu (press left), then choose “Use this view for TV shows” from the context menu."),
     "help_view_seasons": (30933, "The view season lists open in. To change it, open a season list, choose a view from Kodi's side menu (press left), then choose “Use this view for seasons” from the context menu."),
-    "help_view_episodes": (30934, "The view episode lists open in. To change it, open a episode list, choose a view from Kodi's side menu (press left), then choose “Use this view for episodes” from the context menu."),
+    "help_view_episodes": (30934, "The view episode lists open in. To change it, open an episode list, choose a view from Kodi's side menu (press left), then choose “Use this view for episodes” from the context menu."),
     "help_perf_workers": (30935, "How many requests SpongeTV makes to TMDB at once when building a list. Lower it if a slow connection struggles."),
     "help_perf_menu_cache": (30936, "Let Kodi keep a copy of menus, such as genres and Tools, so going back is instant. Lists that show watched status are always fresh."),
     "help_cache_size_mb": (30937, "The most space SpongeTV's cache can use. The oldest entries are removed when it's full."),
@@ -641,11 +641,11 @@ STRINGS = {
     "view_saved_seasons": (30956, "Seasons will now open in {name} view"),
     "view_saved_episodes": (30957, "Episodes will now open in {name} view"),
     "view_not_read": (30958, "Couldn't tell which view this is. Try again from the list itself."),
-    "view_skin_default": (30959, "Skin default"),
+    "view_skin_default": (30959, "Kodi's choice"),
     "view_number": (30960, "View {number}"),
-    "reset_views": (30961, "Use the skin's default views"),
-    "views_reset": (30962, "All lists will open in the skin's default views"),
-    "help_reset_views": (30963, "Forget the views you chose, so each list opens in whatever view Kodi and the skin pick."),
+    "reset_views": (30961, "Let Kodi choose the views"),
+    "views_reset": (30962, "SpongeTV no longer switches views: lists open in the view Kodi remembers"),
+    "help_reset_views": (30963, "SpongeTV stops switching views, and each list opens in the view Kodi remembers for it, usually the last one you picked."),
 }
 
 # Display languages offered, as (TMDB language code, string key). Index 0 means "same as Kodi".

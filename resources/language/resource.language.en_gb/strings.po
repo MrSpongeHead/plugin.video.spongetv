@@ -2384,7 +2384,7 @@ msgid "The view season lists open in. To change it, open a season list, choose a
 msgstr ""
 
 msgctxt "#30934"
-msgid "The view episode lists open in. To change it, open a episode list, choose a view from Kodi's side menu (press left), then choose “Use this view for episodes” from the context menu."
+msgid "The view episode lists open in. To change it, open an episode list, choose a view from Kodi's side menu (press left), then choose “Use this view for episodes” from the context menu."
 msgstr ""
 
 msgctxt "#30935"
@@ -2484,7 +2484,7 @@ msgid "Couldn't tell which view this is. Try again from the list itself."
 msgstr ""
 
 msgctxt "#30959"
-msgid "Skin default"
+msgid "Kodi's choice"
 msgstr ""
 
 msgctxt "#30960"
@@ -2492,13 +2492,13 @@ msgid "View {number}"
 msgstr ""
 
 msgctxt "#30961"
-msgid "Use the skin's default views"
+msgid "Let Kodi choose the views"
 msgstr ""
 
 msgctxt "#30962"
-msgid "All lists will open in the skin's default views"
+msgid "SpongeTV no longer switches views: lists open in the view Kodi remembers"
 msgstr ""
 
 msgctxt "#30963"
-msgid "Forget the views you chose, so each list opens in whatever view Kodi and the skin pick."
+msgid "SpongeTV stops switching views, and each list opens in the view Kodi remembers for it, usually the last one you picked."
 msgstr ""
