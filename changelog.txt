@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.0
+  The first full release. The same code as 0.5.11, tested on Kodi 21.2 (NVIDIA Shield TV); only the version number, these notes and this changelog changed.
+
 0.5.11
   New setting, off by default (Settings, Metadata and artwork): "Use a watched episode's picture as the background". When it's on, watched episodes show a picture from the episode behind the list; unwatched ones keep the show's background, so nothing is given away. Needs Trakt.
 
