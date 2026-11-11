@@ -94,3 +94,19 @@ def test_lists_offer_the_entry_and_open_in_the_saved_view(kodi_screen, monkeypat
     menu_item = xbmcgui.ListItem("Genres")
     plugin.finish([("plugin://y", menu_item, True)], category="Films")
     assert menu_item.context_menu == []                     # plain menus don't offer it
+
+
+def test_the_view_entry_goes_after_the_items_own_entries(kodi_screen):
+    """Kodi numbers entries from 0 on every call: adding the view entry separately used to replace Trakt..."""
+    import xbmcgui
+    from resources.lib import listing
+    from resources.lib.plugin import Plugin
+    plugin = Plugin(["plugin://plugin.video.spongetv/", "1", "?action=episodes"])
+    item = xbmcgui.ListItem("Episode 1")
+    listing._with_menu(item, [("Trakt...", "RunPlugin(a)"), ("Search for sources again", "RunPlugin(b)")])
+    bare = xbmcgui.ListItem("Episode 2")                      # an item with no menu of its own
+    plugin.finish([("plugin://x", item, False), ("plugin://y", bare, False)], content="episodes")
+    assert [label for label, _ in item.context_menu] == ["Trakt...", "Search for sources again",
+                                                          "Use this view for episodes"]
+    assert [label for label, _ in bare.context_menu] == ["Use this view for episodes"]
+    assert listing._MENUS == {}                                # forgotten once the list is done

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="1.0.0" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.5.10" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,14 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>1.0.0: The first full release of SpongeTV.
-Browse films and TV shows from TMDB, with trending, genres, years, networks, streaming services, cast and search.
-Trakt: sign in with a code; watched history, resume points, lists, Next up and calendar follow you between devices; scrobbling and context menu actions.
-Sources: install provider packages, search with early stop, and choose in Source Select with filters and your own sort order.
-Premiumize: sign in with a code, see what&apos;s ready to play, season packs and your cloud.
-Playback: resume anywhere; Smart Play with Playing Next (at the end credits when chapters mark them) and Are you still watching.
-Choose the view each kind of list opens in, and every setting explains itself.
-Every change since the first test build: changelog.txt</news>
+        <news>0.5.10: The Trakt entry is back at the top of the context menu on films, shows, seasons and episodes. &quot;Use this view for ...&quot; (added in 0.5.7) had replaced it; it now comes after SpongeTV's own entries.
+Earlier changes: changelog.txt</news>
         <assets>
             <icon>resources/media/icon.png</icon>
             <fanart>resources/media/fanart.jpg</fanart>

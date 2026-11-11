@@ -52,11 +52,12 @@ class Plugin:
             xbmcplugin.setPluginCategory(self.handle, category)
         if content:
             xbmcplugin.setContent(self.handle, content)
-        from resources.lib import views
+        from resources.lib import listing, views
         if content in views.KINDS:
             entry = [views.context_entry(self, content)]
             for _, list_item, _ in items:
-                list_item.addContextMenuItems(entry)
+                listing.add_to_menu(list_item, entry)     # after the item's own entries, never over them
+        listing._MENUS.clear()
         xbmcplugin.addDirectoryItems(self.handle, items, len(items))
         cache = cache and kodi.setting_bool("perf.menu_cache")
         xbmcplugin.endOfDirectory(self.handle, succeeded=True, cacheToDisc=cache)

@@ -58,9 +58,26 @@ def _studios(names, display):
     return names[:1] if display.one_studio else names
 
 
+# Each item's own context menu, kept so entries can be added later in one go: Kodi numbers an add-on's
+# entries from 0 on every addContextMenuItems call, so a second call would replace the first entries
+# (ListItem::addContextMenuItems sets contextmenulabel(i) for i from 0). The item itself is kept with its
+# menu, so a discarded item's id can't be reused by another and hand it the wrong menu.
+_MENUS = {}
+
+
 def _with_menu(item, context_menu):
     if context_menu:
+        _MENUS[id(item)] = (item, list(context_menu))
         item.addContextMenuItems(context_menu)
+
+
+def add_to_menu(item, entries):
+    """Add entries after the item's own, setting the whole menu again in one call."""
+    kept = _MENUS.get(id(item))
+    own = kept[1] if kept and kept[0] is item else []
+    menu = own + list(entries)
+    _MENUS[id(item)] = (item, menu)
+    item.addContextMenuItems(menu)
 
 
 def _no_stream_details(tag):

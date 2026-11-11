@@ -1,7 +1,7 @@
 SpongeTV changes, newest first.
 
-1.0.0
-  The first full release. The same code as 0.5.9, tested on Kodi 21.2 (NVIDIA Shield TV); only the version number, these notes and the README changed.
+0.5.10
+  The Trakt entry is back at the top of the context menu on films, shows, seasons and episodes. "Use this view for ..." (added in 0.5.7) had replaced it; it now comes after SpongeTV's own entries.
 
 0.5.9
   "Let Kodi choose the views" now shows its help line at the bottom of the settings screen.

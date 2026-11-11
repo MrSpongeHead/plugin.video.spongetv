@@ -47,7 +47,13 @@ class FakeListItem:
         self.label2 = label
 
     def addContextMenuItems(self, items, replaceItems=False):
-        self.context_menu.extend(items)
+        # As Kodi does (ListItem::addContextMenuItems): each call numbers its entries from 0, so a second
+        # call replaces the first call's first entries rather than adding to them
+        for i, entry in enumerate(items):
+            if i < len(self.context_menu):
+                self.context_menu[i] = entry
+            else:
+                self.context_menu.append(entry)
 
     def getVideoInfoTag(self):
         return self.tag

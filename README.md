@@ -6,7 +6,7 @@ you choose to install, in one place.
 
 - **Add-on ID:** `plugin.video.spongetv`
 - **Requires:** Kodi 21 or later
-- **Current release:** 1.0.0 (see [changelog.txt](changelog.txt) for every change)
+- **Changes:** every release is listed in [changelog.txt](changelog.txt)
 - **Licence:** GPL-3.0-or-later (see [LICENSE](LICENSE))
 
 ## What it does
