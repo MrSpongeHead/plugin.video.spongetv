@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.0
+  The first full release. The same code as 0.5.9, tested on Kodi 21.2 (NVIDIA Shield TV); only the version number, these notes and the README changed.
+
 0.5.9
   "Let Kodi choose the views" now shows its help line at the bottom of the settings screen.
 

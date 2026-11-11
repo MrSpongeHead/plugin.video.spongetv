@@ -1,37 +1,71 @@
 # SpongeTV
 
-SpongeTV is a Kodi video add-on for Kodi 21 "Omega" and later. It brings together
-Trakt syncing, TMDB metadata, Premiumize and your own provider packages in one place.
+SpongeTV is a video add-on for Kodi 21 "Omega" and later. It brings together TMDB for titles and
+artwork, Trakt for your watched history, Premiumize for playing sources, and the provider packages
+you choose to install, in one place.
 
 - **Add-on ID:** `plugin.video.spongetv`
 - **Requires:** Kodi 21 or later
+- **Current release:** 1.0.0 (see [changelog.txt](changelog.txt) for every change)
 - **Licence:** GPL-3.0-or-later (see [LICENSE](LICENSE))
 
-## Status
+## What it does
 
-Release 1 is being built in five stages:
+- **Browse** films and TV shows from TMDB: trending, popular, genres, years, networks, streaming
+  services, cast and crew, and search.
+- **Trakt:** sign in with a code, then your watched history, resume points, lists, Next up and
+  calendar follow you between devices. Mark things watched or unwatched, rate them, and add them to
+  your watchlist, collection or lists from the context menu. What you watch is scrobbled as you go.
+- **Sources:** search the provider packages you install, finish early once enough good sources are
+  ready, and choose in Source Select, with filters (quality, size, CAM copies, HDR and more) and your
+  own sort order.
+- **Premiumize:** sign in with a code. SpongeTV checks what Premiumize already has ready, picks the
+  right file from season packs, and can play from your Premiumize cloud.
+- **Playback:** resume where you left off (on any device, through Trakt). Smart Play finds a source
+  for the next episode while you watch, shows Playing Next near the end, or when the end credits start
+  if the episode's chapters mark them, and asks if you're still watching after a few episodes.
+- **Your views:** choose the view each kind of list opens in, from the list itself.
 
-1. Foundations: skeleton, settings, setup wizard, local database, TMDB metadata and menus
-2. Trakt: sign-in, sync, scrobbling, Next Up and context menu actions
-3. Sources: provider package install and manager, source search, Source Select
-4. Premiumize and playback: resolving, cloud search, resume, Smart Play and dialogs
-5. Polish: background service, maintenance, error handling, artwork
+## Installing
 
-## Installing a test build
+The easiest way is from the MrSpongeHead Repository, so Kodi keeps SpongeTV up to date:
 
-1. Download the zip for the stage you are testing.
-2. In Kodi, go to **Settings > Add-ons > Install from zip file** and choose the zip.
-   (The first time, Kodi asks you to allow **Unknown sources** in **Settings > System > Add-ons**.)
+1. **Settings > File manager > Add source.** Enter
+   `https://mrspongehead.github.io/repository.mrspongehead/` and name it `mrspongehead`.
+2. **Settings > Add-ons > Install from zip file > mrspongehead** and choose
+   `repository.mrspongehead-x.y.z.zip`. (The first time, Kodi asks you to allow **Unknown sources**
+   in **Settings > System > Add-ons**.)
+3. **Install from repository > MrSpongeHead Repository > Video add-ons > SpongeTV.**
+
+You can also install a single release zip from the
+[releases page](https://github.com/MrSpongeHead/plugin.video.spongetv/releases) with
+**Install from zip file**, but it then won't update by itself.
+
+## Setting up
+
+The setup wizard opens the first time you start SpongeTV (and again from
+**Settings > Accounts > Run setup wizard again**). You'll need:
+
+- **A TMDB API key**, which is free from [themoviedb.org](https://www.themoviedb.org/settings/api).
+  SpongeTV needs it for titles, plots and artwork. It isn't included in SpongeTV, so each person uses
+  their own.
+- **A Trakt account** (free) for watched history, resume points, lists and Next up.
+- **A Premiumize premium account** to play most sources.
+
+Optional extras, under **Settings > Accounts**: a free **Fanart.tv** personal key for more clear logos
+and clear art, and a free **OMDb** key for IMDb, Rotten Tomatoes and Metacritic ratings.
+
+Every setting explains itself in the line at the bottom of the settings screen.
 
 ## Provider packages
 
-SpongeTV does not include any providers. It can install provider packages you supply
-(from a URL or a local zip) in the same package format used by Seren-compatible packages.
+SpongeTV includes no providers. It installs provider packages you supply, from a link or a zip,
+in the same format as Seren-compatible packages: **Tools > Providers and sources**.
 
 ## Developing
 
 - Tests: `python3 -m pytest tests` (no Kodi or network needed).
-- Build a zip: `python3 tools/build.py` (writes to `dist/`). The zip contains no API keys;
-  each user enters their own TMDB key in the setup wizard.
+- Build a zip: `python3 tools/build.py` (writes to `dist/`). The zip contains SpongeTV's Trakt and
+  Premiumize app IDs but never a TMDB key.
 
 Copyright (C) 2026 MrSpongeHead
