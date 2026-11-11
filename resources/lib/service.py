@@ -171,10 +171,11 @@ def sync_once():
 
 def _account_status():
     try:
-        from resources.lib import accounts
+        from resources.lib import accounts, views
         accounts.account_status()
+        views.view_status()      # e.g. after a change of skin, views saved for the old one don't apply
     except Exception as error:   # never let this stop the service
-        kodi.log_error(f"Couldn't update the account status: {error}")
+        kodi.log_error(f"Couldn't update the account and view status: {error}")
 
 
 class Monitor(xbmc.Monitor):

@@ -216,7 +216,7 @@ msgid "Your own API keys"
 msgstr ""
 
 msgctxt "#30106"
-msgid "View types (0 uses your skin's default)"
+msgid "Views"
 msgstr ""
 
 msgctxt "#30107"
@@ -280,19 +280,19 @@ msgid "OMDb API key (optional)"
 msgstr ""
 
 msgctxt "#30140"
-msgid "Films view ID"
+msgid "Films"
 msgstr ""
 
 msgctxt "#30141"
-msgid "TV shows view ID"
+msgid "TV shows"
 msgstr ""
 
 msgctxt "#30142"
-msgid "Seasons view ID"
+msgid "Seasons"
 msgstr ""
 
 msgctxt "#30143"
-msgid "Episodes view ID"
+msgid "Episodes"
 msgstr ""
 
 msgctxt "#30150"
@@ -2372,19 +2372,19 @@ msgid "Go through the setup steps again: language, artwork, your TMDB key and ac
 msgstr ""
 
 msgctxt "#30931"
-msgid "The skin view ID to open film lists in. 0 leaves it to the skin."
+msgid "The view film lists open in. To change it, open a film list, choose a view from Kodi's side menu (press left), then choose “Use this view for films” from the context menu."
 msgstr ""
 
 msgctxt "#30932"
-msgid "The skin view ID to open TV show lists in. 0 leaves it to the skin."
+msgid "The view TV show lists open in. To change it, open a TV show list, choose a view from Kodi's side menu (press left), then choose “Use this view for TV shows” from the context menu."
 msgstr ""
 
 msgctxt "#30933"
-msgid "The skin view ID to open season lists in. 0 leaves it to the skin."
+msgid "The view season lists open in. To change it, open a season list, choose a view from Kodi's side menu (press left), then choose “Use this view for seasons” from the context menu."
 msgstr ""
 
 msgctxt "#30934"
-msgid "The skin view ID to open episode lists in. 0 leaves it to the skin."
+msgid "The view episode lists open in. To change it, open a episode list, choose a view from Kodi's side menu (press left), then choose “Use this view for episodes” from the context menu."
 msgstr ""
 
 msgctxt "#30935"
@@ -2445,4 +2445,60 @@ msgstr ""
 
 msgctxt "#30949"
 msgid "Whether SpongeTV is signed in to Premiumize, and how many days of premium you have left. Updated daily."
+msgstr ""
+
+msgctxt "#30950"
+msgid "Use this view for films"
+msgstr ""
+
+msgctxt "#30951"
+msgid "Use this view for TV shows"
+msgstr ""
+
+msgctxt "#30952"
+msgid "Use this view for seasons"
+msgstr ""
+
+msgctxt "#30953"
+msgid "Use this view for episodes"
+msgstr ""
+
+msgctxt "#30954"
+msgid "Films will now open in {name} view"
+msgstr ""
+
+msgctxt "#30955"
+msgid "TV shows will now open in {name} view"
+msgstr ""
+
+msgctxt "#30956"
+msgid "Seasons will now open in {name} view"
+msgstr ""
+
+msgctxt "#30957"
+msgid "Episodes will now open in {name} view"
+msgstr ""
+
+msgctxt "#30958"
+msgid "Couldn't tell which view this is. Try again from the list itself."
+msgstr ""
+
+msgctxt "#30959"
+msgid "Skin default"
+msgstr ""
+
+msgctxt "#30960"
+msgid "View {number}"
+msgstr ""
+
+msgctxt "#30961"
+msgid "Use the skin's default views"
+msgstr ""
+
+msgctxt "#30962"
+msgid "All lists will open in the skin's default views"
+msgstr ""
+
+msgctxt "#30963"
+msgid "Forget the views you chose, so each list opens in whatever view Kodi and the skin pick."
 msgstr ""

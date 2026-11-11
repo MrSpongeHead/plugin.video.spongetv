@@ -80,6 +80,8 @@ def with_help(xml):
     """Give every setting with a help_<id> string a help attribute (the line Kodi shows at the bottom)."""
     def add(match):
         key = "help_" + match.group(1).replace(".", "_")
+        if key not in STRINGS:                      # a view's status line shares the view's help
+            key = key.replace("_status", "")
         return f'{match.group(0)} help="{sid(key)}"' if key in STRINGS else match.group(0)
     return re.sub(r'<setting id="([^"]+)"', add, xml)
 
@@ -91,6 +93,15 @@ def status(sid_, label):
             f'                    <constraints>\n                        <allowempty>true</allowempty>\n                    </constraints>\n'
             f'                    <control type="edit" format="string">\n                        <heading>{sid(label)}</heading>\n'
             f'                    </control>\n                </setting>\n')
+
+
+def hidden_text(sid_):
+    """Text SpongeTV keeps for itself: never shown."""
+    return (f'                <setting id="{sid_}" type="string">\n'
+            f'                    <level>4</level>\n                    <default/>\n'
+            f'                    <constraints>\n                        <allowempty>true</allowempty>\n                    </constraints>\n'
+            f'                    <visible>false</visible>\n'
+            f'                    <control type="edit" format="string"/>\n                </setting>\n')
 
 
 def hidden_flag(sid_):
@@ -216,7 +227,11 @@ def render():
                       + number("play.credits_delay", "set_credits_delay", 5, 0, 30, step=5, slider=True, level=0,
                                extra=visible_if("play.next_credits", "true"))
                       + number("play.still_watching", "set_still_watching", 3, 0, 10, step=1, slider=True, level=0))
-    views = "".join(number(f"view.{v}", f"set_view_{v}", 0, 0, 9999) for v in ("movies", "tvshows", "seasons", "episodes"))
+    views = "".join(status(f"view.{v}_status", f"set_view_{v}")
+                    + number(f"view.{v}", f"set_view_{v}", 0, 0, 99999, level=4, extra="\n                    <visible>false</visible>")
+                    + hidden_text(f"view.{v}_name") + hidden_text(f"view.{v}_skin")
+                    for v in ("movies", "tvshows", "seasons", "episodes"))
+    views += action("action.reset_views", "reset_views", "reset_views")
     advanced = group("views", "grp_views", views)
     advanced += group("performance", "grp_performance",
                       number("perf.workers", "set_workers", 8, 2, 16, step=1, slider=True)

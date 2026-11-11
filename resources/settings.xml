@@ -829,48 +829,178 @@
         </category>
         <category id="advanced" label="30103">
             <group id="views" label="30106">
+                <setting id="view.movies_status" help="30931" type="string" label="30140">
+                    <level>0</level>
+                    <default/>
+                    <enable>false</enable>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30140</heading>
+                    </control>
+                </setting>
                 <setting id="view.movies" help="30931" type="integer" label="30140">
-                    <level>2</level>
+                    <level>4</level>
                     <default>0</default>
+                    <visible>false</visible>
                     <constraints>
                         <minimum>0</minimum>
-                        <maximum>9999</maximum>
+                        <maximum>99999</maximum>
                     </constraints>
                     <control type="edit" format="integer">
                         <heading>30140</heading>
                     </control>
                 </setting>
+                <setting id="view.movies_name" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+                <setting id="view.movies_skin" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+                <setting id="view.tvshows_status" help="30932" type="string" label="30141">
+                    <level>0</level>
+                    <default/>
+                    <enable>false</enable>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30141</heading>
+                    </control>
+                </setting>
                 <setting id="view.tvshows" help="30932" type="integer" label="30141">
-                    <level>2</level>
+                    <level>4</level>
                     <default>0</default>
+                    <visible>false</visible>
                     <constraints>
                         <minimum>0</minimum>
-                        <maximum>9999</maximum>
+                        <maximum>99999</maximum>
                     </constraints>
                     <control type="edit" format="integer">
                         <heading>30141</heading>
                     </control>
                 </setting>
+                <setting id="view.tvshows_name" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+                <setting id="view.tvshows_skin" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+                <setting id="view.seasons_status" help="30933" type="string" label="30142">
+                    <level>0</level>
+                    <default/>
+                    <enable>false</enable>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30142</heading>
+                    </control>
+                </setting>
                 <setting id="view.seasons" help="30933" type="integer" label="30142">
-                    <level>2</level>
+                    <level>4</level>
                     <default>0</default>
+                    <visible>false</visible>
                     <constraints>
                         <minimum>0</minimum>
-                        <maximum>9999</maximum>
+                        <maximum>99999</maximum>
                     </constraints>
                     <control type="edit" format="integer">
                         <heading>30142</heading>
                     </control>
                 </setting>
+                <setting id="view.seasons_name" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+                <setting id="view.seasons_skin" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+                <setting id="view.episodes_status" help="30934" type="string" label="30143">
+                    <level>0</level>
+                    <default/>
+                    <enable>false</enable>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="edit" format="string">
+                        <heading>30143</heading>
+                    </control>
+                </setting>
                 <setting id="view.episodes" help="30934" type="integer" label="30143">
-                    <level>2</level>
+                    <level>4</level>
                     <default>0</default>
+                    <visible>false</visible>
                     <constraints>
                         <minimum>0</minimum>
-                        <maximum>9999</maximum>
+                        <maximum>99999</maximum>
                     </constraints>
                     <control type="edit" format="integer">
                         <heading>30143</heading>
+                    </control>
+                </setting>
+                <setting id="view.episodes_name" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+                <setting id="view.episodes_skin" type="string">
+                    <level>4</level>
+                    <default/>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <visible>false</visible>
+                    <control type="edit" format="string"/>
+                </setting>
+                <setting id="action.reset_views" type="action" label="30961">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.spongetv/?action=reset_views)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
                     </control>
                 </setting>
             </group>

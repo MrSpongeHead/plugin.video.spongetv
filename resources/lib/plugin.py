@@ -52,10 +52,16 @@ class Plugin:
             xbmcplugin.setPluginCategory(self.handle, category)
         if content:
             xbmcplugin.setContent(self.handle, content)
+        from resources.lib import views
+        if content in views.KINDS:
+            entry = [views.context_entry(self, content)]
+            for _, list_item, _ in items:
+                list_item.addContextMenuItems(entry)
         xbmcplugin.addDirectoryItems(self.handle, items, len(items))
         cache = cache and kodi.setting_bool("perf.menu_cache")
         xbmcplugin.endOfDirectory(self.handle, succeeded=True, cacheToDisc=cache)
-        view_id = kodi.setting_int(view_setting) if view_setting else 0
+        kind = view_setting.split(".", 1)[1] if view_setting.startswith("view.") else ""
+        view_id = views.saved_view(kind) if kind in views.KINDS else 0
         if view_id > 0:
             xbmc.executebuiltin(f"Container.SetViewMode({view_id})")
 
