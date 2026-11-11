@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+0.5.6
+  Going back to a list now always shows watched status as it is now. Kodi no longer keeps its own copy of lists that show watched status (films, shows, seasons, episodes, the calendar and Trakt lists), so after marking something watched or unwatched, or watching it, the season and show counts are right. Plain menus are still kept for instant going back.
+
 0.5.5
   After you watch something to the end, SpongeTV now also waits for Kodi to finish redrawing the list before reloading it, so the list no longer comes back in Estuary's picture layout (WideList without watched icons). If a reloaded list is ever missing its content type, SpongeTV reloads it once more.
 

@@ -618,7 +618,7 @@ STRINGS = {
     "help_view_seasons": (30933, "The skin view ID to open season lists in. 0 leaves it to the skin."),
     "help_view_episodes": (30934, "The skin view ID to open episode lists in. 0 leaves it to the skin."),
     "help_perf_workers": (30935, "How many requests SpongeTV makes to TMDB at once when building a list. Lower it if a slow connection struggles."),
-    "help_perf_menu_cache": (30936, "Let Kodi keep a copy of each list so going back is instant. SpongeTV reloads a list when something in it changes."),
+    "help_perf_menu_cache": (30936, "Let Kodi keep a copy of menus, such as genres and Tools, so going back is instant. Lists that show watched status are always fresh."),
     "help_cache_size_mb": (30937, "The most space SpongeTV's cache can use. The oldest entries are removed when it's full."),
     "help_action_clear_cache": (30938, "Forget saved details, artwork, lists and source results; they're fetched again when needed. Watched history and resume points are kept."),
     "help_action_clear_all": (30939, "As Clear cache, and also forget your recent searches."),

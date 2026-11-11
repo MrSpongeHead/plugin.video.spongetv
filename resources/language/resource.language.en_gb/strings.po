@@ -2392,7 +2392,7 @@ msgid "How many requests SpongeTV makes to TMDB at once when building a list. Lo
 msgstr ""
 
 msgctxt "#30936"
-msgid "Let Kodi keep a copy of each list so going back is instant. SpongeTV reloads a list when something in it changes."
+msgid "Let Kodi keep a copy of menus, such as genres and Tools, so going back is instant. Lists that show watched status are always fresh."
 msgstr ""
 
 msgctxt "#30937"

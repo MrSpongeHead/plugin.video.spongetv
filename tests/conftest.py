@@ -277,6 +277,7 @@ def _install_stubs():
 
     def end(handle, succeeded=True, updateListing=False, cacheToDisc=True):
         Directory.ended = succeeded
+        Directory.cached = cacheToDisc
 
     xbmcplugin.addDirectoryItems = add_items
     xbmcplugin.endOfDirectory = end

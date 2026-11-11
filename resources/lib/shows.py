@@ -52,7 +52,8 @@ def seasons(plugin, app):
             label = kodi.text("season_with_count", name=label, watched=min(mark[0], mark[1]), aired=mark[1])
         menu = [menus.trakt_entry(plugin, media="season", show=show["id"], season=number)] if marks.active else None
         items.append((url, listing.season_item(show, season, art, label, mark, progress, menu), True))
-    plugin.finish(items, content="seasons", category=show.get("name", ""), view_setting="view.seasons")
+    plugin.finish(items, content="seasons", category=show.get("name", ""), view_setting="view.seasons",
+                  cache=False)  # shows watched status: no Kodi copy, or going back shows it stale
 
 
 def _episode_items(plugin, app, show, show_art, season_numbers, only=None, show_in_label=False):
@@ -99,11 +100,13 @@ def _episode_items(plugin, app, show, show_art, season_numbers, only=None, show_
 def episodes(plugin, app):
     show = app.tmdb.tv(plugin.params.get("tmdb_id"))
     items = _episode_items(plugin, app, show, _show_art(app, show), [plugin.int_param("season", 1)])
-    plugin.finish(items, content="episodes", category=show.get("name", ""), view_setting="view.episodes")
+    plugin.finish(items, content="episodes", category=show.get("name", ""), view_setting="view.episodes",
+                  cache=False)  # shows watched status: no Kodi copy, or going back shows it stale
 
 
 def all_episodes(plugin, app):
     show = app.tmdb.tv(plugin.params.get("tmdb_id"))
     numbers = [s.get("season_number", 0) for s in _visible_seasons(show, menus.marks_for(app))]
     items = _episode_items(plugin, app, show, _show_art(app, show), numbers)
-    plugin.finish(items, content="episodes", category=show.get("name", ""), view_setting="view.episodes")
+    plugin.finish(items, content="episodes", category=show.get("name", ""), view_setting="view.episodes",
+                  cache=False)  # shows watched status: no Kodi copy, or going back shows it stale

@@ -69,7 +69,7 @@ def library_titles(plugin, app):
         ids = library.collected_shows()
     else:
         ids = library.ids(part, "show")
-    menus.show_titles(plugin, app, media, _page(plugin, ids), None, kodi_cache=False,
+    menus.show_titles(plugin, app, media, _page(plugin, ids), None,
                       action="library_titles", media=media, part=part)
 
 
@@ -95,7 +95,7 @@ def shows_in_progress(plugin, app):
     ids = [d["id"] for d in _show_details(app, started) if not fully_watched(*marks.show(d))]
     if not ids:
         kodi.notify(kodi.text("next_up_empty" if started else "next_up_no_history"))
-    menus.show_titles(plugin, app, "tv", _page(plugin, ids), None, kodi_cache=False, action="shows_in_progress")
+    menus.show_titles(plugin, app, "tv", _page(plugin, ids), None, action="shows_in_progress")
 
 
 # -- Next Up --------------------------------------------------------------------------------------
@@ -197,7 +197,8 @@ def calendar(plugin, app):
             wanted.append((details_by_id[show_id], episode.get("season"), episode.get("number"), when))
     items = _episode_rows(plugin, app, wanted)
     label = "upcoming_episodes" if when == "upcoming" else "recent_episodes"
-    plugin.finish(items, content="episodes", category=kodi.text(label), view_setting="view.episodes")
+    plugin.finish(items, content="episodes", category=kodi.text(label), view_setting="view.episodes",
+                  cache=False)  # shows watched status: no Kodi copy, or going back shows it stale
 
 
 def _cached(app, key, fetch, ttl=LIST_CACHE):
@@ -305,7 +306,7 @@ def list_items(plugin, app):
     items = [i for i in (next(built[k], None) for k, _ in ordered) if i]
     if len(entries) >= PER_PAGE:
         items += _more_page(plugin, page, action="list_items", user=user, list_id=list_id)
-    plugin.finish(items, content="videos", cache=not own)
+    plugin.finish(items, content="videos", cache=False)  # shows watched status: no Kodi copy, or going back shows it stale
 
 
 def create_list(plugin, app):

@@ -168,7 +168,7 @@ def title_items(plugin, app, media, summaries, hide_menu=None):
     return items
 
 
-def show_titles(plugin, app, title_media, data, hide_menu=None, lead_items=None, kodi_cache=True, **page_params):
+def show_titles(plugin, app, title_media, data, hide_menu=None, lead_items=None, **page_params):
     """page_params build the Next page link and may include their own media=."""
     results = [r for r in data.get("results", []) if r.get("id")]
     items = list(lead_items or [])
@@ -176,7 +176,7 @@ def show_titles(plugin, app, title_media, data, hide_menu=None, lead_items=None,
     items += _next_page(plugin, data, **page_params)
     content = "movies" if title_media == "movie" else "tvshows"
     view = "view.movies" if title_media == "movie" else "view.tvshows"
-    plugin.finish(items, content=content, view_setting=view, cache=kodi_cache)
+    plugin.finish(items, content=content, view_setting=view, cache=False)  # shows watched status: no Kodi copy, or going back shows it stale
 
 
 def movie_list(plugin, app):

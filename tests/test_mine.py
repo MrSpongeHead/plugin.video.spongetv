@@ -135,6 +135,17 @@ def test_watched_marks_and_resume_points(world):
     assert resume[0] == 0 and resume[1] > 0     # "none", said so Kodi can't fill in a stale one of its own
 
 
+def test_lists_with_watched_status_are_never_kept_by_kodi(world):
+    """Going back uses Kodi's copy if it has one, which would show watched status from before a change."""
+    FakeAddon.settings["perf.menu_cache"] = True           # even with "Let Kodi cache menus" on
+    for path in ("?action=library_titles&media=tv&part=watched", "?action=seasons&tmdb_id=51",
+                 "?action=episodes&tmdb_id=51&season=1"):
+        call(path)
+        assert Directory.cached is False, path
+    call("?action=my_tv")                       # a plain menu: Kodi may keep it, as the setting says
+    assert Directory.cached is True
+
+
 def test_show_and_season_progress(world):
     call("?action=library_titles&media=tv&part=watched")
     shows = {i[1].label: i[1] for i in Directory.items}
