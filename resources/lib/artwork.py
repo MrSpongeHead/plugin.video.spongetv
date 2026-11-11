@@ -91,12 +91,16 @@ def for_title(details, preset=1, language="en-GB", fanart_data=None, fallback_fa
     return {k: v for k, v in art.items() if v}
 
 
-def for_episode(episode, show_art, preset=1):
+def for_episode(episode, show_art, preset=1, still_background=False):
+    """still_background: use the episode's own still as its background (for watched episodes, if you
+    switched that on), at its original size, since TMDB only offers stills up to 300 pixels wide otherwise."""
     art = dict(show_art)
     still = image_url(episode.get("still_path"), sizes(preset)["still"])
     if still:
         art["thumb"] = still
         art["icon"] = still
+        if still_background:
+            art["fanart"] = image_url(episode["still_path"], "original")
     return art
 
 

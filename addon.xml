@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="0.5.10" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="0.5.11" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>0.5.10: The Trakt entry is back at the top of the context menu on films, shows, seasons and episodes. &quot;Use this view for ...&quot; (added in 0.5.7) had replaced it; it now comes after SpongeTV's own entries.
+        <news>0.5.11: New setting, off by default (Settings, Metadata and artwork): &quot;Use a watched episode&apos;s picture as the background&quot;. When it&apos;s on, watched episodes show a picture from the episode behind the list; unwatched ones keep the show&apos;s background, so nothing is given away. Needs Trakt.
+0.5.10: The Trakt entry is back at the top of the context menu on films, shows, seasons and episodes. &quot;Use this view for ...&quot; (added in 0.5.7) had replaced it; it now comes after SpongeTV's own entries.
 Earlier changes: changelog.txt</news>
         <assets>
             <icon>resources/media/icon.png</icon>

@@ -2502,3 +2502,11 @@ msgstr ""
 msgctxt "#30963"
 msgid "SpongeTV stops switching views, and each list opens in the view Kodi remembers for it, usually the last one you picked."
 msgstr ""
+
+msgctxt "#30964"
+msgid "Use a watched episode's picture as the background"
+msgstr ""
+
+msgctxt "#30965"
+msgid "Watched episodes show a picture from the episode as the background. Unwatched ones keep the show's, so nothing is given away. Needs Trakt."
+msgstr ""

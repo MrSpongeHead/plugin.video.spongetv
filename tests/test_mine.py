@@ -14,7 +14,8 @@ from test_menus import PAST, FUTURE, FakeTmdb, call, labels
 
 def season(show_id, number, count, unaired_from=None):
     return {"episodes": [{"id": show_id * 100 + number * 10 + e, "name": f"Ep {e}", "season_number": number,
-                          "episode_number": e, "air_date": FUTURE if unaired_from and e >= unaired_from else PAST}
+                          "episode_number": e, "air_date": FUTURE if unaired_from and e >= unaired_from else PAST,
+                          "still_path": f"/still{show_id}{number}{e}.jpg"}
                          for e in range(1, count + 1)]}
 
 
@@ -144,6 +145,20 @@ def test_lists_with_watched_status_are_never_kept_by_kodi(world):
         assert Directory.cached is False, path
     call("?action=my_tv")                       # a plain menu: Kodi may keep it, as the setting says
     assert Directory.cached is True
+
+
+def test_watched_episodes_can_use_their_own_picture_as_the_background(world):
+    """Off by default; when on, only watched episodes (51 S1E1 and E2 here) show their still behind the list."""
+    from conftest import FakeAddon
+    call("?action=episodes&tmdb_id=51&season=1")
+    backgrounds = [i[1].art.get("fanart", "") for i in Directory.items]
+    assert not any("/still" in b for b in backgrounds)                 # off: the show's background for all
+    FakeAddon.settings["artwork.watched_stills"] = True
+    call("?action=episodes&tmdb_id=51&season=1")
+    backgrounds = {i[1].label: i[1].art.get("fanart", "") for i in Directory.items}
+    watched = [b for b in backgrounds.values() if b.endswith("/original/still5111.jpg") or b.endswith("/original/still5112.jpg")]
+    assert len(watched) == 2                                            # E1 and E2: their own, full size
+    assert not any("/still5113" in b for b in backgrounds.values())   # E3 unwatched: no spoiler
 
 
 def test_show_and_season_progress(world):

@@ -152,6 +152,7 @@ def render():
     art = group("artwork", "cat_artwork",
                 choice("artwork.preset", "set_artwork_preset",
                        ["preset_best", "preset_balanced", "preset_minimal", "preset_advanced"], 1)
+                + boolean("artwork.watched_stills", "set_watched_stills", False)
                 + choice("artwork.poster_size", "set_poster_size",
                         ["size_small_342", "size_medium_500", "size_large_780", "size_original"], 2, extra=advanced_only)
                  + choice("artwork.fanart_size", "set_fanart_size",

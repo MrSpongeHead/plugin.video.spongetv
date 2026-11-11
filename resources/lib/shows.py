@@ -73,6 +73,7 @@ def _episode_items(plugin, app, show, show_art, season_numbers, only=None, show_
     with ThreadPoolExecutor(max_workers=menus.workers()) as pool:
         season_data = list(pool.map(load, season_numbers))
     items = []
+    watched_stills = marks.active and kodi.setting_bool("artwork.watched_stills")
     for data in season_data:
         for episode in data.get("episodes", []):
             season, number = episode.get("season_number"), episode.get("episode_number")
@@ -83,7 +84,8 @@ def _episode_items(plugin, app, show, show_art, season_numbers, only=None, show_
             mark = marks.episode(show["id"], season, number)
             if hide_watched and mark[0]:
                 continue
-            art = artwork.for_episode(episode, show_art, app.preset)
+            # an episode's own picture as its background only once you've watched it: no spoilers
+            art = artwork.for_episode(episode, show_art, app.preset, still_background=watched_stills and bool(mark[0]))
             asks = "1" if mark[1] else None   # Kodi asks "Resume from…" itself for this item
             url = plugin.url(action="play", media="episode", tmdb_id=show["id"], season=season, episode=number, kr=asks)
             fallback = kodi.text("episode_number", number=number)

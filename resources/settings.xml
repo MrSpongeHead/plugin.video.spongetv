@@ -181,6 +181,11 @@
                     </constraints>
                     <control type="list" format="string"/>
                 </setting>
+                <setting id="artwork.watched_stills" help="30965" type="boolean" label="30964">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="artwork.poster_size" help="30882" type="integer" label="30321">
                     <level>0</level>
                     <default>2</default>

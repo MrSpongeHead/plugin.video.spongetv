@@ -646,6 +646,8 @@ STRINGS = {
     "reset_views": (30961, "Let Kodi choose the views"),
     "views_reset": (30962, "SpongeTV no longer switches views: lists open in the view Kodi remembers"),
     "help_action_reset_views": (30963, "SpongeTV stops switching views, and each list opens in the view Kodi remembers for it, usually the last one you picked."),
+    "set_watched_stills": (30964, "Use a watched episode's picture as the background"),
+    "help_artwork_watched_stills": (30965, "Watched episodes show a picture from the episode as the background. Unwatched ones keep the show's, so nothing is given away. Needs Trakt."),
 }
 
 # Display languages offered, as (TMDB language code, string key). Index 0 means "same as Kodi".
