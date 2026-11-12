@@ -99,3 +99,19 @@ def test_every_visible_setting_has_help():
     root = ET.parse(os.path.join(ROOT, "resources", "settings.xml")).getroot()
     visible = [s for s in root.iter("setting") if s.find("level").text != "4"]
     assert visible and [s.get("id") for s in visible if not s.get("help")] == []
+
+
+def test_the_network_library_is_only_loaded_when_a_request_is_made():
+    """requests takes about 0.6 s to load on a Shield, on every list. Loading SpongeTV's code, and making its
+    HTTP helper, must not load it: only the first real request does."""
+    import subprocess
+    import sys
+    code = ("import sys; sys.path.insert(0, 'tests'); import conftest\n"
+            "import resources.lib.router, resources.lib.service\n"
+            "from resources.lib.http import Http\n"
+            "http = Http('SpongeTV/test')\n"
+            "assert 'requests' not in sys.modules, 'loaded too early'\n"
+            "http.session\n"
+            "assert 'requests' in sys.modules\n")
+    result = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr[-600:]

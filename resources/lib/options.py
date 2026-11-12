@@ -3,7 +3,6 @@
 """User choices that shape menus: display style, per-menu hiding, sorting and the home menu."""
 
 import json
-from dataclasses import dataclass
 
 from resources.lib import kodi
 
@@ -14,12 +13,14 @@ EPISODE_TITLE, EPISODE_1X01, EPISODE_S01E01 = 0, 1, 2
 HIGHLIGHTS = ["FFF5A524", "FF2EC4B6", "FFDFFAF6", "FF6FA8FF", "FFFFFFFF", ""]
 
 
-@dataclass
 class Display:
-    region: str = "GB"
-    original_titles: bool = False
-    one_studio: bool = True
-    episode_style: int = EPISODE_TITLE
+    """How titles are shown. (A plain class: Python's dataclasses took a while to load on every list.)"""
+
+    def __init__(self, region="GB", original_titles=False, one_studio=True, episode_style=EPISODE_TITLE):
+        self.region = region
+        self.original_titles = original_titles
+        self.one_studio = one_studio
+        self.episode_style = episode_style
 
 
 def display(app):

@@ -2,9 +2,18 @@
 # Copyright (C) 2026 MrSpongeHead
 """Shared HTTP helper: one session, a SpongeTV User-Agent, timeouts and polite retries."""
 
+import threading
 import time
 
-import requests
+# The requests library takes about 0.6 seconds to load on an NVIDIA Shield, every time Kodi runs SpongeTV
+# for a list. Most menus, and lists whose details are already saved, never touch the network, so it's only
+# loaded when a request is first made.
+_lock = threading.Lock()
+
+
+def _requests():
+    import requests
+    return requests
 
 
 class HttpError(Exception):
@@ -27,11 +36,26 @@ class Http:
     MAX_WAIT = 30  # never sleep longer than this for a Retry-After
 
     def __init__(self, user_agent, timeout=15, retries=2, sleep=time.sleep):
-        self.session = requests.Session()
-        self.session.headers["User-Agent"] = user_agent
+        self.user_agent = user_agent
+        self._session = None
         self.timeout = timeout
         self.retries = retries
         self.sleep = sleep
+
+    @property
+    def session(self):
+        """One connection pool for every request, made (and requests loaded) on first use."""
+        if self._session is None:
+            with _lock:
+                if self._session is None:
+                    session = _requests().Session()
+                    session.headers["User-Agent"] = self.user_agent
+                    self._session = session
+        return self._session
+
+    @session.setter
+    def session(self, value):
+        self._session = value
 
     def get_json(self, url, params=None, headers=None):
         """GET a JSON document. Retries on 429 (honouring Retry-After) and on 5xx."""
@@ -39,7 +63,7 @@ class Http:
         while True:
             try:
                 response = self.session.get(url, params=params, headers=headers, timeout=self.timeout)
-            except requests.RequestException as error:
+            except _requests().RequestException as error:
                 if attempt < self.retries:
                     attempt += 1
                     self.sleep(2 ** attempt)
@@ -73,7 +97,7 @@ class Http:
             try:
                 response = self.session.request(method, url, params=params, json=json_body, data=form, headers=headers,
                                                 timeout=self.timeout)
-            except requests.RequestException as error:
+            except _requests().RequestException as error:
                 if attempt < self.retries:
                     attempt += 1
                     self.sleep(2 ** attempt)

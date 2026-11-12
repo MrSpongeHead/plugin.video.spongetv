@@ -2,11 +2,11 @@
 # Copyright (C) 2026 MrSpongeHead
 """One search box for films, TV shows and people, with results grouped by type; people's pages."""
 
-from concurrent.futures import ThreadPoolExecutor
 
 import xbmc
 import xbmcgui
 
+from resources.lib.pool import ThreadPoolExecutor
 from resources.lib import kodi, listing, menus, options
 
 HISTORY = "all"

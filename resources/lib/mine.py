@@ -8,11 +8,11 @@ read from Trakt when you open them, and cached briefly.
 """
 
 import datetime
-from concurrent.futures import ThreadPoolExecutor
 
 import xbmc
 import xbmcgui
 
+from resources.lib.pool import ThreadPoolExecutor
 from resources.lib import airtime, kodi, listing, menus, options, shows
 from resources.lib.http import HttpError
 from resources.lib.marks import Marks, aired_counts, fully_watched

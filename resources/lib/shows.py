@@ -2,8 +2,8 @@
 # Copyright (C) 2026 MrSpongeHead
 """Seasons and episodes, with the Seasons and Episodes hide settings and time-zone-aware air dates."""
 
-from concurrent.futures import ThreadPoolExecutor
 
+from resources.lib.pool import ThreadPoolExecutor
 from resources.lib import airtime, artwork, kodi, listing, menus, options
 from resources.lib.http import HttpError
 from resources.lib.marks import fully_watched

@@ -3,11 +3,11 @@
 """Browsing menus: home, films, TV shows, discovery lists, networks, streaming services, related titles."""
 
 import datetime
-from concurrent.futures import ThreadPoolExecutor
 
 import xbmc
 import xbmcgui
 
+from resources.lib.pool import ThreadPoolExecutor
 from resources.lib import airtime, artwork, kodi, listing, options
 from resources.lib.http import HttpError
 from resources.lib.marks import Marks, fully_watched

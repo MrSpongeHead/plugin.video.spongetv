@@ -483,7 +483,8 @@ def test_window_tests_appear_only_for_developers(with_test_provider):
 
 
 def test_every_router_action_has_a_handler():
-    assert all(callable(h) for h in router.ACTIONS.values())
+    assert all(callable(router.handler_for(action)) for action in router.ACTIONS)
+    assert router.handler_for("no_such_action") is None
     assert router.NOT_DIRECTORIES <= set(router.ACTIONS)
 
 
