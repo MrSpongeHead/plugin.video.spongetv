@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.3
+  A measuring build with no change to how SpongeTV works. With Kodi's debug logging on, the log now says how long each list or action took: loading the network library, loading SpongeTV's code, and the work itself. This is to see whether menus can be made to open faster.
+
 1.0.2
   The Premiumize days in Settings, Accounts are now refreshed about 20 seconds after Kodi starts and whenever you use Check Premiumize account, so the two always agree. SpongeTV's own resume points moved to a table of their own (existing ones are carried over), so nothing that clears the cache can touch them.
 
