@@ -49,7 +49,9 @@ The setup wizard opens the first time you start SpongeTV (and again from
 - **A TMDB API key**, which is free from [themoviedb.org](https://www.themoviedb.org/settings/api).
   SpongeTV needs it for titles, plots and artwork. It isn't included in SpongeTV, so each person uses
   their own.
-- **A Trakt account** (free) for watched history, resume points, lists and Next up.
+- **A Trakt account** (free) for watched history, resume points, lists and Next up. SpongeTV's Trakt
+  app is a private one, so Trakt only lets you sign in if MrSpongeHead has added you to it. Otherwise,
+  create your own Trakt API app and enter its Client ID under **Settings > Accounts** (Expert level).
 - **A Premiumize premium account** to play most sources.
 
 Optional extras, under **Settings > Accounts**: a free **Fanart.tv** personal key for more clear logos
@@ -64,7 +66,8 @@ in the same format as Seren-compatible packages: **Tools > Providers and sources
 
 ## Developing
 
-- Tests: `python3 -m pytest tests` (no Kodi or network needed).
+- Tests: `python3 -m pytest tests` (no Kodi or network needed). With `pip install "Kodistubs>=21,<22"`,
+  the tests also check SpongeTV and its test stand-ins against Kodi 21's real Python interface.
 - Build a zip: `python3 tools/build.py` (writes to `dist/`). The zip contains SpongeTV's Trakt and
   Premiumize app IDs but never a TMDB key.
 

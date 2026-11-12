@@ -175,6 +175,32 @@ def test_kodi_asks_so_spongetv_does_not(premiumize):
     assert Directory.resolved is True
 
 
+def test_one_play_address_and_one_resume_prompt(premiumize, monkeypatch):
+    """Every title has one play address, with or without a resume point (two were how Kodi came to keep
+    stale resume points). Whether Kodi has already asked is worked out again when you press play."""
+    monkeypatch.setattr(context.App, "signed_in", property(lambda self: True))
+    FakeAddon.settings["play.movies"] = playback.AUTO_PLAY
+    context.App().store.cache_set("resume:movie:7", {"position": 1930, "total": 6000, "percent": 32}, 3600)
+    address = "?action=play&media=movie&tmdb_id=7"
+    call(address)                                            # from the list: Kodi asked, SpongeTV doesn't
+    assert not any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
+    assert Directory.resolved is True
+    call(address + "&fresh=1")                               # "Search for sources again": only SpongeTV can ask
+    assert any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
+    FakeDialog.shown.clear()
+    context.App().store.cache_delete("resume:movie:7")
+    call(address)                                            # no resume point: nobody asks
+    assert not any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
+
+
+def test_lists_use_the_same_play_address_with_or_without_a_resume_point():
+    import glob, os
+    lib = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "lib")
+    for path in glob.glob(os.path.join(lib, "*.py")):
+        code = open(path, encoding="utf-8").read()
+        assert "kr=asks" not in code and 'kr="1"' not in code, path
+
+
 def test_own_resume_point_reaches_the_list_item():
     from resources.lib import listing
     from resources.lib.database import Store

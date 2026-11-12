@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.1
+  Every film and episode now has a single play address, whether or not it has a resume point (two addresses were how Kodi came to keep out-of-date resume points). Nothing changes in how resuming looks. Behind the scenes, the automated tests now check SpongeTV against Kodi 21's real interface: its functions, settings, labels and commands. The README explains who can sign in to Trakt.
+
 1.0.0
   The first full release. The same code as 0.5.11, tested on Kodi 21.2 (NVIDIA Shield TV); only the version number, these notes and this changelog changed.
 

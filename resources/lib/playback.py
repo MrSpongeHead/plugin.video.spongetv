@@ -390,8 +390,28 @@ class Follower(xbmc.Player):
 
 
 # -- the play action ---------------------------------------------------------------------------------------------
+def kodi_asked(plugin, app, target, playable, from_list):
+    """Has Kodi already asked "Resume from…"? It does when you choose an item whose list entry shows a
+    resume point: one SpongeTV gave it (the same marks the list was built from, worked out again here, so
+    every title has one play address whatever its state), or, signed out of Trakt, Kodi's own."""
+    if plugin.params.get("kr"):       # a play address saved by a build before 1.0.1 (e.g. a Kodi favourite)
+        return True
+    if not (playable and from_list):
+        return False
+    if app.signed_in:
+        from resources.lib.marks import Marks
+        marks = Marks(app.library)
+        mark = (marks.movie(target.tmdb_id) if target.media == "movie"
+                else marks.episode(target.tmdb_id, target.season, target.episode))
+        return len(mark) > 1 and bool(mark[1])
+    return bool(kodi_resume(plugin.url_now))
+
+
 def play(plugin, app, target=None):
     playable = plugin.handle >= 0     # Kodi is waiting for setResolvedUrl
+    # "Search for sources again" and "Play next episode" start playback without choosing a list entry,
+    # so Kodi doesn't ask about resuming for them
+    from_list = target is None and plugin.params.get("fresh") != "1"
     resolved = False
     try:
         windows.close_busy()
@@ -401,7 +421,7 @@ def play(plugin, app, target=None):
             kodi.log_error(f"Couldn't load details to play: {error}")
             kodi.notify(kodi.text("tmdb_unreachable"))
             return
-        if plugin.params.get("kr") or (playable and kodi_resume(plugin.url_now)):
+        if kodi_asked(plugin, app, target, playable, from_list):
             start_at = 0   # chosen from a list showing a resume point: Kodi has already asked and resumes itself
         else:
             start_at = ask_resume(saved_position(app, target))

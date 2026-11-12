@@ -86,8 +86,7 @@ def _episode_items(plugin, app, show, show_art, season_numbers, only=None, show_
                 continue
             # an episode's own picture as its background only once you've watched it: no spoilers
             art = artwork.for_episode(episode, show_art, app.preset, still_background=watched_stills and bool(mark[0]))
-            asks = "1" if mark[1] else None   # Kodi asks "Resume from…" itself for this item
-            url = plugin.url(action="play", media="episode", tmdb_id=show["id"], season=season, episode=number, kr=asks)
+            url = plugin.url(action="play", media="episode", tmdb_id=show["id"], season=season, episode=number)
             fallback = kodi.text("episode_number", number=number)
             menu = [menus.trakt_entry(plugin, media="episode", show=show["id"], season=season, episode=number)] \
                 if marks.active else []

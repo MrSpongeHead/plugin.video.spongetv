@@ -14,18 +14,68 @@ sys.path.insert(0, ROOT)
 PROFILE_DIR = tempfile.mkdtemp(prefix="spongetv-test-")
 
 
+# Kodi's InfoTagVideo setters and what each argument must be. Kodi refuses anything else with a TypeError
+# (an int where it wants text, None, a float where it wants a whole number), so the stand-in does too.
+# Checked against Kodi's own interface in test_kodi_contract.py.
+_TEXT, _WHOLE, _NUMBER, _TEXTS = "text", "whole", "number", "texts"
+INFO_TAG_SETTERS = {
+    "setAlbum": [_TEXT], "setArtists": [_TEXTS], "setCast": ["actors"], "setCountries": [_TEXTS],
+    "setDateAdded": [_TEXT], "setDbId": [_WHOLE], "setDirectors": [_TEXTS], "setDuration": [_WHOLE],
+    "setEpisode": [_WHOLE], "setEpisodeGuide": [_TEXT], "setFilenameAndPath": [_TEXT], "setFirstAired": [_TEXT],
+    "setGenres": [_TEXTS], "setIMDBNumber": [_TEXT], "setLastPlayed": [_TEXT], "setMediaType": [_TEXT],
+    "setMpaa": [_TEXT], "setOriginalTitle": [_TEXT], "setPath": [_TEXT], "setPlaycount": [_WHOLE],
+    "setPlot": [_TEXT], "setPlotOutline": [_TEXT], "setPremiered": [_TEXT], "setProductionCode": [_TEXT],
+    "setRating": [_NUMBER, _WHOLE, _TEXT, "flag"], "setRatings": ["dict", _TEXT],
+    "setResumePoint": [_NUMBER, _NUMBER], "setSeason": [_WHOLE], "setSet": [_TEXT], "setSetId": [_WHOLE],
+    "setSetOverview": [_TEXT], "setShowLinks": [_TEXTS], "setSortEpisode": [_WHOLE], "setSortSeason": [_WHOLE],
+    "setSortTitle": [_TEXT], "setStudios": [_TEXTS], "setTagLine": [_TEXT], "setTags": [_TEXTS],
+    "setTitle": [_TEXT], "setTop250": [_WHOLE], "setTrackNumber": [_WHOLE], "setTrailer": [_TEXT],
+    "setTvShowStatus": [_TEXT], "setTvShowTitle": [_TEXT], "setUniqueID": [_TEXT, _TEXT, "flag"],
+    "setUniqueIDs": ["dict", _TEXT], "setUserRating": [_WHOLE], "setVotes": [_WHOLE], "setWriters": [_TEXTS],
+    "setYear": [_WHOLE],
+}
+
+
+def _fits(value, kind):
+    if kind == _TEXT:
+        return isinstance(value, str)
+    if kind == _WHOLE:
+        return isinstance(value, int) and not isinstance(value, bool)
+    if kind == _NUMBER:
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    if kind == _TEXTS:
+        return isinstance(value, (list, tuple)) and all(isinstance(v, str) for v in value)
+    if kind == "flag":
+        return isinstance(value, (bool, int))
+    if kind == "dict":
+        return isinstance(value, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in value.items())
+    if kind == "actors":
+        return isinstance(value, (list, tuple)) and all(type(v).__name__ == "Actor" for v in value)
+    return True
+
+
 class Recorder:
-    """Accepts any setX(...) call and remembers the arguments."""
+    """Kodi's InfoTagVideo: takes the setters Kodi has, with the kinds of value Kodi accepts, and remembers them."""
 
     def __init__(self):
         self.calls = {}
 
+    def addVideoStream(self, stream):
+        self.calls.setdefault("addVideoStream", []).append((stream,))
+
     def __getattr__(self, name):
-        if name.startswith("set"):
-            def record(*args, **kwargs):
-                self.calls.setdefault(name, []).append(args)
-            return record
-        raise AttributeError(name)
+        kinds = INFO_TAG_SETTERS.get(name)
+        if kinds is None:
+            raise AttributeError(f"InfoTagVideo has no {name}")
+
+        def record(*args):
+            if not 1 <= len(args) <= len(kinds):
+                raise TypeError(f"{name}() takes up to {len(kinds)} arguments, got {len(args)}")
+            for value, kind in zip(args, kinds):
+                if not _fits(value, kind):
+                    raise TypeError(f"{name}() wants {kind}, got {value!r}")
+            self.calls.setdefault(name, []).append(args)
+        return record
 
 
 class FakeListItem:
@@ -91,20 +141,21 @@ class FakeDialog:
         FakeDialog.shown.append(("select", heading))
         return self._next(-1)
 
-    def input(self, heading, *args, **kwargs):
+    def input(self, heading, defaultt="", type=0, option=0, autoclose=0):
         FakeDialog.shown.append(("input", heading))
         return self._next("")
 
     def textviewer(self, heading, text):
         FakeDialog.shown.append(("textviewer", text))
 
-    def browse(self, kind, heading, shares, mask="", *args, **kwargs):
+    def browse(self, type, heading, shares, mask="", useThumbs=False, treatAsFolder=False, defaultt="",
+               enableMultiple=False):
         FakeDialog.shown.append(("browse", heading))
         return self._next("")
 
-    def numeric(self, kind, heading, default=""):
+    def numeric(self, type, heading, defaultt="", bHiddenInput=False):
         FakeDialog.shown.append(("numeric", heading))
-        return self._next(default)
+        return self._next(defaultt)
 
     def contextmenu(self, options):
         FakeDialog.shown.append(("contextmenu", tuple(options)))
@@ -130,6 +181,15 @@ class FakeProgress:
         pass
 
 
+def _setting_types():
+    import xml.etree.ElementTree as ET
+    root = ET.parse(os.path.join(ROOT, "resources", "settings.xml")).getroot()
+    return {setting.get("id"): setting.get("type") for setting in root.iter("setting")}
+
+
+SETTING_TYPES = _setting_types()     # every setting SpongeTV declares, and its type
+
+
 class FakeAddon:
     settings = {}
     profile = PROFILE_DIR
@@ -144,22 +204,40 @@ class FakeAddon:
     def getLocalizedString(self, string_id):
         return ""
 
+    @staticmethod
+    def _check(key, kind, value=None, writing=False):
+        """As Kodi does: reading or writing a setting that isn't in settings.xml, or as the wrong type, is an
+        error (WrongTypeException "Invalid setting type", a TypeError in Python)."""
+        if SETTING_TYPES.get(key) != kind:
+            raise TypeError(f"Invalid setting type: {key} is {SETTING_TYPES.get(key, 'not a setting')}, used as {kind}")
+        if writing:
+            fits = {"string": isinstance(value, str), "boolean": isinstance(value, (bool, int)),
+                    "integer": isinstance(value, int) and not isinstance(value, bool)}[kind]
+            if not fits:
+                raise TypeError(f"{key}: a {kind} setting can't take {value!r}")
+
     def getSettingString(self, key):
+        self._check(key, "string")
         return str(FakeAddon.settings.get(key, ""))
 
     def getSettingBool(self, key):
+        self._check(key, "boolean")
         return bool(FakeAddon.settings.get(key, False))
 
     def getSettingInt(self, key):
+        self._check(key, "integer")
         return int(FakeAddon.settings.get(key, 0))
 
     def setSettingString(self, key, value):
+        self._check(key, "string", value, writing=True)
         FakeAddon.settings[key] = value
 
     def setSettingInt(self, key, value):
+        self._check(key, "integer", value, writing=True)
         FakeAddon.settings[key] = value
 
     def setSettingBool(self, key, value):
+        self._check(key, "boolean", value, writing=True)
         FakeAddon.settings[key] = bool(value)
 
     def openSettings(self):
@@ -196,7 +274,7 @@ def _install_stubs():
         def abortRequested(self):
             return True
 
-        def waitForAbort(self, seconds=0):
+        def waitForAbort(self, timeout=-1):
             return True
     xbmc.Monitor = Monitor
 
