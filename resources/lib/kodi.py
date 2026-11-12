@@ -36,6 +36,19 @@ def log_debug(message):
     log(message, xbmc.LOGDEBUG)
 
 
+def log_timing(argv, started, code_loaded):
+    """How long this list or action took, then the steps and counts noted on the way (see timing.py)."""
+    import sys
+    import time
+    from resources.lib import timing
+    done = time.perf_counter()
+    log_debug(f"Timing {(argv[2] if len(argv) > 2 else '')[:90] or '(main menu)'}: "
+              f"{(done - started) * 1000:.0f} ms in all, {(code_loaded - started) * 1000:.0f} ms of it "
+              f"starting up{' (used the network)' if 'requests' in sys.modules else ''}")
+    for line in timing.summary():
+        log_debug(line)
+
+
 def log_error(message):
     log(message, xbmc.LOGERROR)
 

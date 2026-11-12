@@ -16,7 +16,4 @@ if __name__ == "__main__":
         dispatch(sys.argv)
     finally:
         # Only in Kodi's log with debug logging on: where the time goes each time a list or action runs
-        done = time.perf_counter()
-        kodi.log_debug(f"Timing {(sys.argv[2] if len(sys.argv) > 2 else '')[:90] or '(main menu)'}: "
-                       f"{(done - _started) * 1000:.0f} ms in all, {(_code_loaded - _started) * 1000:.0f} ms of it "
-                       f"starting up{' (used the network)' if 'requests' in sys.modules else ''}")
+        kodi.log_timing(sys.argv, _started, _code_loaded)

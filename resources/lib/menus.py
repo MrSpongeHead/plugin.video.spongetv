@@ -8,7 +8,7 @@ import xbmc
 import xbmcgui
 
 from resources.lib.pool import ThreadPoolExecutor
-from resources.lib import airtime, artwork, kodi, listing, options
+from resources.lib import airtime, artwork, kodi, listing, options, timing
 from resources.lib.http import HttpError
 from resources.lib.marks import Marks, fully_watched
 from resources.lib.tmdb import image_url
@@ -131,7 +131,7 @@ def marks_for(app):
 
 def title_items(plugin, app, media, summaries, hide_menu=None):
     """List items for films or shows; hide_menu names the menu whose hide settings apply."""
-    details = _details_for(app, media, summaries)
+    details = timing.timed("details for the page", _details_for, app, media, summaries)
     display = options.display(app)
     table = artwork.sizes(app.preset)
     fanart_api, omdb_api = app.fanart, app.omdb
@@ -171,7 +171,9 @@ def show_titles(plugin, app, title_media, data, hide_menu=None, lead_items=None,
     """page_params build the Next page link and may include their own media=."""
     results = [r for r in data.get("results", []) if r.get("id")]
     items = list(lead_items or [])
+    timing.step("before the rows")
     items += title_items(plugin, app, title_media, results, hide_menu)
+    timing.step(f"building {len(items)} rows")
     items += _next_page(plugin, data, **page_params)
     content = "movies" if title_media == "movie" else "tvshows"
     view = "view.movies" if title_media == "movie" else "view.tvshows"

@@ -13,7 +13,7 @@ import xbmc
 import xbmcgui
 
 from resources.lib.pool import ThreadPoolExecutor
-from resources.lib import airtime, kodi, listing, menus, options, shows
+from resources.lib import airtime, kodi, listing, menus, options, shows, timing
 from resources.lib.http import HttpError
 from resources.lib.marks import Marks, aired_counts, fully_watched
 
@@ -92,7 +92,11 @@ def shows_in_progress(plugin, app):
     skipped = library.skipped_shows()
     started = [show for show, _ in library.watched_shows() if show not in skipped]
     marks = Marks(library)
-    ids = [d["id"] for d in _show_details(app, started) if not fully_watched(*marks.show(d))]
+    timing.step(f"listing {len(started)} watched shows")
+    found = _show_details(app, started)
+    timing.step("loading their details")
+    ids = [d["id"] for d in found if not fully_watched(*marks.show(d))]
+    timing.step(f"finding the {len(ids)} unfinished")
     if not ids:
         kodi.notify(kodi.text("next_up_empty" if started else "next_up_no_history"))
     menus.show_titles(plugin, app, "tv", _page(plugin, ids), None, action="shows_in_progress")
@@ -127,13 +131,16 @@ def next_up_entries(app):
     watched_shows = [(show, at) for show, at in library.watched_shows() if show not in skipped]
     last_watched = dict(watched_shows)
     entries = []
+    timing.step(f"listing {len(watched_shows)} watched shows")
     details_found = _show_details(app, [show for show, _ in watched_shows])
+    timing.step("loading their details")
     for details in details_found:
         found = next_episode(details, library.watched_episodes(details["id"]))
         if found:
             entries.append((details, found[0], found[1], last_watched.get(details["id"], "")))
     kodi.log_debug(f"Next up: {len(watched_shows) + len(skipped)} shows with watched episodes, {len(skipped)} hidden or "
                    f"dropped, {len(details_found)} found on TMDB, {len(entries)} with an episode to watch next")
+    timing.step("working out next episodes")
     if kodi.setting_int("nextup.sort") == 1:   # newest air date first
         entries.sort(key=lambda e: ((e[0].get("last_air_date") or ""), e[3]), reverse=True)
     else:                                      # most recently watched first
@@ -149,7 +156,9 @@ def next_up(plugin, app):
         kodi.notify(kodi.text("next_up_empty" if app.library.watched_shows() else "next_up_no_history"))
     page = plugin.int_param("page", 1)
     chunk = entries[(page - 1) * PER_PAGE: page * PER_PAGE]
+    timing.step("sorting")
     items = _episode_rows(plugin, app, [(d, s, e) for d, s, e, _ in chunk])
+    timing.step(f"building {len(items)} rows")
     total = max(1, -(-len(entries) // PER_PAGE))
     items += menus._next_page(plugin, {"page": page, "total_pages": total}, action="next_up")
     plugin.finish(items, content="episodes", category=kodi.text("next_up"), view_setting="view.episodes", cache=False)
@@ -161,8 +170,9 @@ def _episode_rows(plugin, app, wanted):
     def build(entry):
         details, season, episode = entry[:3]
         when = entry[3] if len(entry) > 3 else ""
-        rows = shows._episode_items(plugin, app, details, shows._show_art(app, details), [season],
-                                    only={(season, episode)}, show_in_label=True)
+        art = timing.timed("show artwork", shows._show_art, app, details)
+        rows = timing.timed("episode rows", shows._episode_items, plugin, app, details, art, [season],
+                            only={(season, episode)}, show_in_label=True)
         if not rows:
             return None
         if when:

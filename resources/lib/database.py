@@ -12,6 +12,8 @@ import sqlite3
 import threading
 import time
 
+from resources.lib import timing
+
 MIGRATIONS = {
     1: [
         "CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT)",
@@ -93,11 +95,15 @@ class Store:
 
     # -- cache ------------------------------------------------------------------
     def cache_get(self, key):
+        started = time.perf_counter()
         with self._lock:
             row = self._db.execute("SELECT value, expires FROM cache WHERE key = ?", (key,)).fetchone()
         if not row or row[1] < self.clock():
+            timing.tally("not in the cache", time.perf_counter() - started)
             return None
-        return json.loads(row[0])
+        value = json.loads(row[0])
+        timing.tally("read from the cache", time.perf_counter() - started)
+        return value
 
     def cache_set(self, key, value, ttl_seconds):
         data = json.dumps(value, separators=(",", ":"))
@@ -181,8 +187,11 @@ class Store:
 
     # -- general queries (used by the Trakt library) -----------------------------------
     def query(self, sql, params=()):
+        started = time.perf_counter()
         with self._lock:
-            return self._db.execute(sql, params).fetchall()
+            rows = self._db.execute(sql, params).fetchall()
+        timing.tally("database lookups", time.perf_counter() - started)
+        return rows
 
     def execute(self, sql, params=()):
         with self._lock, self._db:

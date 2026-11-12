@@ -52,7 +52,8 @@ class Plugin:
             xbmcplugin.setPluginCategory(self.handle, category)
         if content:
             xbmcplugin.setContent(self.handle, content)
-        from resources.lib import listing, views
+        from resources.lib import listing, timing, views
+        timing.step("preparing")
         if content in views.KINDS:
             entry = [views.context_entry(self, content)]
             for _, list_item, _ in items:
@@ -61,6 +62,7 @@ class Plugin:
         xbmcplugin.addDirectoryItems(self.handle, items, len(items))
         cache = cache and kodi.setting_bool("perf.menu_cache")
         xbmcplugin.endOfDirectory(self.handle, succeeded=True, cacheToDisc=cache)
+        timing.step(f"handing {len(items)} rows to Kodi")
         kind = view_setting.split(".", 1)[1] if view_setting.startswith("view.") else ""
         view_id = views.saved_view(kind) if kind in views.KINDS else 0
         if view_id > 0:

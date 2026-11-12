@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.5
+  A second measuring build with no change to how SpongeTV works. With Kodi's debug logging on, the log now also shows each step of building a list (for example Next up and Shows in progress) and how many cache reads, database lookups and network requests it made. This is to find what makes those lists slow.
+
 1.0.4
   Menus open faster. SpongeTV now loads its network library, and each part of its own code, only when a list or action needs it. On an NVIDIA Shield, loading everything took about 0.7 seconds each time any menu opened; plain menus and lists SpongeTV has already saved no longer pay that. Lists that fetch from TMDB or Trakt still need the network library.
 

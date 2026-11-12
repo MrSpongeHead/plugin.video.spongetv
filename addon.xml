@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="1.0.4" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="1.0.5" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,10 +17,10 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>1.0.4: Menus open faster. SpongeTV now loads its network library, and each part of its own code, only when a list or action needs it. On an NVIDIA Shield, loading everything took about 0.7 seconds each time any menu opened; plain menus and lists SpongeTV has already saved no longer pay that. Lists that fetch from TMDB or Trakt still need the network library.
+        <news>1.0.5: A second measuring build with no change to how SpongeTV works. With Kodi&apos;s debug logging on, the log now also shows each step of building a list (for example Next up and Shows in progress) and how many cache reads, database lookups and network requests it made. This is to find what makes those lists slow.
+1.0.4: Menus open faster. SpongeTV now loads its network library, and each part of its own code, only when a list or action needs it. On an NVIDIA Shield, loading everything took about 0.7 seconds each time any menu opened; plain menus and lists SpongeTV has already saved no longer pay that. Lists that fetch from TMDB or Trakt still need the network library.
 1.0.3: A measuring build with no change to how SpongeTV works. With Kodi&apos;s debug logging on, the log now says how long each list or action took: loading the network library, loading SpongeTV&apos;s code, and the work itself. This is to see whether menus can be made to open faster.
 1.0.2: The Premiumize days in Settings, Accounts are now refreshed about 20 seconds after Kodi starts and whenever you use Check Premiumize account, so the two always agree. SpongeTV&apos;s own resume points moved to a table of their own (existing ones are carried over), so nothing that clears the cache can touch them.
-1.0.1: Every film and episode now has a single play address, whether or not it has a resume point (two addresses were how Kodi came to keep out-of-date resume points). Nothing changes in how resuming looks. Behind the scenes, the automated tests now check SpongeTV against Kodi 21&apos;s real interface: its functions, settings, labels and commands. The README explains who can sign in to Trakt.
 Earlier changes: changelog.txt</news>
         <assets>
             <icon>resources/media/icon.png</icon>

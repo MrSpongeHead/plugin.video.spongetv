@@ -5,6 +5,8 @@
 import threading
 import time
 
+from resources.lib import timing
+
 # The requests library takes about 0.6 seconds to load on an NVIDIA Shield, every time Kodi runs SpongeTV
 # for a list. Most menus, and lists whose details are already saved, never touch the network, so it's only
 # loaded when a request is first made.
@@ -59,6 +61,9 @@ class Http:
 
     def get_json(self, url, params=None, headers=None):
         """GET a JSON document. Retries on 429 (honouring Retry-After) and on 5xx."""
+        return timing.timed("network requests", self._get_json, url, params, headers)
+
+    def _get_json(self, url, params=None, headers=None):
         attempt = 0
         while True:
             try:
