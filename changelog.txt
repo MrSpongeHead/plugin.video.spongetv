@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.7
+  Marking a part-watched film or episode as watched from the Trakt menu now shows the tick. Its resume points (SpongeTV's own, and Trakt's) are removed as well, as they are when you watch to the end; before, the part-watched icon stayed and it still offered to resume.
+
 1.0.6
   Next up, Shows in progress and other long lists open faster. SpongeTV now keeps a small summary of each show you've watched, so working out what's next no longer reads every show in full. Settings are read through one shared handle while a list is built, not a new one for each read. A title TMDB says it doesn't have is remembered for a day, not asked for on every visit. Films and shows that rarely change are no longer rewritten each time they're read, and are now refreshed when their time is up.
 

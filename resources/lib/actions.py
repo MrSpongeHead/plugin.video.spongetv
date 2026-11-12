@@ -142,8 +142,27 @@ def _mark_local(app, target, watched):
 
 
 # -- the actions -------------------------------------------------------------------------------------
+def _forget_resume_points(app, target):
+    """Watched means finished: drop the resume points too, Trakt's (on Trakt) and SpongeTV's own. Left
+    behind, they'd show the part-watched icon in place of the tick, since skins show a resume point first."""
+    if target.media == "movie":
+        found = [(f"movie:{target.tmdb_id}", app.library.progress("movie", target.tmdb_id)[1])]
+    else:
+        pairs = [(target.season, target.episode)] if target.media == "episode" else _episodes_of(app, target)
+        found = [(f"episode:{target.show}:{s}:{e}",
+                  app.library.progress("episode", show=target.show, season=s, episode=e)[1]) for s, e in pairs]
+    for key, playback_id in found:
+        app.store.resume_delete(key)
+        if playback_id:
+            try:
+                app.trakt.delete(f"/sync/playback/{playback_id}")
+            except TraktError as error:   # already gone from Trakt, say: it's marked watched all the same
+                kodi.log(f"Couldn't remove Trakt's resume point for {key}: {error}")
+
+
 def watch(app, target):
     app.trakt.post("/sync/history", target.body())
+    _forget_resume_points(app, target)    # before the local update, which forgets Trakt's resume point IDs
     _mark_local(app, target, True)
     return True
 

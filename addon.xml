@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="1.0.6" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="1.0.7" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,9 +17,9 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>1.0.6: Next up, Shows in progress and other long lists open faster. SpongeTV now keeps a small summary of each show you&apos;ve watched, so working out what&apos;s next no longer reads every show in full. Settings are read through one shared handle while a list is built, not a new one for each read. A title TMDB says it doesn&apos;t have is remembered for a day, not asked for on every visit. Films and shows that rarely change are no longer rewritten each time they&apos;re read, and are now refreshed when their time is up.
+        <news>1.0.7: Marking a part-watched film or episode as watched from the Trakt menu now shows the tick. Its resume points (SpongeTV&apos;s own, and Trakt&apos;s) are removed as well, as they are when you watch to the end; before, the part-watched icon stayed and it still offered to resume.
+1.0.6: Next up, Shows in progress and other long lists open faster. SpongeTV now keeps a small summary of each show you&apos;ve watched, so working out what&apos;s next no longer reads every show in full. Settings are read through one shared handle while a list is built, not a new one for each read. A title TMDB says it doesn&apos;t have is remembered for a day, not asked for on every visit. Films and shows that rarely change are no longer rewritten each time they&apos;re read, and are now refreshed when their time is up.
 1.0.5: A second measuring build with no change to how SpongeTV works. With Kodi&apos;s debug logging on, the log now also shows each step of building a list (for example Next up and Shows in progress) and how many cache reads, database lookups and network requests it made. This is to find what makes those lists slow.
-1.0.4: Menus open faster. SpongeTV now loads its network library, and each part of its own code, only when a list or action needs it. On an NVIDIA Shield, loading everything took about 0.7 seconds each time any menu opened; plain menus and lists SpongeTV has already saved no longer pay that. Lists that fetch from TMDB or Trakt still need the network library.
 Earlier changes: changelog.txt</news>
         <assets>
             <icon>resources/media/icon.png</icon>

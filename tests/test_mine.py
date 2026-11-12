@@ -448,3 +448,38 @@ def test_wizard_with_built_in_client_id(world, monkeypatch):
     call("")
     assert json.loads(FakeAddon.settings["trakt.token"])["access_token"]
     assert FakeAddon.settings["trakt.client_id"] == ""   # nothing typed, nothing saved
+
+
+def test_mark_watched_drops_the_resume_points_too(world):
+    from resources.lib.marks import Marks
+    """A part-watched film or episode marked as watched must show the tick, not the part-watched icon."""
+    app = fresh_app()
+    call("?action=my_movies")                       # syncs: film 9 has a Trakt resume point (ID 77)
+    app.store.resume_set("movie:9", {"position": 600, "total": 3000, "percent": 20, "saved": 1})
+    assert Marks(fresh_app().library).movie(9)[1] > 0
+    FakeDialog.script = [0]
+    call("?action=trakt_menu&media=movie&tmdb_id=9")
+    assert FakeDialog.menus[-1][0] == "Mark as watched"
+    assert ("DELETE", "https://api.trakt.tv/sync/playback/77") in [(c[0], c[1]) for c in world[1].calls]
+    assert fresh_app().store.resume_get("movie:9") is None
+    assert Marks(fresh_app().library).movie(9) == (1, 0)
+    # an episode with only SpongeTV's own resume point
+    app.store.resume_set("episode:51:1:3", {"position": 600, "total": 3000, "percent": 20, "saved": 1})
+    FakeDialog.script = [0]
+    call("?action=trakt_menu&media=episode&show=51&season=1&episode=3")
+    assert fresh_app().store.resume_get("episode:51:1:3") is None
+    assert Marks(fresh_app().library).episode(51, 1, 3) == (1, 0)
+    # a whole season: every episode's own resume point goes
+    app.store.resume_set("episode:54:1:2", {"position": 600, "total": 3000, "percent": 20, "saved": 1})
+    FakeDialog.script = [0]
+    call("?action=trakt_menu&media=season&show=54&season=1")
+    assert fresh_app().store.resume_get("episode:54:1:2") is None
+
+
+def test_mark_watched_still_works_if_trakt_wont_remove_its_resume_point(world):
+    call("?action=my_movies")
+    world[1].fail[("DELETE", "/sync/playback/77")] = 404
+    FakeDialog.script = [0]
+    call("?action=trakt_menu&media=movie&tmdb_id=9")
+    assert fresh_app().library.movie_plays(9) == 1
+    assert ("notification", "Marked as watched") in FakeDialog.shown
