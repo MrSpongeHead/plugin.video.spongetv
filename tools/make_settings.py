@@ -95,15 +95,6 @@ def status(sid_, label):
             f'                    </control>\n                </setting>\n')
 
 
-def hidden_text(sid_):
-    """Text SpongeTV keeps for itself: never shown."""
-    return (f'                <setting id="{sid_}" type="string">\n'
-            f'                    <level>4</level>\n                    <default/>\n'
-            f'                    <constraints>\n                        <allowempty>true</allowempty>\n                    </constraints>\n'
-            f'                    <visible>false</visible>\n'
-            f'                    <control type="edit" format="string"/>\n                </setting>\n')
-
-
 def hidden_flag(sid_):
     """A yes/no SpongeTV keeps for itself, for showing the right buttons: never shown."""
     return (f'                <setting id="{sid_}" type="boolean">\n'

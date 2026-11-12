@@ -110,7 +110,7 @@ def play_entries(plugin, has_resume, **ids):
 
 
 def own_resume(app, key):
-    return bool(app.store.cache_get(f"resume:{key}"))
+    return bool(app.store.resume_get(key))
 
 
 def context_menu(plugin, media, tmdb_id, signed_in=False, has_resume=False):

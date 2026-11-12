@@ -58,7 +58,7 @@ class Marks:
     def _own(self, key, trakt_at=""):
         """SpongeTV's own resume point (saved while playing): (percent, position, total), or None if
         there isn't one or Trakt has a newer one."""
-        saved = self.library.store.cache_get(f"resume:{key}")
+        saved = self.library.store.resume_get(key)
         if saved and saved.get("position") and saved.get("total") and own_is_newer(saved, trakt_at):
             return saved.get("percent", 0), saved["position"], saved["total"]
         return None

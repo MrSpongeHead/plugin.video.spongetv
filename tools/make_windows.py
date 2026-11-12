@@ -66,7 +66,6 @@ def button(cid, x, y, w, h, text, font, main=False, radius=16, nav="", enable=No
         parts.append(image(x, y, w, h, line, outline, border, visible=f"!{focus_expr} + {enable}", indent=indent))
     else:
         parts.append(image(x, y, w, h, line, outline, border, visible=f"!{focus_expr}", indent=indent))
-    text_left = 0
     out = [f'{indent}<control type="button" id="{cid}">',
            f"{indent}    <left>{x}</left><top>{y}</top><width>{w}</width><height>{h}</height>",
            f"{indent}    <font>{font}</font><textcolor>{AMBER if main else TEXT}</textcolor>"
@@ -212,7 +211,7 @@ def source_search():
     c.append("\n".join([
         '        <control type="progress" id="3100">',
         f"            <left>{ix}</left><top>{top}</top><width>{iw}</width><height>18</height>",
-        f'            <texturebg colordiffuse="00FFFFFF">spongetv-bar.png</texturebg>',
+        '            <texturebg colordiffuse="00FFFFFF">spongetv-bar.png</texturebg>',
         f'            <midtexture border="9" colordiffuse="{TEAL}">spongetv-bar.png</midtexture>',
         "        </control>"]))
     c.append(label(ix, top + 32, iw, 30, "font10", TEXT2, prop("providers_line")))

@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.2
+  The Premiumize days in Settings, Accounts are now refreshed about 20 seconds after Kodi starts and whenever you use Check Premiumize account, so the two always agree. SpongeTV's own resume points moved to a table of their own (existing ones are carried over), so nothing that clears the cache can touch them.
+
 1.0.1
   Every film and episode now has a single play address, whether or not it has a resume point (two addresses were how Kodi came to keep out-of-date resume points). Nothing changes in how resuming looks. Behind the scenes, the automated tests now check SpongeTV against Kodi 21's real interface: its functions, settings, labels and commands. The README explains who can sign in to Trakt.
 

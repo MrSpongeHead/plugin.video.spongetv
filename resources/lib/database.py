@@ -41,12 +41,17 @@ MIGRATIONS = {
         "CREATE TABLE IF NOT EXISTS package_settings (package TEXT NOT NULL, id TEXT NOT NULL, type TEXT NOT NULL, "
         "label TEXT, value TEXT, visible INTEGER NOT NULL DEFAULT 1, PRIMARY KEY (package, id))",
     ],
+    # 1.0.2: SpongeTV's own resume points get a table of their own. They used to sit in the cache under
+    # "resume:<key>", guarded from "Clear cache" by a special rule; they're moved across here.
+    4: [
+        "CREATE TABLE IF NOT EXISTS resume_points (key TEXT PRIMARY KEY, value TEXT NOT NULL, saved REAL NOT NULL)",
+        "INSERT OR REPLACE INTO resume_points (key, value, saved) "
+        "SELECT substr(key, 8), value, created FROM cache WHERE key LIKE 'resume:%'",
+        "DELETE FROM cache WHERE key LIKE 'resume:%'",
+    ],
 }
 SCHEMA_VERSION = max(MIGRATIONS)
-
-# SpongeTV's own resume points live in the cache table (they expire after a year), but they're yours, not
-# a cache: clearing the cache or trimming it to size leaves them alone
-KEEP_PATTERN = "resume:%"
+RESUME_KEPT_FOR = 365 * 86400     # a resume point not touched for a year is forgotten
 
 
 class Store:
@@ -123,17 +128,37 @@ class Store:
             total = self._db.execute("SELECT COALESCE(SUM(size), 0) FROM cache").fetchone()[0]
             if total <= max_bytes:
                 return
-            for key, size in self._db.execute("SELECT key, size FROM cache WHERE key NOT LIKE ? ORDER BY created",
-                                              (KEEP_PATTERN,)).fetchall():
+            for key, size in self._db.execute("SELECT key, size FROM cache ORDER BY created").fetchall():
                 self._db.execute("DELETE FROM cache WHERE key = ?", (key,))
                 total -= size
                 if total <= max_bytes:
                     break
 
     def cache_clear(self):
-        """Everything except your resume points, which only "Clear resume point" or finishing removes."""
         with self._lock, self._db:
-            self._db.execute("DELETE FROM cache WHERE key NOT LIKE ?", (KEEP_PATTERN,))
+            self._db.execute("DELETE FROM cache")
+
+    # -- your resume points (SpongeTV's own, exact to the second) ----------------------------
+    def resume_get(self, key):
+        """{"position", "total", "percent", "saved"} for "movie:<id>" or "episode:<show>:<season>:<episode>"."""
+        with self._lock:
+            row = self._db.execute("SELECT value, saved FROM resume_points WHERE key = ?", (key,)).fetchone()
+        if not row or row[1] < self.clock() - RESUME_KEPT_FOR:
+            return None
+        return json.loads(row[0])
+
+    def resume_set(self, key, value):
+        with self._lock, self._db:
+            self._db.execute("INSERT OR REPLACE INTO resume_points (key, value, saved) VALUES (?, ?, ?)",
+                             (key, json.dumps(value, separators=(",", ":")), self.clock()))
+
+    def resume_delete(self, key):
+        with self._lock, self._db:
+            self._db.execute("DELETE FROM resume_points WHERE key = ?", (key,))
+
+    def resume_tidy(self):
+        with self._lock, self._db:
+            self._db.execute("DELETE FROM resume_points WHERE saved < ?", (self.clock() - RESUME_KEPT_FOR,))
 
     # -- search history -----------------------------------------------------------
     def add_search(self, kind, query):

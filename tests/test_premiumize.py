@@ -165,6 +165,45 @@ def test_daily_expiry_warning(tmp_path, monkeypatch):
     store.close()
 
 
+def test_days_are_refreshed_after_each_start_without_repeating_the_warning(tmp_path):
+    from conftest import FakeAddon, FakeDialog
+    from resources.lib import service
+    fake = FakePm()
+    store = Store(str(tmp_path / "t.db"))
+    FakeAddon.settings["premiumize.api_key"] = "good"
+    now = 1000 + 25 * 86400
+    assert service.check_premiumize(store, fake, now) == 5            # the daily check, with its warning
+    FakeDialog.shown.clear()
+    FakeAddon.settings["premiumize.status"] = "Signed in"             # stale or missing
+    later = now + 3 * 3600                                            # Kodi restarted the same day
+    assert service.check_premiumize(store, fake, later, refresh_only=True) == 4
+    assert FakeAddon.settings["premiumize.status"] == "Signed in: 4 days of premium left"
+    assert FakeDialog.shown == []                                     # no second warning that day
+    assert float(store.get_meta("premiumize:last_check")) == now      # the daily check keeps its own time
+    store.close()
+
+
+def test_the_check_window_updates_the_accounts_line(tmp_path, monkeypatch):
+    from conftest import FakeAddon
+    from resources.lib import tools
+
+    class Client:
+        def account(self):
+            return {"premium_until": 1, "limit_used": 0.25}
+
+        def days_left(self, account):
+            return 527
+
+    class App:
+        premiumize = Client()
+        store = Store(str(tmp_path / "t.db"))
+    FakeAddon.settings["premiumize.api_key"] = "good"
+    FakeAddon.settings["premiumize.status"] = "Signed in: 528 days of premium left"
+    tools.premiumize_status(None, App())
+    assert FakeAddon.settings["premiumize.status"] == "Signed in: 527 days of premium left"
+    App.store.close()
+
+
 # -- code sign-in ---------------------------------------------------------------------------------------
 class FakeDevice:
     """Premiumize's /token: pending twice, asks to slow down once, then approves."""

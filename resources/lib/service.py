@@ -31,6 +31,7 @@ MAX_BACKOFF = 2 * 3600
 MB = 1024 * 1024
 PACKAGE_CHECK_EVERY = 24 * 3600
 PACKAGE_CHECK_AFTER = 5 * 60   # not straight away at start-up
+DAYS_REFRESH_AFTER = 20        # seconds after start-up before asking Premiumize for the days left
 UPDATES_OFF, UPDATES_TELL, UPDATES_INSTALL = range(3)
 
 
@@ -41,6 +42,7 @@ def _store():
 def tidy(store):
     limit = max(kodi.setting_int("cache.size_mb"), 10) * MB
     store.cache_tidy(limit)
+    store.resume_tidy()
 
 
 def check_changed_keys(store, http):
@@ -98,8 +100,11 @@ def check_packages(store, http, now, mode=None):
 EXPIRY_WARN_DAYS = 7
 
 
-def check_premiumize(store, http, now):
-    """Once a day: warn when the Premiumize account has a week or less left. Returns the days left."""
+def check_premiumize(store, http, now, refresh_only=False):
+    """Fetch the Premiumize account's days left and show them in Settings, Accounts. Once a day it also
+    warns when the account or the sign-in has a week or less left. refresh_only: just after Kodi starts,
+    update the days without waiting for the daily check (and without repeating its warnings).
+    Returns the days left."""
     from resources.lib.premiumize import Premiumize, PremiumizeError
     try:
         token = json.loads(kodi.setting_str("premiumize.token") or "{}")
@@ -107,23 +112,25 @@ def check_premiumize(store, http, now):
         token = {}
     bearer = token.get("access_token") or kodi.setting_str("premiumize.api_key")
     client = Premiumize(http, bearer, clock=lambda: now)
-    if not client.ready or now - float(store.get_meta("premiumize:last_check") or 0) < PACKAGE_CHECK_EVERY:
+    daily = now - float(store.get_meta("premiumize:last_check") or 0) >= PACKAGE_CHECK_EVERY
+    if not client.ready or not (daily or refresh_only):
         return None
-    store.set_meta("premiumize:last_check", str(now))
-    if token.get("expires_at"):   # the code sign-in has an end date: say so a week ahead
+    if daily:
+        store.set_meta("premiumize:last_check", str(now))
+    if daily and token.get("expires_at"):   # the code sign-in has an end date: say so a week ahead
         days_to_sign_in = int((token["expires_at"] - now) // 86400)
         if days_to_sign_in <= EXPIRY_WARN_DAYS:
             kodi.notify(kodi.text("pm_sign_in_again", days=max(0, days_to_sign_in)), 8000)
     try:
         account = client.account()
     except PremiumizeError as error:
-        if error.kind == "bad_key":
+        if daily and error.kind == "bad_key":
             kodi.notify(kodi.text("pm_sign_in_expired" if token.get("access_token") else "pm_bad_key"), 8000)
         return None
     days = client.days_left(account)
     from resources.lib import accounts
     accounts.account_status(days if days is not None else accounts.NO_PREMIUM)
-    if days is not None and days <= EXPIRY_WARN_DAYS:
+    if daily and days is not None and days <= EXPIRY_WARN_DAYS:
         kodi.notify(kodi.text("pm_expiring", days=days), 8000)
     return days
 
@@ -212,14 +219,9 @@ def run(clock=None):
     player = xbmc.Player()
     kodi.log(f"Service started (Kodi {kodi.kodi_major_version()})")
     _account_status()
-    if kodi.setting_bool("premiumize.signed_in") and kodi.setting_str("premiumize.status") == kodi.text("status_signed_in"):
-        store = _store()      # Accounts doesn't show the days left yet: don't wait a day for the check
-        try:
-            store.set_meta("premiumize:last_check", "0")
-        finally:
-            store.close()
     last_tidy = 0
     package_check_at = clock() + PACKAGE_CHECK_AFTER
+    days_refresh_at = clock() + DAYS_REFRESH_AFTER    # the days in Settings, Accounts: fresh soon after each start
     while not monitor.abortRequested():
         now = clock()
         if not player.isPlaying():
@@ -232,6 +234,15 @@ def run(clock=None):
                 finally:
                     store.close()
                 last_tidy = now
+            if days_refresh_at and now >= days_refresh_at:
+                days_refresh_at = None
+                store = _store()
+                try:
+                    check_premiumize(store, Http(f"SpongeTV/{kodi.VERSION}"), now, refresh_only=True)
+                except Exception as error:  # never let a check stop the service
+                    kodi.log_error(f"Premiumize check failed: {error}")
+                finally:
+                    store.close()
             if now >= package_check_at:
                 package_check_at = now + 3600   # look again in an hour; the check itself runs daily
                 store = _store()

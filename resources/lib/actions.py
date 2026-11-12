@@ -81,7 +81,7 @@ def _choices(app, target):
         hidden = t.show in lib.skipped_shows()
         choices.append(("unhide_progress", unhide) if hidden else ("hide_progress", hide))
     if t.media in ("movie", "episode") and (lib.progress(t.media, t.tmdb_id, t.show, t.season, t.episode)[1]
-                                           or app.store.cache_get(own_resume_key(t))):
+                                           or app.store.resume_get(own_resume_key(t))):
         choices.append(("clear_progress", clear_progress))
     choices.append(("refresh_info", refresh_info))
     return choices
@@ -238,8 +238,8 @@ def unhide(app, target):
 
 def own_resume_key(target):
     if target.media == "movie":
-        return f"resume:movie:{target.tmdb_id}"
-    return f"resume:episode:{target.show}:{target.season}:{target.episode}"
+        return f"movie:{target.tmdb_id}"
+    return f"episode:{target.show}:{target.season}:{target.episode}"
 
 
 def clear_progress(app, target):
@@ -247,7 +247,7 @@ def clear_progress(app, target):
     _, playback_id = app.library.progress(target.media, target.tmdb_id, target.show, target.season, target.episode)
     if playback_id and app.signed_in:
         app.trakt.delete(f"/sync/playback/{playback_id}")
-    app.store.cache_delete(own_resume_key(target))
+    app.store.resume_delete(own_resume_key(target))
     from resources.lib import playback
     for kr in (None, "1"):   # the item's play address, with and without "Kodi asks about resuming"
         if target.media == "movie":

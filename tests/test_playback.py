@@ -54,7 +54,7 @@ def test_auto_play_resolves_and_follows_playback(premiumize):
     assert Directory.resolved is True
     assert len(premiumize.resolved) == 1
     store = context.App().store
-    assert store.cache_get("resume:movie:7")["position"] == 130         # saved on stop
+    assert store.resume_get("movie:7")["position"] == 130         # saved on stop
     # Kodi's own resume point is read (to avoid a second prompt) but never changed after playback:
     # changing it makes Kodi blank the list item's details
     assert [json.loads(r)["method"] for r in xbmc.jsonrpc] == ["Files.GetFileDetails"]
@@ -96,7 +96,7 @@ def test_backing_out_of_source_select_plays_nothing(premiumize):
 def test_resume_prompt_and_seek(premiumize, monkeypatch):
     import xbmc
     FakeAddon.settings["play.movies"] = playback.AUTO_PLAY
-    context.App().store.cache_set("resume:movie:7", {"position": 1930, "total": 6000, "percent": 32}, 3600)
+    context.App().store.resume_set("movie:7", {"position": 1930, "total": 6000, "percent": 32})
     seeks = []
     monkeypatch.setattr(xbmc.Player, "seekTime", lambda self, s: seeks.append(s))
     xbmc.Player.script = [(2, 6000), (1931, 6000)]   # Kodi ignored StartOffset, so SpongeTV seeks
@@ -110,11 +110,11 @@ def test_watching_to_the_end_clears_the_resume_point(premiumize):
     import xbmc
     FakeAddon.settings["play.movies"] = playback.AUTO_PLAY
     store = context.App().store
-    store.cache_set("resume:movie:7", {"position": 1930, "total": 6000, "percent": 32}, 3600)
+    store.resume_set("movie:7", {"position": 1930, "total": 6000, "percent": 32})
     FakeDialog.script = [1]     # Start from the beginning
     xbmc.Player.script = [(100, 6000), (5900, 6000)]
     call("?action=play&media=movie&tmdb_id=7")
-    assert context.App().store.cache_get("resume:movie:7") is None
+    assert context.App().store.resume_get("movie:7") is None
 
 
 def test_episode_from_a_season_pack(premiumize):
@@ -169,7 +169,7 @@ def test_hide_uncached_filter():
 def test_kodi_asks_so_spongetv_does_not(premiumize):
     """From a list item that shows a resume point, Kodi asks itself; SpongeTV mustn't ask a second time."""
     FakeAddon.settings["play.movies"] = playback.AUTO_PLAY
-    context.App().store.cache_set("resume:movie:7", {"position": 1930, "total": 6000, "percent": 32}, 3600)
+    context.App().store.resume_set("movie:7", {"position": 1930, "total": 6000, "percent": 32})
     call("?action=play&media=movie&tmdb_id=7&kr=1")
     assert not any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
     assert Directory.resolved is True
@@ -180,7 +180,7 @@ def test_one_play_address_and_one_resume_prompt(premiumize, monkeypatch):
     stale resume points). Whether Kodi has already asked is worked out again when you press play."""
     monkeypatch.setattr(context.App, "signed_in", property(lambda self: True))
     FakeAddon.settings["play.movies"] = playback.AUTO_PLAY
-    context.App().store.cache_set("resume:movie:7", {"position": 1930, "total": 6000, "percent": 32}, 3600)
+    context.App().store.resume_set("movie:7", {"position": 1930, "total": 6000, "percent": 32})
     address = "?action=play&media=movie&tmdb_id=7"
     call(address)                                            # from the list: Kodi asked, SpongeTV doesn't
     assert not any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
@@ -188,7 +188,7 @@ def test_one_play_address_and_one_resume_prompt(premiumize, monkeypatch):
     call(address + "&fresh=1")                               # "Search for sources again": only SpongeTV can ask
     assert any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
     FakeDialog.shown.clear()
-    context.App().store.cache_delete("resume:movie:7")
+    context.App().store.resume_delete("movie:7")
     call(address)                                            # no resume point: nobody asks
     assert not any(kind == "contextmenu" for kind, _ in FakeDialog.shown)
 
@@ -208,7 +208,7 @@ def test_own_resume_point_reaches_the_list_item():
     from resources.lib.marks import Marks
     import tempfile, os
     store = Store(os.path.join(tempfile.mkdtemp(), "t.db"))
-    store.cache_set("resume:movie:7", {"position": 1930.0, "total": 6000.0, "percent": 32.2}, 3600)
+    store.resume_set("movie:7", {"position": 1930.0, "total": 6000.0, "percent": 32.2})
     mark = Marks(Library(store)).movie(7)
     assert mark == (0, 32.2, 1930.0, 6000.0)
     item = listing.movie_item({"id": 7, "title": "Film", "runtime": 98}, {}, marks=mark)
@@ -220,11 +220,11 @@ def test_clear_resume_point_clears_all_three(premiumize, monkeypatch):
     import xbmc
     from resources.lib import actions
     app = context.App()
-    app.store.cache_set("resume:episode:50:1:2", {"position": 600, "total": 3000, "percent": 20}, 3600)
+    app.store.resume_set("episode:50:1:2", {"position": 600, "total": 3000, "percent": 20})
     target = actions.Target({"media": "episode", "show": "50", "season": "1", "episode": "2"})
     monkeypatch.setattr(app.library, "progress", lambda *a, **k: (0, None))
     assert actions.clear_progress(app, target)
-    assert app.store.cache_get("resume:episode:50:1:2") is None
+    assert app.store.resume_get("episode:50:1:2") is None
     cleared = [json.loads(r)["params"]["file"] for r in xbmc.jsonrpc]
     assert "plugin://plugin.video.spongetv/?action=play&media=episode&tmdb_id=50&season=1&episode=2" in cleared
     assert "plugin://plugin.video.spongetv/?action=play&media=episode&tmdb_id=50&season=1&episode=2&kr=1" in cleared
@@ -259,13 +259,13 @@ def test_search_again_from_source_select(premiumize, monkeypatch):
 def test_context_menus_offer_search_again_and_clear_resume(premiumize):
     from test_menus import call as list_call
     app = context.App()
-    app.store.cache_set("resume:movie:7", {"position": 600, "total": 6000, "percent": 10}, 3600)
+    app.store.resume_set("movie:7", {"position": 600, "total": 6000, "percent": 10})
     list_call("?action=movie_list&kind=popular")
     menus = {i[1].label: [label for label, _ in i[1].context_menu] for i in Directory.items}
     film = next(m for m in menus.values() if "Clear resume point" in m)
     assert "Search for sources again" in film
     call("?action=clear_resume&media=movie&tmdb_id=7")
-    assert app.store.cache_get("resume:movie:7") is None
+    assert app.store.resume_get("movie:7") is None
 
 
 
@@ -273,7 +273,7 @@ def test_kodi_resume_point_means_kodi_asks(premiumize, monkeypatch):
     """Kodi saved its own resume point (after 3 minutes) and asks about it itself: SpongeTV mustn't."""
     import xbmc
     FakeAddon.settings["play.movies"] = playback.AUTO_PLAY
-    context.App().store.cache_set("resume:movie:7", {"position": 1930, "total": 6000, "percent": 32}, 3600)
+    context.App().store.resume_set("movie:7", {"position": 1930, "total": 6000, "percent": 32})
     monkeypatch.setattr(xbmc, "executeJSONRPC", lambda request: json.dumps(
         {"result": {"filedetails": {"resume": {"position": 1930.0, "total": 6000.0}}}}))
     call("?action=play&media=movie&tmdb_id=7")
@@ -496,19 +496,19 @@ def test_watching_a_film_to_the_end_marks_it_watched_straight_away(premiumize, m
     assert follower.watched and trakt.sent[-1][0] == "stop"
     assert app.library.movie_plays(7) == 1                     # the tick shows without waiting for a sync
     assert app.library.progress("movie", 7)[0] in (0, None)    # and Trakt's old resume point has gone
-    assert app.store.cache_get("resume:movie:7") is None
+    assert app.store.resume_get("movie:7") is None
 
 
 def test_stopping_part_way_keeps_it_unwatched(premiumize, monkeypatch):
     app, follower = follow_film(monkeypatch, [(100, 6000), (3000, 6000)], FakeTrakt())
     assert not follower.watched and app.library.movie_plays(7) == 0
-    assert app.store.cache_get("resume:movie:7")["position"] == 3000
+    assert app.store.resume_get("movie:7")["position"] == 3000
 
 
 def test_past_80_percent_counts_as_watched_like_trakt(premiumize, monkeypatch):
     app, follower = follow_film(monkeypatch, [(100, 6000), (4900, 6000)], FakeTrakt())   # 82%
     assert follower.watched and app.library.movie_plays(7) == 1
-    assert app.store.cache_get("resume:movie:7") is None
+    assert app.store.resume_get("movie:7") is None
 
 
 def test_not_marked_here_if_trakt_refused_the_scrobble(premiumize, monkeypatch):
@@ -543,7 +543,7 @@ def test_watching_an_episode_to_the_end_marks_it_watched_straight_away(premiumiz
     assert follower.watched and trakt.sent[-1][0] == "stop"
     assert app.library.watched_episodes(50)[(1, 2)][0] == 1
     assert app.library.progress("episode", show=50, season=1, episode=2)[0] in (0, None)
-    assert app.store.cache_get("resume:episode:50:1:2") is None
+    assert app.store.resume_get("episode:50:1:2") is None
 
 
 def test_newer_progress_from_another_device_wins(premiumize):
@@ -554,13 +554,13 @@ def test_newer_progress_from_another_device_wins(premiumize):
     now = time.time()
     iso = lambda t: time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime(t))
     # SpongeTV stopped at 20% an hour ago; Seren carried on to 60% ten minutes ago
-    app.store.cache_set("resume:movie:7", {"position": 1200, "total": 6000, "percent": 20, "saved": now - 3600}, 3600)
+    app.store.resume_set("movie:7", {"position": 1200, "total": 6000, "percent": 20, "saved": now - 3600})
     app.library.add("playback", "movie", 7, value=60.0, at=iso(now - 600))
     assert target.runtime_seconds > 0
     assert playback.saved_position(app, target) == pytest.approx(0.6 * target.runtime_seconds)
     assert Marks(app.library).movie(7) == (0, 60.0)
     # SpongeTV's own stop is the newest (Trakt's copy of it arrives a moment later): its exact spot wins
-    app.store.cache_set("resume:movie:7", {"position": 1200, "total": 6000, "percent": 20, "saved": now}, 3600)
+    app.store.resume_set("movie:7", {"position": 1200, "total": 6000, "percent": 20, "saved": now})
     app.library.add("playback", "movie", 7, value=20.0, at=iso(now + 3))
     assert playback.saved_position(app, target) == 1200
     assert Marks(app.library).movie(7) == (0, 20, 1200, 6000)
@@ -632,7 +632,7 @@ def test_a_moment_with_nothing_playing_doesnt_end_following(premiumize, monkeypa
     scripted(follower, ["started", (10, 3000), None, None, (12, 3000), (13, 3000), "stopped"])
     follower.follow(Quiet())
     assert ticks == [10, 12, 13]            # carried on after the TV's display switch
-    assert not follower.watched and app.store.cache_get("resume:episode:50:1:2") is None   # too early to save
+    assert not follower.watched and app.store.resume_get("episode:50:1:2") is None   # too early to save
 
 
 def test_nothing_playing_for_a_while_ends_following(premiumize, monkeypatch):

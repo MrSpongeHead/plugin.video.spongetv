@@ -74,6 +74,8 @@ def premium_days_left(app):
             days = client.days_left(client.account())
         except PremiumizeError:
             return None
+        from resources.lib import accounts
+        accounts.account_status(days if days is not None else accounts.NO_PREMIUM)   # keep Settings in step
         if days is None:
             return None
         app.store.cache_set("premiumize:days_left", days, 3600)
@@ -105,6 +107,10 @@ def premiumize_status(plugin, app):
         xbmcgui.Dialog().ok(kodi.text("grp_premiumize"), premiumize_message(error))
         return
     days = client.days_left(account)
+    from resources.lib import accounts
+    accounts.account_status(days if days is not None else accounts.NO_PREMIUM)   # keep Settings in step
+    if days is not None:
+        app.store.cache_set("premiumize:days_left", days, 3600)
     text = (kodi.text("pm_status_free") if days is None
             else kodi.text("pm_status_ok", days=days, used=round(account["limit_used"] * 100)))
     xbmcgui.Dialog().ok(kodi.text("grp_premiumize"), text)

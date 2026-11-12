@@ -90,7 +90,7 @@ class Target:
 
 # -- resume points ------------------------------------------------------------------------------------------
 def resume_key(target):
-    return f"resume:{target.key}"
+    return target.key
 
 
 def saved_position(app, target):
@@ -100,7 +100,7 @@ def saved_position(app, target):
         where = {"media": "movie", "tmdb_id": target.tmdb_id}
     else:
         where = {"media": "episode", "show": target.tmdb_id, "season": target.season, "episode": target.episode}
-    own = app.store.cache_get(resume_key(target))
+    own = app.store.resume_get(resume_key(target))
     if own and own.get("position", 0) >= MIN_RESUME and own_is_newer(own, app.library.progress_at(**where)):
         return float(own["position"])
     percent, _ = app.library.progress(**where)
@@ -383,10 +383,10 @@ class Follower(xbmc.Player):
         key = resume_key(self.target)
         if percent >= WATCHED_AT or position < MIN_RESUME:
             if finished:
-                self.app.store.cache_delete(key)
+                self.app.store.resume_delete(key)
             return
-        self.app.store.cache_set(key, {"position": position, "total": total, "percent": percent,
-                                       "saved": time.time()}, 365 * 86400)
+        self.app.store.resume_set(key, {"position": position, "total": total, "percent": percent,
+                                        "saved": time.time()})
 
 
 # -- the play action ---------------------------------------------------------------------------------------------
