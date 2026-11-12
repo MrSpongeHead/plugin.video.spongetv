@@ -53,10 +53,29 @@ def log_error(message):
     log(message, xbmc.LOGERROR)
 
 
+HANDLE_KEPT_FOR = 5      # seconds
+ALWAYS_FRESH = False     # the background service sets this: it runs for hours and must see every change at once
+_handle = (None, 0.0)
+
+
 def _settings():
-    """A fresh handle each time: the background service runs for hours, and a long-lived handle
-    can return settings as they were when it started (such as an old Trakt token)."""
-    return xbmcaddon.Addon(ADDON_ID)
+    """The handle settings are read through. Opening one costs milliseconds (far more than the read), and a
+    list reads settings dozens of times, so one handle is shared for a few seconds. Not for longer: a
+    long-lived handle can return settings as they were when it was opened (such as an old Trakt token)."""
+    global _handle
+    import time
+    handle, opened = _handle
+    now = time.monotonic()
+    if handle is None or ALWAYS_FRESH or now - opened > HANDLE_KEPT_FOR:
+        handle = xbmcaddon.Addon(ADDON_ID)
+        _handle = (handle, now)
+    return handle
+
+
+def _changed():
+    """After writing a setting: the next read opens a new handle."""
+    global _handle
+    _handle = (None, 0.0)
 
 
 def setting_str(setting_id):
@@ -73,14 +92,17 @@ def setting_int(setting_id):
 
 def set_setting_str(setting_id, value):
     _settings().setSettingString(setting_id, value)
+    _changed()
 
 
 def set_setting_int(setting_id, value):
     _settings().setSettingInt(setting_id, value)
+    _changed()
 
 
 def set_setting_bool(setting_id, value):
     _settings().setSettingBool(setting_id, bool(value))
+    _changed()
 
 
 def notify(message, time_ms=4000):

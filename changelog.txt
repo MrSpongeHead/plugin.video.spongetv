@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.6
+  Next up, Shows in progress and other long lists open faster. SpongeTV now keeps a small summary of each show you've watched, so working out what's next no longer reads every show in full. Settings are read through one shared handle while a list is built, not a new one for each read. A title TMDB says it doesn't have is remembered for a day, not asked for on every visit. Films and shows that rarely change are no longer rewritten each time they're read, and are now refreshed when their time is up.
+
 1.0.5
   A second measuring build with no change to how SpongeTV works. With Kodi's debug logging on, the log now also shows each step of building a list (for example Next up and Shows in progress) and how many cache reads, database lookups and network requests it made. This is to find what makes those lists slow.
 

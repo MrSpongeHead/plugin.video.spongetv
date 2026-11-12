@@ -12,6 +12,7 @@ BASE = "https://api.themoviedb.org/3"
 IMAGE_BASE = "https://image.tmdb.org/t/p/"
 
 HOUR = 3600
+NOT_FOUND = {"spongetv": "not found on TMDB"}
 DAY = 24 * HOUR
 
 MOVIE_LISTS = {
@@ -60,9 +61,17 @@ class Tmdb:
         cache_key = self._cache_key(path, query)
         if self.store is not None:
             cached = self.store.cache_get(cache_key)
+            if cached == NOT_FOUND:
+                raise HttpError(f"HTTP 404 from {BASE + path} (TMDB's answer earlier today)", 404)
             if cached is not None:
                 return cached
-        data = self.http.get_json(BASE + path, params=dict(query, api_key=self.api_key))
+        try:
+            data = self.http.get_json(BASE + path, params=dict(query, api_key=self.api_key))
+        except HttpError as error:
+            # TMDB has nothing at this address (a show it has removed, say): don't ask again on every visit
+            if error.status == 404 and self.store is not None and ttl:
+                self.store.cache_set(cache_key, NOT_FOUND, DAY)
+            raise
         if self.store is not None and ttl:
             self.store.cache_set(cache_key, data, ttl)
         return data
@@ -139,23 +148,39 @@ class Tmdb:
         return data
 
     def tv(self, tv_id):
-        params = {
-            "append_to_response": "credits,images,external_ids,content_ratings",
-            "include_image_language": self._image_languages(),
-        }
+        params = self._tv_params()
         data = self._get(f"/tv/{tv_id}", params, ttl=DAY)
         data = self._with_english_fallback(f"/tv/{tv_id}", data, ("overview", "tagline"))
         if not data.get("in_production") and self.store is not None:
             self._refresh_ttl(f"/tv/{tv_id}", params, data, 14 * DAY)
         return data
 
+    def tv_facts(self, tv_id):
+        """The few facts Next up and Shows in progress need about a show, kept beside its full details and
+        for exactly as long, so a list over every show you've watched needn't read each one in full."""
+        if self.store is None:
+            return _facts(self.tv(tv_id))
+        key = f"tmdb:facts:{self.language}:{tv_id}"
+        facts = self.store.cache_get(key)
+        if facts is None:
+            details = self.tv(tv_id)
+            facts = _facts(details)
+            left = self.store.cache_time_left(self._cache_key(f"/tv/{tv_id}", self._query(self._tv_params())))
+            self.store.cache_set(key, facts, max(left, HOUR))
+        return facts
+
     def forget_movie(self, movie_id):
         self._forget(f"/movie/{movie_id}", {"append_to_response": "credits,images,external_ids,release_dates",
                                              "include_image_language": self._image_languages()})
 
     def forget_tv(self, tv_id):
-        self._forget(f"/tv/{tv_id}", {"append_to_response": "credits,images,external_ids,content_ratings",
-                                       "include_image_language": self._image_languages()})
+        self._forget(f"/tv/{tv_id}", self._tv_params())
+        if self.store is not None:
+            self.store.cache_delete(f"tmdb:facts:{self.language}:{tv_id}")
+
+    def _tv_params(self):
+        return {"append_to_response": "credits,images,external_ids,content_ratings",
+                "include_image_language": self._image_languages()}
 
     def _forget(self, path, params):
         if self.store is not None:
@@ -181,7 +206,24 @@ class Tmdb:
         return data
 
     def _refresh_ttl(self, path, params, data, ttl):
-        self.store.cache_set(self._cache_key(path, self._query(params)), data, ttl)
+        """Keep a title that rarely changes for longer. Done once, when it has just been fetched (so it still
+        has a day or less to run): rewriting it on every read would cost time and stop it ever being refreshed."""
+        key = self._cache_key(path, self._query(params))
+        if self.store.cache_time_left(key) <= DAY:
+            self.store.cache_set(key, data, ttl)
+
+
+def _facts(details):
+    last = details.get("last_episode_to_air") or {}
+    return {
+        "id": details.get("id"),
+        "name": details.get("name"),
+        "last_air_date": details.get("last_air_date"),
+        "last_episode_to_air": {"season_number": last.get("season_number"),
+                                "episode_number": last.get("episode_number")} if last else None,
+        "seasons": [{"season_number": s.get("season_number"), "episode_count": s.get("episode_count")}
+                    for s in details.get("seasons") or []],
+    }
 
 
 def image_url(path, size="original"):

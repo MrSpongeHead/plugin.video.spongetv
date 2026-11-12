@@ -105,6 +105,12 @@ class Store:
         timing.tally("read from the cache", time.perf_counter() - started)
         return value
 
+    def cache_time_left(self, key):
+        """Seconds until this entry expires; 0 if it isn't there or already has."""
+        with self._lock:
+            row = self._db.execute("SELECT expires FROM cache WHERE key = ?", (key,)).fetchone()
+        return max(0.0, row[0] - self.clock()) if row else 0.0
+
     def cache_set(self, key, value, ttl_seconds):
         data = json.dumps(value, separators=(",", ":"))
         now = self.clock()

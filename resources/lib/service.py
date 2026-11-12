@@ -214,6 +214,7 @@ class Monitor(xbmc.Monitor):
 def run(clock=None):
     import time
     clock = clock or time.time
+    kodi.ALWAYS_FRESH = True      # running for hours: read every setting as it is now
     scheduler = Scheduler(kodi.setting_int("trakt.sync_minutes"), clock())
     monitor = Monitor(scheduler, clock)
     player = xbmc.Player()

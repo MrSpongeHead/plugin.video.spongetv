@@ -84,6 +84,18 @@ def _show_details(app, show_ids):
         return [d for d in pool.map(load, show_ids) if d]
 
 
+def _show_facts(app, show_ids):
+    """As _show_details, but only the few facts needed to work out what you've watched and what's next."""
+    def load(show_id):
+        try:
+            return app.tmdb.tv_facts(show_id)
+        except HttpError as error:
+            kodi.log_debug(f"Show {show_id} unavailable: {error}")
+            return None
+    with ThreadPoolExecutor(max_workers=menus.workers()) as pool:
+        return [d for d in pool.map(load, show_ids) if d]
+
+
 def shows_in_progress(plugin, app):
     """Shows you've started but not finished (leaving out ones hidden from progress or dropped)."""
     if not app.signed_in:
@@ -93,8 +105,8 @@ def shows_in_progress(plugin, app):
     started = [show for show, _ in library.watched_shows() if show not in skipped]
     marks = Marks(library)
     timing.step(f"listing {len(started)} watched shows")
-    found = _show_details(app, started)
-    timing.step("loading their details")
+    found = _show_facts(app, started)
+    timing.step("loading their facts")
     ids = [d["id"] for d in found if not fully_watched(*marks.show(d))]
     timing.step(f"finding the {len(ids)} unfinished")
     if not ids:
@@ -125,15 +137,15 @@ def next_episode(details, watched):
 
 
 def next_up_entries(app):
-    """[(show details, season, episode, last watched)] in your chosen order."""
+    """[(show facts, season, episode, last watched)] in your chosen order."""
     library = app.library
     skipped = library.skipped_shows()
     watched_shows = [(show, at) for show, at in library.watched_shows() if show not in skipped]
     last_watched = dict(watched_shows)
     entries = []
     timing.step(f"listing {len(watched_shows)} watched shows")
-    details_found = _show_details(app, [show for show, _ in watched_shows])
-    timing.step("loading their details")
+    details_found = _show_facts(app, [show for show, _ in watched_shows])
+    timing.step("loading their facts")
     for details in details_found:
         found = next_episode(details, library.watched_episodes(details["id"]))
         if found:
@@ -157,7 +169,9 @@ def next_up(plugin, app):
     page = plugin.int_param("page", 1)
     chunk = entries[(page - 1) * PER_PAGE: page * PER_PAGE]
     timing.step("sorting")
-    items = _episode_rows(plugin, app, [(d, s, e) for d, s, e, _ in chunk])
+    full = {d["id"]: d for d in _show_details(app, [d["id"] for d, _, _, _ in chunk])}
+    timing.step("loading the page's details")
+    items = _episode_rows(plugin, app, [(full[d["id"]], s, e) for d, s, e, _ in chunk if d["id"] in full])
     timing.step(f"building {len(items)} rows")
     total = max(1, -(-len(entries) // PER_PAGE))
     items += menus._next_page(plugin, {"page": page, "total_pages": total}, action="next_up")
