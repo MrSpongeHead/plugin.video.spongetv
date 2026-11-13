@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.8
+  Sources for older seasons of shows still running. SpongeTV told providers every season of such a show was still airing, so a4kScrapers searched only for the single episode and skipped season and complete-series packs; it now says so only of a season with episodes still to come, as Seren does. Providers are also given the other titles Trakt lists for a film or show, which they match release names against.
+
 1.0.7
   Marking a part-watched film or episode as watched from the Trakt menu now shows the tick. Its resume points (SpongeTV's own, and Trakt's) are removed as well, as they are when you watch to the end; before, the part-watched icon stayed and it still offered to resume.
 

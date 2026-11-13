@@ -483,3 +483,19 @@ def test_mark_watched_still_works_if_trakt_wont_remove_its_resume_point(world):
     call("?action=trakt_menu&media=movie&tmdb_id=9")
     assert fresh_app().library.movie_plays(9) == 1
     assert ("notification", "Marked as watched") in FakeDialog.shown
+
+
+def test_trakt_other_titles_for_your_country_and_the_us(world):
+    from resources.lib import choose
+    world[1].pages["/shows/tt51/aliases"] = [
+        {"title": "Show 51: The Return", "country": "us"}, {"title": "Programme 51", "country": "gb"},
+        {"title": "Sendung 51", "country": "de"}, {"title": "Show 51: The Return", "country": "gb"}]
+    app = fresh_app()
+    assert choose.trakt_aliases(app, "shows", "tt51") == ["Programme 51", "Show 51: The Return"]
+    asked = [c for c in world[1].calls if c[1].endswith("/shows/tt51/aliases")]
+    assert len(asked) == 1 and "Authorization" not in asked[0][4]       # no sign-in needed
+    assert choose.trakt_aliases(fresh_app(), "shows", "tt51") == ["Programme 51", "Show 51: The Return"]
+    assert len([c for c in world[1].calls if c[1].endswith("/shows/tt51/aliases")]) == 1    # kept for a week
+    assert choose.trakt_aliases(app, "shows", None) == []
+    world[1].fail[("GET", "/movies/tt9/aliases")] = 500
+    assert choose.trakt_aliases(app, "movies", "tt9") == []             # Trakt trouble never stops a search

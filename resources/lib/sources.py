@@ -120,11 +120,33 @@ def normalise(raw, provider, kind):
 
 
 # -- what providers are given -------------------------------------------------------------------
-def movie_request(details):
+def _aliases(title, original, more):
+    """Other names a release might go by: the original title, then any given (Trakt's), without repeats."""
+    names = []
+    for name in [original] + list(more or []):
+        if name and name != title and name not in names:
+            names.append(name)
+    return names
+
+
+def season_airing(show, season, episodes=(), today=None):
+    """Is this season still being broadcast? As Seren tells providers: about the season asked for, not the
+    show. Providers such as a4kScrapers search only for the single episode when told it is, and add season
+    and complete-series packs when it isn't, so saying it of every season of a show still in production
+    would hide the packs that older episodes are found in."""
+    import datetime
+    today = today or datetime.date.today().isoformat()
+    upcoming = show.get("next_episode_to_air") or {}
+    if upcoming and int(upcoming.get("season_number") or 0) == int(season):
+        return True
+    return any((e.get("air_date") or "") > today for e in episodes or [])
+
+
+def movie_request(details, aliases=()):
     """Seren's _build_simple_movie_info plus the info dict, from TMDB details."""
     year = (details.get("release_date") or "")[:4]
     title = details.get("title") or details.get("original_title") or ""
-    aliases = [t for t in {details.get("original_title")} if t and t != title]
+    aliases = _aliases(title, details.get("original_title"), aliases)
     country = ((details.get("production_countries") or [{}])[0] or {}).get("iso_3166_1", "")
     simple = {"title": title, "year": str(year), "aliases": list(aliases), "country": country.lower()}
     if "." in title:
@@ -137,11 +159,12 @@ def movie_request(details):
             "tmdb_id": details.get("id"), "simple_info": simple, "info": info}
 
 
-def episode_request(show, episode, airing=None):
-    """Seren's _build_simple_show_info plus the info dict, from TMDB show and episode details."""
+def episode_request(show, episode, airing=None, aliases=()):
+    """Seren's _build_simple_show_info plus the info dict, from TMDB show and episode details.
+    airing: is the episode's season still being broadcast (worked out from the show if not given)."""
     year = (show.get("first_air_date") or "")[:4]
     title = show.get("name") or show.get("original_name") or ""
-    aliases = [t for t in {show.get("original_name")} if t and t != title]
+    aliases = _aliases(title, show.get("original_name"), aliases)
     country = (show.get("origin_country") or [""])[0]
     genres = [g.get("name", "") for g in show.get("genres") or []]
     seasons = [s for s in show.get("seasons") or [] if s.get("season_number")]
@@ -150,7 +173,7 @@ def episode_request(show, episode, airing=None):
     simple = {"show_title": title, "episode_title": episode.get("name") or "", "year": str(year),
               "season_number": str(season), "episode_number": str(number), "show_aliases": list(aliases),
               "country": country.lower(), "no_seasons": str(len(seasons)),
-              "absolute_number": str(absolute), "is_airing": bool(show.get("in_production") if airing is None else airing),
+              "absolute_number": str(absolute), "is_airing": bool(season_airing(show, season) if airing is None else airing),
               "no_episodes": str(sum(int(s.get("episode_count") or 0) for s in seasons)),
               "isanime": any(x in g.lower() for g in genres for x in ("anime", "animation"))}
     if "." in title:

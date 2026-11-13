@@ -14,7 +14,9 @@ from resources.lib import sources as found_sources
 from resources.lib.http import HttpError
 from resources.lib.packages import Packages
 from resources.lib.premiumize import PremiumizeError
-from resources.lib.sources import EarlyStop, Search, Source, episode_request, movie_request, request_key
+from resources.lib.sources import (EarlyStop, Search, Source, episode_request, movie_request, request_key,
+                                   season_airing)
+from resources.lib.trakt import TraktError
 
 EARLY_QUALITIES = ["4K", "1080p", "720p", "SD"]
 PRESET_KEYS = ["preset_custom", "preset_4k_hdr", "preset_1080p", "preset_data_saver", "preset_everything"]
@@ -107,7 +109,9 @@ def _request_for(app, params):
         runtime = int(details.get("runtime") or 0)
         meta = " · ".join(x for x in (year, kodi.text("runtime", hours=runtime // 60, minutes=runtime % 60) if runtime
                                             else "", ", ".join(g["name"] for g in details.get("genres", [])[:2])) if x)
-        return movie_request(details), title, meta, art.get("poster", ""), art.get("fanart", "")
+        imdb = details.get("imdb_id") or (details.get("external_ids") or {}).get("imdb_id")
+        return (movie_request(details, trakt_aliases(app, "movies", imdb)), title, meta, art.get("poster", ""),
+                art.get("fanart", ""))
     show = app.tmdb.tv(params.get("tmdb_id"))
     season, number = int(params.get("season") or 0), int(params.get("episode") or 0)
     episodes = app.tmdb.season(show["id"], season).get("episodes", [])
@@ -116,7 +120,33 @@ def _request_for(app, params):
     art = artwork.for_title(show, app.preset, app.language, None, kodi.FANART)
     title = f"{show.get('name', '')} S{season:02d}E{number:02d}"
     meta = " · ".join(x for x in (episode.get("name") or "", (episode.get("air_date") or "")[:4]) if x)
-    return episode_request(show, episode), title, meta, art.get("poster", ""), art.get("fanart", "")
+    request = episode_request(show, episode, airing=season_airing(show, season, episodes),
+                              aliases=trakt_aliases(app, "shows", (show.get("external_ids") or {}).get("imdb_id")))
+    kodi.log_debug(f"Providers are asked for {title}: season still airing {request['simple_info']['is_airing']}, "
+                   f"other titles {request['simple_info']['show_aliases']}")
+    return request, title, meta, art.get("poster", ""), art.get("fanart", "")
+
+
+ALIASES_KEPT_FOR = 7 * 86400
+
+
+def trakt_aliases(app, kind, imdb_id):
+    """Other titles Trakt lists for a film or show ("shows" or "movies"), for your country and the US, as
+    Seren passes to providers: they match release names against them. [] if Trakt can't be asked."""
+    if not imdb_id or not app.trakt.configured:
+        return []
+    countries = {"us", (app.region or "").lower()}
+    key = f"trakt:aliases:{kind}:{imdb_id}"
+    found = app.store.cache_get(key)
+    if found is None:
+        try:
+            found = [{"title": a.get("title"), "country": (a.get("country") or "").lower()}
+                     for a in app.trakt.get(f"/{kind}/{imdb_id}/aliases") or [] if a.get("title")]
+        except (TraktError, HttpError) as error:   # never a reason not to search
+            kodi.log(f"Couldn't get Trakt's other titles for {imdb_id}: {error}")
+            return []
+        app.store.cache_set(key, found, ALIASES_KEPT_FOR)
+    return sorted({a["title"] for a in found if a["country"] in countries})
 
 
 CLOUD_PROVIDER = {"package": "Premiumize", "language": "en", "kind": "cloud", "name": "Your cloud"}

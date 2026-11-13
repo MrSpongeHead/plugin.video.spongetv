@@ -549,3 +549,32 @@ def test_early_stop_and_counts_use_only_what_your_filter_shows():
     call.gate.set()
     assert status["found"] == 6 and status["choosable"] == 0
     assert not status["stopped_early"]              # six copies your filter hides don't count towards it
+
+
+def test_still_airing_is_about_the_season_not_the_show():
+    """Told a season is airing, a4kScrapers skips season and series packs: older seasons must say it isn't."""
+    from resources.lib.sources import season_airing
+    show = {"id": 7, "name": "Long Runner", "in_production": True, "first_air_date": "1999-09-20",
+            "next_episode_to_air": {"season_number": 27, "episode_number": 6},
+            "seasons": [{"season_number": n, "episode_count": 22} for n in range(1, 28)]}
+    assert episode_request(show, {"season_number": 3, "episode_number": 22})["simple_info"]["is_airing"] is False
+    assert episode_request(show, {"season_number": 3, "episode_number": 22})["info"]["is_airing"] is False
+    assert episode_request(show, {"season_number": 27, "episode_number": 5})["simple_info"]["is_airing"] is True
+    # from the season's own episodes: one still to come
+    ended = dict(show, next_episode_to_air=None)
+    episodes = [{"air_date": "2026-01-01"}, {"air_date": "2026-03-01"}, {"air_date": None}]
+    assert season_airing(ended, 5, episodes, today="2026-02-01") is True
+    assert season_airing(ended, 5, episodes, today="2026-04-01") is False
+    assert episode_request(show, {"season_number": 27, "episode_number": 5}, airing=False)["simple_info"]["is_airing"] is False
+
+
+def test_other_titles_are_passed_to_providers():
+    show = {"id": 7, "name": "Law & Order: Special Victims Unit", "original_name": "Law & Order: Special Victims Unit",
+            "first_air_date": "1999-09-20", "seasons": [{"season_number": 1, "episode_count": 22}]}
+    episode = episode_request(show, {"season_number": 1, "episode_number": 2},
+                              aliases=["Law & Order: SVU", "Law and Order SVU", "Law & Order: SVU"])
+    assert episode["simple_info"]["show_aliases"] == ["Law & Order: SVU", "Law and Order SVU"]
+    assert episode["info"]["info"]["aliases"] == ["Law & Order: SVU", "Law and Order SVU"]
+    movie = movie_request({"id": 5, "title": "Film", "original_title": "Le Film", "release_date": "2024-02-01"},
+                          aliases=["The Film", "Film"])
+    assert movie["simple_info"]["aliases"] == ["Le Film", "The Film"]
