@@ -118,6 +118,7 @@ def render():
                     + choice("display.episode_label", "set_episode_label", ["ep_title", "ep_1x01", "ep_s01e01"], 0)
                     + boolean("display.flatten_seasons", "set_flatten", False)
                     + boolean("display.all_studios", "set_all_studios", False)
+                    + boolean("display.status_line", "set_status_line", True)
                     + choice("display.highlight", "set_highlight",
                              ["colour_amber", "colour_teal", "colour_mint", "colour_blue", "colour_white", "colour_none"], 0)
                     + boolean("general.notification_sound", "set_notification_sound", True))

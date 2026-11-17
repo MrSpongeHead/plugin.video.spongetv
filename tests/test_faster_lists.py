@@ -87,22 +87,23 @@ def test_other_failures_are_not_remembered(tmp_path):
 def test_show_facts_are_small_and_last_as_long_as_the_details(tmp_path):
     tmdb, http, store, clock = make(tmp_path, {"/tv/9": SHOW})
     facts = tmdb.tv_facts(9)
-    assert facts == {"id": 9, "name": "Ended", "last_air_date": "2020-01-01",
-                     "last_episode_to_air": {"season_number": 2, "episode_number": 4},
-                     "seasons": [{"season_number": 1, "episode_count": 8}, {"season_number": 2, "episode_count": 4}]}
+    assert facts == {"id": 9, "name": "Ended", "status": None, "last_air_date": "2020-01-01",
+                     "last_episode_to_air": {"season_number": 2, "episode_number": 4}, "next_episode_to_air": None,
+                     "seasons": [{"season_number": 1, "episode_count": 8, "air_date": None},
+                                 {"season_number": 2, "episode_count": 4, "air_date": None}]}
     from resources.lib.marks import aired_counts
     assert aired_counts(facts) == aired_counts(SHOW) == {1: 8, 2: 4}
     reads = []
     real = store.cache_get
     store.cache_get = lambda key: (reads.append(key), real(key))[1]
-    assert tmdb.tv_facts(9) == facts and reads == ["tmdb:facts:en-GB:9"]      # the full details aren't read again
-    assert store.cache_time_left("tmdb:facts:en-GB:9") == pytest.approx(14 * DAY)   # an ended show: 14 days, as its details
+    assert tmdb.tv_facts(9) == facts and reads == ["tmdb:facts2:en-GB:9"]      # the full details aren't read again
+    assert store.cache_time_left("tmdb:facts2:en-GB:9") == pytest.approx(14 * DAY)   # an ended show: 14 days, as its details
     clock.now += 14 * DAY + 1
-    assert store.cache_get("tmdb:facts:en-GB:9") is None
+    assert store.cache_get("tmdb:facts2:en-GB:9") is None
     tmdb.tv_facts(9)
     assert len(http.calls) == 2                              # both expired together and were fetched again
     tmdb.forget_tv(9)
-    assert store.cache_get("tmdb:facts:en-GB:9") is None
+    assert store.cache_get("tmdb:facts2:en-GB:9") is None
 
 
 def test_long_kept_titles_are_written_once_and_do_expire(tmp_path):

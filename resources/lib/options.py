@@ -16,8 +16,10 @@ HIGHLIGHTS = ["FFF5A524", "FF2EC4B6", "FFDFFAF6", "FF6FA8FF", "FFFFFFFF", ""]
 class Display:
     """How titles are shown. (A plain class: Python's dataclasses took a while to load on every list.)"""
 
-    def __init__(self, region="GB", original_titles=False, one_studio=True, episode_style=EPISODE_TITLE):
+    def __init__(self, region="GB", original_titles=False, one_studio=True, episode_style=EPISODE_TITLE,
+                 status_line=False):
         self.region = region
+        self.status_line = status_line
         self.original_titles = original_titles
         self.one_studio = one_studio
         self.episode_style = episode_style
@@ -29,6 +31,7 @@ def display(app):
         original_titles=kodi.setting_bool("metadata.original_titles"),
         one_studio=not kodi.setting_bool("display.all_studios"),
         episode_style=kodi.setting_int("display.episode_label"),
+        status_line=kodi.setting_bool("display.status_line"),
     )
 
 

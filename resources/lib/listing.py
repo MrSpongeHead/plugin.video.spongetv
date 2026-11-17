@@ -164,7 +164,11 @@ def show_item(details, art, display=None, extra_ratings=None, context_menu=None,
     tag.setTitle(title or "")
     tag.setTvShowTitle(details.get("name", ""))
     tag.setOriginalTitle(details.get("original_name", ""))
-    tag.setPlot(details.get("overview", ""))
+    plot = details.get("overview", "")
+    if display.status_line:
+        from resources.lib import status
+        plot = status.with_line(plot, details)
+    tag.setPlot(plot)
     tag.setYear(_year(details.get("first_air_date")))
     if details.get("first_air_date"):
         tag.setPremiered(details["first_air_date"])
@@ -187,14 +191,18 @@ def show_item(details, art, display=None, extra_ratings=None, context_menu=None,
     return item
 
 
-def season_item(show, season, art, label, marks=None, progress_label="", context_menu=None):
+def season_item(show, season, art, label, marks=None, progress_label="", context_menu=None, status_line=False):
     item = xbmcgui.ListItem(label, offscreen=True)
     tag = item.getVideoInfoTag()
     tag.setMediaType("season")
     tag.setTitle(label)
     tag.setTvShowTitle(show.get("name", ""))
     tag.setSeason(int(season.get("season_number") or 0))
-    tag.setPlot(season.get("overview") or show.get("overview", ""))
+    plot = season.get("overview") or show.get("overview", "")
+    if status_line:
+        from resources.lib import status
+        plot = status.with_line(plot, show)
+    tag.setPlot(plot)
     if season.get("air_date"):
         tag.setPremiered(season["air_date"])
         tag.setYear(_year(season["air_date"]))

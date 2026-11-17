@@ -39,6 +39,9 @@ ACTIONS = {
     "my_tv": "mine.my_tv",
     "library_titles": "mine.library_titles",
     "shows_in_progress": "mine.shows_in_progress",
+    "still_airing": "mine.still_airing",
+    "ended_shows": "mine.ended_shows",
+    "remove_search": "search.remove_search",
     "next_up": "mine.next_up",
     "calendar": "mine.calendar",
     "recommended": "mine.recommended",
@@ -93,7 +96,7 @@ ACTIONS = {
 }
 
 # Actions run from a non-folder item: they do something and don't produce a listing.
-NOT_DIRECTORIES = {"play", "new_search", "set_sort", "clear_cache", "clear_search", "clear_all",
+NOT_DIRECTORIES = {"play", "new_search", "remove_search", "set_sort", "clear_cache", "clear_search", "clear_all",
                    "home_menu_edit", "wizard", "clean_install", "settings", "create_list", "rename_list",
                    "trakt_menu", "trakt_sign_in", "trakt_sign_out", "sync_now", "sync_forget", "sync_rebuild",
                    "providers_open", "clear_resume", "save_view", "reset_views", "premiumize_status", "premiumize_sign_in", "premiumize_sign_out", "install_url", "install_zip", "install_test", "providers_all", "provider_toggle",

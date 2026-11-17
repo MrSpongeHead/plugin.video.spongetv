@@ -648,6 +648,23 @@ STRINGS = {
     "help_action_reset_views": (30963, "SpongeTV stops switching views, and each list opens in the view Kodi remembers for it, usually the last one you picked."),
     "set_watched_stills": (30964, "Use a watched episode's picture as the background"),
     "help_artwork_watched_stills": (30965, "Watched episodes show a picture from the episode as the background. Unwatched ones keep the show's, so nothing is given away. Needs Trakt."),
+    # 1.0.9: removing one search; whether a show is still airing
+    "remove_search": (30966, "Remove from search history"),
+    "my_still_airing": (30967, "Still airing"),
+    "my_ended": (30968, "Ended or cancelled"),
+    "none_still_airing": (30969, "None of the shows you've watched are still airing"),
+    "none_ended": (30970, "None of the shows you've watched have ended"),
+    "set_status_line": (30971, "Show whether a TV show is still airing, and when it's back"),
+    "help_display_status_line": (30972, "Puts a line at the top of a show's plot, and its seasons': when its next season or episode airs, or that it has ended or been cancelled. From TMDB."),
+    "status_returning": (30973, "Returning: season {season} starts {date}"),
+    "status_next_episode": (30974, "Still airing: next episode {date}"),
+    "status_starts": (30975, "New: starts {date}"),
+    "status_no_date": (30976, "Returning series: no date yet"),
+    "status_in_production": (30977, "In production: no date yet"),
+    "status_planned": (30978, "Planned: no date yet"),
+    "status_ended": (30979, "Ended"),
+    "status_cancelled": (30980, "Cancelled"),
+    "month_names": (30981, "January February March April May June July August September October November December"),
 }
 
 # Display languages offered, as (TMDB language code, string key). Index 0 means "same as Kodi".

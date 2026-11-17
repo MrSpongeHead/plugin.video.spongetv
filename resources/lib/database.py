@@ -187,6 +187,10 @@ class Store:
             ).fetchall()
         return [row[0] for row in rows]
 
+    def remove_search(self, kind, query):
+        with self._lock, self._db:
+            self._db.execute("DELETE FROM search_history WHERE kind = ? AND query = ?", (kind, query))
+
     def clear_searches(self):
         with self._lock, self._db:
             self._db.execute("DELETE FROM search_history")

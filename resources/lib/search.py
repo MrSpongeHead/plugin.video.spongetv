@@ -19,9 +19,20 @@ def search_menu(plugin, app):
     # whose address includes them, so Kodi never reuses an old result list or re-asks on Back.
     items = [(plugin.url(action="new_search"), listing.folder_item(options.highlight(kodi.text("new_search")), kodi.ICON, kodi.FANART), False)]
     for query in app.store.searches(HISTORY):
-        items.append((plugin.url(action="search", query=query), listing.folder_item(query, kodi.ICON, kodi.FANART), True))
+        item = listing.folder_item(query, kodi.ICON, kodi.FANART)
+        listing.add_to_menu(item, [(kodi.text("remove_search"),
+                                    f"RunPlugin({plugin.url(action='remove_search', query=query)})")])
+        items.append((plugin.url(action="search", query=query), item, True))
     items.append((plugin.url(action="clear_search"), listing.folder_item(kodi.text("clear_search_history"), kodi.ICON, kodi.FANART), False))
     plugin.finish(items, category=kodi.text("search"), cache=False)
+
+
+def remove_search(plugin, app):
+    """One saved search, from its context menu."""
+    query = plugin.params.get("query")
+    if query:
+        app.store.remove_search(HISTORY, query)
+        xbmc.executebuiltin("Container.Refresh")
 
 
 def new_search(plugin, app):

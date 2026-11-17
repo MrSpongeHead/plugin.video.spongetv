@@ -160,7 +160,7 @@ class Tmdb:
         for exactly as long, so a list over every show you've watched needn't read each one in full."""
         if self.store is None:
             return _facts(self.tv(tv_id))
-        key = f"tmdb:facts:{self.language}:{tv_id}"
+        key = f"tmdb:facts2:{self.language}:{tv_id}"
         facts = self.store.cache_get(key)
         if facts is None:
             details = self.tv(tv_id)
@@ -176,7 +176,7 @@ class Tmdb:
     def forget_tv(self, tv_id):
         self._forget(f"/tv/{tv_id}", self._tv_params())
         if self.store is not None:
-            self.store.cache_delete(f"tmdb:facts:{self.language}:{tv_id}")
+            self.store.cache_delete(f"tmdb:facts2:{self.language}:{tv_id}")
 
     def _tv_params(self):
         return {"append_to_response": "credits,images,external_ids,content_ratings",
@@ -214,15 +214,21 @@ class Tmdb:
 
 
 def _facts(details):
+    """1.0.9 added the status and dates (for Still airing and Ended or cancelled), hence "facts2" in the key."""
     last = details.get("last_episode_to_air") or {}
+    upcoming = details.get("next_episode_to_air") or {}
     return {
         "id": details.get("id"),
         "name": details.get("name"),
+        "status": details.get("status"),
         "last_air_date": details.get("last_air_date"),
         "last_episode_to_air": {"season_number": last.get("season_number"),
                                 "episode_number": last.get("episode_number")} if last else None,
-        "seasons": [{"season_number": s.get("season_number"), "episode_count": s.get("episode_count")}
-                    for s in details.get("seasons") or []],
+        "next_episode_to_air": {"season_number": upcoming.get("season_number"),
+                                "episode_number": upcoming.get("episode_number"),
+                                "air_date": upcoming.get("air_date")} if upcoming else None,
+        "seasons": [{"season_number": s.get("season_number"), "episode_count": s.get("episode_count"),
+                     "air_date": s.get("air_date")} for s in details.get("seasons") or []],
     }
 
 

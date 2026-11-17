@@ -13,7 +13,7 @@ import xbmc
 import xbmcgui
 
 from resources.lib.pool import ThreadPoolExecutor
-from resources.lib import airtime, kodi, listing, menus, options, shows, timing
+from resources.lib import airtime, kodi, listing, menus, options, shows, status, timing
 from resources.lib.http import HttpError
 from resources.lib.marks import Marks, aired_counts, fully_watched
 
@@ -46,6 +46,8 @@ def my_movies(plugin, app):
 def my_tv(plugin, app):
     items = [menus.folder(plugin, "next_up", action="next_up"),
              menus.folder(plugin, "my_shows_in_progress", action="shows_in_progress"),
+             menus.folder(plugin, "my_still_airing", action="still_airing"),
+             menus.folder(plugin, "my_ended", action="ended_shows"),
              menus.folder(plugin, "upcoming_episodes", action="calendar", when="upcoming"),
              menus.folder(plugin, "recent_episodes", action="calendar", when="recent"),
              menus.folder(plugin, "recently_watched", action="library_titles", media="tv", part="watched")]
@@ -112,6 +114,43 @@ def shows_in_progress(plugin, app):
     if not ids:
         kodi.notify(kodi.text("next_up_empty" if started else "next_up_no_history"))
     menus.show_titles(plugin, app, "tv", _page(plugin, ids), None, action="shows_in_progress")
+
+
+def _watched_show_facts(app):
+    """Facts for every show you've watched, leaving out ones hidden from progress or dropped; or None."""
+    library = app.library
+    skipped = library.skipped_shows()
+    watched = [show for show, _ in library.watched_shows() if show not in skipped]
+    timing.step(f"listing {len(watched)} watched shows")
+    found = _show_facts(app, watched)
+    timing.step("loading their facts")
+    return watched, found
+
+
+def still_airing(plugin, app):
+    """Your shows still being made: those with a date for what's next first, soonest at the top."""
+    if not app.signed_in:
+        return _need_sign_in(plugin)
+    watched, found = _watched_show_facts(app)
+    going = [(d, status.next_due(d)) for d in found if status.is_still_going(d)]
+    going.sort(key=lambda pair: (pair[1][2] if pair[1] else "9999", (pair[0].get("name") or "").lower()))
+    ids = [d["id"] for d, _ in going]
+    if not ids:
+        kodi.notify(kodi.text("none_still_airing" if watched else "next_up_no_history"))
+    menus.show_titles(plugin, app, "tv", _page(plugin, ids), None, action="still_airing")
+
+
+def ended_shows(plugin, app):
+    """Your shows that have ended or been cancelled, the most recently finished first."""
+    if not app.signed_in:
+        return _need_sign_in(plugin)
+    watched, found = _watched_show_facts(app)
+    done = sorted((d for d in found if status.is_finished(d)),
+                  key=lambda d: (d.get("last_air_date") or "", (d.get("name") or "").lower()), reverse=True)
+    ids = [d["id"] for d in done]
+    if not ids:
+        kodi.notify(kodi.text("none_ended" if watched else "next_up_no_history"))
+    menus.show_titles(plugin, app, "tv", _page(plugin, ids), None, action="ended_shows")
 
 
 # -- Next Up --------------------------------------------------------------------------------------

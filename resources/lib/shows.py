@@ -39,6 +39,7 @@ def seasons(plugin, app):
     show = app.tmdb.tv(tmdb_id)
     show_art = _show_art(app, show)
     marks = menus.marks_for(app)
+    status_line = kodi.setting_bool("display.status_line")
     items = []
     for season in _visible_seasons(show, marks):
         number = season.get("season_number", 0)
@@ -51,7 +52,7 @@ def seasons(plugin, app):
             # In the name itself: Kodi replaces the second column with whatever the list is sorted by.
             label = kodi.text("season_with_count", name=label, watched=min(mark[0], mark[1]), aired=mark[1])
         menu = [menus.trakt_entry(plugin, media="season", show=show["id"], season=number)] if marks.active else None
-        items.append((url, listing.season_item(show, season, art, label, mark, progress, menu), True))
+        items.append((url, listing.season_item(show, season, art, label, mark, progress, menu, status_line), True))
     plugin.finish(items, content="seasons", category=show.get("name", ""), view_setting="view.seasons",
                   cache=False)  # shows watched status: no Kodi copy, or going back shows it stale
 

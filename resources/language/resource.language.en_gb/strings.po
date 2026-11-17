@@ -2510,3 +2510,67 @@ msgstr ""
 msgctxt "#30965"
 msgid "Watched episodes show a picture from the episode as the background. Unwatched ones keep the show's, so nothing is given away. Needs Trakt."
 msgstr ""
+
+msgctxt "#30966"
+msgid "Remove from search history"
+msgstr ""
+
+msgctxt "#30967"
+msgid "Still airing"
+msgstr ""
+
+msgctxt "#30968"
+msgid "Ended or cancelled"
+msgstr ""
+
+msgctxt "#30969"
+msgid "None of the shows you've watched are still airing"
+msgstr ""
+
+msgctxt "#30970"
+msgid "None of the shows you've watched have ended"
+msgstr ""
+
+msgctxt "#30971"
+msgid "Show whether a TV show is still airing, and when it's back"
+msgstr ""
+
+msgctxt "#30972"
+msgid "Puts a line at the top of a show's plot, and its seasons': when its next season or episode airs, or that it has ended or been cancelled. From TMDB."
+msgstr ""
+
+msgctxt "#30973"
+msgid "Returning: season {season} starts {date}"
+msgstr ""
+
+msgctxt "#30974"
+msgid "Still airing: next episode {date}"
+msgstr ""
+
+msgctxt "#30975"
+msgid "New: starts {date}"
+msgstr ""
+
+msgctxt "#30976"
+msgid "Returning series: no date yet"
+msgstr ""
+
+msgctxt "#30977"
+msgid "In production: no date yet"
+msgstr ""
+
+msgctxt "#30978"
+msgid "Planned: no date yet"
+msgstr ""
+
+msgctxt "#30979"
+msgid "Ended"
+msgstr ""
+
+msgctxt "#30980"
+msgid "Cancelled"
+msgstr ""
+
+msgctxt "#30981"
+msgid "January February March April May June July August September October November December"
+msgstr ""
