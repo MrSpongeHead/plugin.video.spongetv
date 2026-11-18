@@ -665,6 +665,9 @@ STRINGS = {
     "status_ended": (30979, "Ended"),
     "status_cancelled": (30980, "Cancelled"),
     "month_names": (30981, "January February March April May June July August September October November December"),
+    # 1.0.10: Trakt's "Drop show"
+    "drop_show": (30982, "Drop show (stopped watching)"),
+    "done_drop_show": (30983, "Dropped on Trakt"),
 }
 
 # Display languages offered, as (TMDB language code, string key). Index 0 means "same as Kodi".

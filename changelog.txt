@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.0.10
+  Shows have Drop show (stopped watching) in their Trakt menu, matching Trakt's own Drop: your watch history stays, and the show leaves Next up, progress and the lists of your shows. Show in Next up and progress again now also undoes a drop on Trakt, including one made on the Trakt website; before, the next sync dropped the show again.
+
 1.0.9
   Two new lists under My TV shows: Still airing (shows you've watched that are still being made, those with a date for what's next first) and Ended or cancelled. Shows now have a line at the top of their plot, and their seasons', saying when the next season or episode airs, or that the show has ended or been cancelled (from TMDB; can be turned off in Settings). Each saved search has Remove from search history in its context menu. The first visit to these lists, or to Next up or Shows in progress, after updating is slower, while SpongeTV adds the new details to its summary of each show.
 

@@ -78,8 +78,11 @@ def _choices(app, target):
         choices.append(("remove_from_list", remove_from_list))
     choices.append(("rate", rate))
     if t.media == "show":
-        hidden = t.show in lib.skipped_shows()
-        choices.append(("unhide_progress", unhide) if hidden else ("hide_progress", hide))
+        if t.show in lib.skipped_shows():          # hidden from progress or dropped: one way back for both
+            choices.append(("unhide_progress", unhide))
+        else:
+            choices.append(("hide_progress", hide))
+            choices.append(("drop_show", drop))
     if t.media in ("movie", "episode") and (lib.progress(t.media, t.tmdb_id, t.show, t.season, t.episode)[1]
                                            or app.store.resume_get(own_resume_key(t))):
         choices.append(("clear_progress", clear_progress))
@@ -248,7 +251,19 @@ def hide(app, target):
     return True
 
 
+def drop(app, target):
+    """Trakt's "Drop show": you've stopped watching it. Your watch history stays; the show leaves Next up,
+    progress and (on Trakt) the calendar."""
+    app.trakt.post("/users/hidden/dropped", target.body())
+    app.library.add("dropped", "show", target.show, at=_now())
+    return True
+
+
 def unhide(app, target):
+    """Back into Next up and progress, whether it was hidden or dropped. A drop is undone on Trakt too: undone
+    only here, the next sync would bring it back."""
+    if app.library.has("dropped", "show", target.show):
+        app.trakt.post("/users/hidden/dropped/remove", target.body())
     app.trakt.post("/users/hidden/progress_watched/remove", target.body())
     app.library.remove("hidden", "show", target.show)
     app.library.remove("dropped", "show", target.show)

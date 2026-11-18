@@ -2574,3 +2574,11 @@ msgstr ""
 msgctxt "#30981"
 msgid "January February March April May June July August September October November December"
 msgstr ""
+
+msgctxt "#30982"
+msgid "Drop show (stopped watching)"
+msgstr ""
+
+msgctxt "#30983"
+msgid "Dropped on Trakt"
+msgstr ""

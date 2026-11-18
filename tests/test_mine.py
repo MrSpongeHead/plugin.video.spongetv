@@ -499,3 +499,46 @@ def test_trakt_other_titles_for_your_country_and_the_us(world):
     assert choose.trakt_aliases(app, "shows", None) == []
     world[1].fail[("GET", "/movies/tt9/aliases")] = 500
     assert choose.trakt_aliases(app, "movies", "tt9") == []             # Trakt trouble never stops a search
+
+
+def test_drop_a_show_and_undo_it(plain):
+    world = plain
+    call("?action=trakt_menu&media=tv&tmdb_id=51")
+    options = FakeDialog.menus[0]
+    assert "Hide from Next up and progress" in options and "Drop show (stopped watching)" in options
+    FakeDialog.script = [options.index("Drop show (stopped watching)")]
+    call("?action=trakt_menu&media=tv&tmdb_id=51")
+    assert world[1].posted("/users/hidden/dropped") == [{"shows": [{"ids": {"tmdb": 51}}]}]
+    assert ("notification", "Dropped on Trakt") in FakeDialog.shown
+    call("?action=next_up")
+    assert labels() == ["Show 52: S02E01 Ep 1"]
+    assert fresh_app().library.watched_episodes(51)                     # the watch history stays
+    # undo: the drop is removed on Trakt too, not only here
+    FakeDialog.menus.clear()
+    call("?action=trakt_menu&media=tv&tmdb_id=51")
+    options = FakeDialog.menus[-1]
+    assert "Drop show (stopped watching)" not in options
+    FakeDialog.script = [options.index("Show in Next up and progress again")]
+    call("?action=trakt_menu&media=tv&tmdb_id=51")
+    assert world[1].posted("/users/hidden/dropped/remove") == [{"shows": [{"ids": {"tmdb": 51}}]}]
+    call("?action=next_up")
+    assert "Show 51: S01E03 Ep 3" in labels()
+
+
+def test_undo_a_drop_made_on_trakt(plain):
+    """Show 54 was dropped on the Trakt website: bringing it back must tell Trakt, or the next sync drops it again."""
+    world = plain
+    call("?action=trakt_menu&media=tv&tmdb_id=54")
+    options = FakeDialog.menus[-1]
+    FakeDialog.script = [options.index("Show in Next up and progress again")]
+    call("?action=trakt_menu&media=tv&tmdb_id=54")
+    assert world[1].posted("/users/hidden/dropped/remove") == [{"shows": [{"ids": {"tmdb": 54}}]}]
+    assert world[1].posted("/users/hidden/progress_watched/remove") == [{"shows": [{"ids": {"tmdb": 54}}]}]
+    # a show only hidden from progress isn't sent a drop removal
+    call("?action=trakt_menu&media=tv&tmdb_id=52")
+    FakeDialog.script = [FakeDialog.menus[-1].index("Hide from Next up and progress")]
+    call("?action=trakt_menu&media=tv&tmdb_id=52")
+    call("?action=trakt_menu&media=tv&tmdb_id=52")
+    FakeDialog.script = [FakeDialog.menus[-1].index("Show in Next up and progress again")]
+    call("?action=trakt_menu&media=tv&tmdb_id=52")
+    assert len(world[1].posted("/users/hidden/dropped/remove")) == 1
