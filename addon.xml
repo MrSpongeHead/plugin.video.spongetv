@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="1.2.0" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="1.2.1" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,9 +17,9 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>1.2.0: Release 2, stage 2, part 1: the caching assistant. Choosing a torrent Premiumize hasn&apos;t cached in Source Select now asks whether to download it and wait (a progress window, then it plays), download it in the background (SpongeTV tells you when it&apos;s ready, even after Kodi restarts), or cancel. Downloads go into a SpongeTV folder in your Premiumize cloud; one that makes no progress for 3 hours is cancelled. It can be turned off in Settings, Accounts, Premiumize. Uncached sources only show in Source Select with Hide sources Premiumize hasn&apos;t cached turned off.
+        <news>1.2.1: Deleting the SpongeTV folder in your Premiumize cloud no longer stops the caching assistant with &quot;target folder not found&quot;: SpongeTV now makes the folder again and starts the download.
+1.2.0: Release 2, stage 2, part 1: the caching assistant. Choosing a torrent Premiumize hasn&apos;t cached in Source Select now asks whether to download it and wait (a progress window, then it plays), download it in the background (SpongeTV tells you when it&apos;s ready, even after Kodi restarts), or cancel. Downloads go into a SpongeTV folder in your Premiumize cloud; one that makes no progress for 3 hours is cancelled. It can be turned off in Settings, Accounts, Premiumize. Uncached sources only show in Source Select with Hide sources Premiumize hasn&apos;t cached turned off.
 1.1.0: Release 2, stage 1. Tools now has a Premiumize menu: a line with your premium days left and fair-use points used, and Transfers, listing what Premiumize is fetching into your cloud with its progress. A finished transfer opens to its videos, which play from your cloud. Each transfer&apos;s context menu can retry a failed one, delete one (asking first if it&apos;s still downloading), or clear all finished ones. Premiumize&apos;s own error messages are now shown as they are.
-1.0.10: Shows have Drop show (stopped watching) in their Trakt menu, matching Trakt&apos;s own Drop: your watch history stays, and the show leaves Next up, progress and the lists of your shows. Show in Next up and progress again now also undoes a drop on Trakt, including one made on the Trakt website; before, the next sync dropped the show again.
 Earlier changes: changelog.txt</news>
         <assets>
             <icon>resources/media/icon.png</icon>

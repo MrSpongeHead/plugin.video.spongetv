@@ -39,7 +39,8 @@ class DownloadingPm(FakePm):
         if path == "transfer/create":
             self.calls.append((method, path, form))
             if form.get("folder_id") == "deleted-folder":
-                return Response(200, {"status": "error", "message": "Folder not found", "code": "not_found"}, {})
+                # as Premiumize answered on the Shield (19 November 2026); its error code isn't documented
+                return Response(200, {"status": "error", "message": "target folder not found"}, {})
             self.next_id += 1
             tid = f"t{self.next_id}"
             self.list[tid] = {"id": tid, "name": "Film.2024.1080p", "status": "running", "progress": 0.0, "message": ""}
@@ -134,6 +135,23 @@ def test_a_failed_wait_says_so(pm, monkeypatch):
     assert caching.wait(context.App(), SOURCE, "Film (2024)", lambda s: "x") is None
     assert ("ok", "Premiumize couldn't download Film (2024)") in [(k, m) for k, m in FakeDialog.shown]
     assert context.App().store.downloads() == []
+
+
+def test_other_refusals_still_explained_after_one_retry(pm, monkeypatch):
+    app = context.App()
+    real = pm.send
+
+    def refuse(method, url, params=None, json_body=None, headers=None, max_wait=None, form=None):
+        if url.endswith("transfer/create"):
+            pm.calls.append((method, "transfer/create", form))
+            return Response(200, {"status": "error", "message": "Limit", "code": "account_limit_reached"}, {})
+        return real(method, url, params, json_body, headers, max_wait, form)
+    pm.send = refuse
+    assert not caching.background(app, SOURCE, "Film (2024)")
+    assert len([c for c in pm.calls if c[1] == "transfer/create"]) == 2
+    assert ("ok", "Premiumize says your fair-use points or download slots have run out.") in \
+        [(k, m) for k, m in FakeDialog.shown]
+    assert app.store.downloads() == []
 
 
 def test_kodi_closing_while_waiting_carries_on_in_the_background(pm):

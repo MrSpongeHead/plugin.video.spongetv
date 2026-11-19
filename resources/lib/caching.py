@@ -70,9 +70,12 @@ def start(app, source, title, mode):
     try:
         transfer_id = client.create_transfer(src, folder_id(app))
     except PremiumizeError as error:
-        if error.code != "not_found":
+        if error.kind in ("no_key", "bad_key", "unreachable"):
             raise
-        transfer_id = client.create_transfer(src, folder_id(app, fresh=True))   # the folder was deleted: make it again
+        # Most likely the SpongeTV folder was deleted ("target folder not found": Premiumize's error code for
+        # that isn't documented, so any refusal counts). Look it up again, making a new one, and try once more.
+        kodi.log(f"Caching assistant: Premiumize refused the download ({error}); trying again with the folder looked up afresh")
+        transfer_id = client.create_transfer(src, folder_id(app, fresh=True))
     if not transfer_id:
         raise PremiumizeError("failed", "Premiumize gave no transfer ID")
     app.store.download_add(transfer_id, title, source.get("release_title") or "", mode)
