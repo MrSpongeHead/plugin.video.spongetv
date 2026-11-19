@@ -696,7 +696,8 @@ STRINGS = {
     "cache_waiting": (30077, "Premiumize is downloading {title}"),
     "cache_progress": (30078, "{percent}% · {name}[CR]{message}"),
     "set_pm_assist": (30079, "Offer to download sources Premiumize hasn't cached"),
-    "help_premiumize_assist": (30084, "Choosing a source Premiumize hasn't cached asks whether to download it and wait, or download it in the background and be told when it's ready. Downloads go into a SpongeTV folder in your Premiumize cloud. Torrents only."),
+    "cache_nothing_ready": (30085, "Nothing is ready to play. Best not cached: {name}"),
+    "help_premiumize_assist": (30084, "Choosing a source Premiumize hasn't cached asks whether to download it and wait, or download it in the background and be told when it's ready. When a search finds nothing ready, it offers to download the best one. Downloads go into a SpongeTV folder in your Premiumize cloud. Torrents only."),
     # 1.0.10: Trakt's "Drop show"
     "drop_show": (30982, "Drop show (stopped watching)"),
     "done_drop_show": (30983, "Dropped on Trakt"),

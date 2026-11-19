@@ -386,7 +386,7 @@ def test_status_words():
     assert windows.status_of(src("A", kind="direct")) == ("Direct", "cached")
     item = windows.list_item(src("Film.2160p.HDR", 9000, 4))
     assert item.properties["quality"] == "4K" and item.properties["size"] == "8.8 GB"
-    assert item.label2 == "HDR · 4 seeds"
+    assert item.label2 == "4 seeds · HDR"
 
 
 def test_why_explains_the_position(store):

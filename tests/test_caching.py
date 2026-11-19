@@ -239,3 +239,40 @@ def test_source_select_offers_the_assistant(pm, monkeypatch):
                         (sources[1], "https://dl/ready"))
     assert playback.pick_and_resolve(context.App(), target, _found())[1] == "https://dl/ready"
     assert any("playing the next ready source" in m for k, m in FakeDialog.shown if k == "notification")
+
+
+def test_nothing_ready_offers_the_best_uncached_torrent(pm, monkeypatch):
+    from resources.lib import choose, ranking
+    worse = dict(SOURCE, hash="worse", release_title="Film.2024.720p", quality="720p", size_mb=900)
+    better = dict(SOURCE, hash="better", release_title="Film.2024.1080p", quality="1080p", size_mb=4000)
+    cam = dict(SOURCE, hash="cam", release_title="Film.2024.CAM", quality="CAM", size_mb=700)
+    unchecked = {"type": "hosters", "url": "https://h/x", "release_title": "Hoster", "quality": "1080p"}
+    FakeAddon.settings.update({"filter.preset": 0, "filter.allow_1080p": True, "filter.allow_720p": True,
+                               "filter.exclude_cam": True, "sources.hide_uncached": True})
+    rules = choose.filter_rules()[1]                                   # "hide not cached" on, CAM excluded
+    sort = ranking.load_rules(context.App().store)
+    assert caching.best_offer([worse, better, unchecked], rules, sort, "movie")["hash"] == "better"
+    assert caching.best_offer([worse, dict(better, debrid="cached")], rules, sort, "movie") is None   # one is ready
+    FakeAddon.settings["premiumize.assist"] = False
+    assert caching.best_offer([worse, better], rules, sort, "movie") is None
+    FakeAddon.settings["premiumize.assist"] = True
+    # in pick_and_resolve: asked before Source Select, with its own heading
+    monkeypatch.setattr(playback.windows, "Chooser", Chooser)
+    monkeypatch.setattr(playback.windows, "choose_source", lambda chooser: None)
+    target = type("T", (), {"media": "movie"})()
+    found = ({}, "Film (2024)", {}, "", "", [worse, better, cam], lambda: None)
+    FakeDialog.script = [caching.BACKGROUND]
+    assert playback.pick_and_resolve(context.App(), target, found) == (None, None)
+    assert [d["release"] for d in context.App().store.downloads()] == ["Film.2024.1080p"]
+    # Cancel carries on to Source Select as before
+    FakeDialog.script = [caching.CANCEL]
+    opened = []
+    monkeypatch.setattr(playback.windows, "choose_source", lambda chooser: opened.append(1))
+    playback.pick_and_resolve(context.App(), target, found)
+    assert opened == [1]
+
+
+def test_details_line_puts_pack_and_seeds_first():
+    from resources.lib import windows
+    source = {"type": "torrent", "pack": "season", "seeds": 42, "tags": ["HDR", "HEVC", "Atmos"]}
+    assert windows.details_line(source) == "Season pack · 42 seeds · HDR · HEVC · Atmos"

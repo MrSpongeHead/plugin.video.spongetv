@@ -236,12 +236,14 @@ def status_of(source):
 
 
 def details_line(source):
-    parts = list(source.get("tags") or [])
+    """Most useful first, as the end is cut off when it doesn't fit (the highlighted row scrolls): the pack type,
+    the seeds, then tags such as HDR and HEVC."""
+    parts = []
     if source.get("pack") in ("season", "show"):
         parts.append(kodi.text("pack_" + source["pack"]))
     if source["type"] == "torrent" and source.get("seeds"):
         parts.append(kodi.text("seeds", count=source["seeds"]))
-    return " · ".join(parts)
+    return " · ".join(parts + list(source.get("tags") or []))
 
 
 AMBER, TEAL, MINT, MUTED, NAVY_DEEP, TEXT = "FFF5A524", "FF2EC4B6", "FFDFFAF6", "FF8FA6C4", "FF0A1428", "FFEAF2FB"

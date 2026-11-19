@@ -308,7 +308,11 @@ msgid "Nothing found"
 msgstr ""
 
 msgctxt "#30084"
-msgid "Choosing a source Premiumize hasn't cached asks whether to download it and wait, or download it in the background and be told when it's ready. Downloads go into a SpongeTV folder in your Premiumize cloud. Torrents only."
+msgid "Choosing a source Premiumize hasn't cached asks whether to download it and wait, or download it in the background and be told when it's ready. When a search finds nothing ready, it offers to download the best one. Downloads go into a SpongeTV folder in your Premiumize cloud. Torrents only."
+msgstr ""
+
+msgctxt "#30085"
+msgid "Nothing is ready to play. Best not cached: {name}"
 msgstr ""
 
 msgctxt "#30100"

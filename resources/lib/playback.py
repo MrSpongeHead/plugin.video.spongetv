@@ -208,6 +208,17 @@ def pick_and_resolve(app, target, found):
             dialog_open[0] = False
         return answer
 
+    best = caching.best_offer(results, choose.filter_rules()[1], ranking.load_rules(app.store), target.media)
+    if best:
+        # Nothing is ready: offer to have Premiumize download the best one (Cancel carries on as before)
+        choice = caching.ask(best, nothing_ready=True)
+        if choice == caching.WAIT:
+            link = caching.wait(app, best, title, lambda s: resolve_link(app, target, s))
+            if link:
+                return best, link
+        elif choice == caching.BACKGROUND:
+            caching.background(app, best, title)
+            return None, None
     if mode_for(target.media) == AUTO_PLAY:
         source, link = resolve_first(app, target, ordered, attempts, resolving)
         finish(None)

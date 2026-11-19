@@ -40,11 +40,24 @@ def offered(source):
             and kodi.setting_bool("premiumize.assist"))
 
 
-def ask(source):
+def ask(source, nothing_ready=False):
     """WAIT, BACKGROUND or CANCEL."""
     options = [kodi.text("cache_wait"), kodi.text("cache_background"), kodi.text("cache_cancel")]
-    picked = xbmcgui.Dialog().select(kodi.text("cache_ask", name=source.get("release_title") or ""), options)
+    heading = kodi.text("cache_nothing_ready" if nothing_ready else "cache_ask", name=source.get("release_title") or "")
+    picked = xbmcgui.Dialog().select(heading, options)
     return picked if picked in (WAIT, BACKGROUND) else CANCEL
+
+
+def best_offer(sources, filter_rules, sort_rules, media):
+    """When nothing found is ready to play: the torrent to offer to download, the first by your sort order among
+    those your filter allows (leaving aside "hide sources Premiumize hasn't cached", which would hide them all).
+    None if anything is ready, or nothing can be offered."""
+    from resources.lib import ranking
+    from resources.lib.sources import is_ready
+    if any(is_ready(s) for s in sources):
+        return None
+    allowed = ranking.apply_filter(sources, dict(filter_rules, ready_only=False), media)
+    return next((s for s in ranking.sort_sources(allowed, sort_rules) if offered(s)), None)
 
 
 # -- starting a download ---------------------------------------------------------------------------------------
