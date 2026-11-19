@@ -1,0 +1,219 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 MrSpongeHead
+"""The caching assistant (Release 2, stage 2): having Premiumize download a source it hasn't cached.
+
+Choosing such a source in Source Select asks: download and wait, download in the background, or cancel.
+Both ways start a Premiumize transfer into a SpongeTV folder in your cloud and record it in SpongeTV's
+database, so one follower (check below) handles both:
+
+- Wait: a progress window checks every few seconds and plays the video as soon as Premiumize has it.
+- Background: the background service checks every minute and tells you when it's ready, or if it failed.
+  Recorded in the database, so it's followed across Kodi restarts.
+
+Once Premiumize has finished, the source is cached, so it plays like any other ready source from then on.
+A download that makes no progress for STUCK_AFTER is given up: its transfer is deleted, as Seren does.
+"""
+
+import time
+
+import xbmc
+import xbmcgui
+
+from resources.lib import kodi
+from resources.lib.premiumize import PremiumizeError, magnet_for
+
+FOLDER = "SpongeTV"
+FOLDER_KEPT_FOR = 30 * 86400          # the SpongeTV folder's ID, remembered between uses
+STUCK_AFTER = 3 * 3600
+WAIT_CHECK_EVERY = 5                  # seconds, while you wait
+FOLLOW_EVERY = 60                     # seconds, in the background service
+ORPHANED_AFTER = 120                  # a "wait" download nobody has checked for this long: its window is gone
+WAIT, BACKGROUND, CANCEL = range(3)
+
+DOWNLOADING, DONE, FAILED, STUCK, GONE = "downloading", "done", "failed", "stuck", "gone"
+
+
+def offered(source):
+    """Can the caching assistant offer this source? Torrents Premiumize hasn't cached, with the setting on."""
+    return (source.get("debrid") == "uncached" and source.get("type") == "torrent"
+            and bool(source.get("hash") or source.get("magnet"))
+            and kodi.setting_bool("premiumize.assist"))
+
+
+def ask(source):
+    """WAIT, BACKGROUND or CANCEL."""
+    options = [kodi.text("cache_wait"), kodi.text("cache_background"), kodi.text("cache_cancel")]
+    picked = xbmcgui.Dialog().select(kodi.text("cache_ask", name=source.get("release_title") or ""), options)
+    return picked if picked in (WAIT, BACKGROUND) else CANCEL
+
+
+# -- starting a download ---------------------------------------------------------------------------------------
+def folder_id(app, fresh=False):
+    """The SpongeTV folder in your Premiumize cloud, made the first time it's needed."""
+    key = "premiumize:spongetv_folder"
+    if not fresh:
+        known = app.store.cache_get(key)
+        if known:
+            return known
+    client = app.premiumize
+    found = next((c.get("id") for c in client.folder()["content"]
+                  if c.get("type") == "folder" and c.get("name") == FOLDER), None)
+    found = found or client.create_folder(FOLDER)
+    app.store.cache_set(key, found, FOLDER_KEPT_FOR)
+    return found
+
+
+def start(app, source, title, mode):
+    """Start the transfer and record it. Returns its transfer ID. Raises PremiumizeError."""
+    client = app.premiumize
+    src = magnet_for(source)
+    try:
+        transfer_id = client.create_transfer(src, folder_id(app))
+    except PremiumizeError as error:
+        if error.code != "not_found":
+            raise
+        transfer_id = client.create_transfer(src, folder_id(app, fresh=True))   # the folder was deleted: make it again
+    if not transfer_id:
+        raise PremiumizeError("failed", "Premiumize gave no transfer ID")
+    app.store.download_add(transfer_id, title, source.get("release_title") or "", mode)
+    kodi.log(f"Caching assistant: Premiumize is downloading {source.get('release_title')} for {title} ({mode})")
+    return transfer_id
+
+
+# -- following downloads -----------------------------------------------------------------------------------------
+def check(app, now=None, only=None):
+    """[(download, state, transfer)] for the downloads SpongeTV is following (or just the one with ID only, for
+    the window you're waiting in), from one look at Premiumize's transfer list. Records the progress and when it
+    last moved; a window's own check also records that it's still there ("checked")."""
+    now = now or time.time()
+    downloads = [d for d in app.store.downloads() if only is None or d["transfer_id"] == only]
+    if not downloads:
+        return []
+    transfers = {t.get("id"): t for t in app.premiumize.transfers()}
+    answer = []
+    for download in downloads:
+        transfer = transfers.get(download["transfer_id"])
+        if transfer is None:
+            state = GONE                          # deleted on Premiumize (in Transfers, say)
+        elif transfer.get("status") in ("finished", "seeding"):
+            state = DONE
+        elif transfer.get("status") == "error":
+            state = FAILED
+        else:
+            progress = float(transfer.get("progress") or 0)
+            changed = now if progress > download["progress"] else download["changed"]
+            fields = {"progress": progress, "changed": changed}
+            if only is not None:
+                fields["checked"] = now
+            app.store.download_update(download["transfer_id"], **fields)
+            download = dict(download, **fields)
+            state = STUCK if now - changed >= STUCK_AFTER else DOWNLOADING
+        answer.append((download, state, transfer))
+    return answer
+
+
+def _give_up(app, download, delete=True):
+    app.store.download_remove(download["transfer_id"])
+    if delete:
+        try:
+            app.premiumize.delete_transfer(download["transfer_id"])
+        except PremiumizeError as error:
+            kodi.log(f"Couldn't delete transfer {download['transfer_id']}: {error}")
+
+
+def _ended(app, download, state, transfer):
+    """Tidy up a download that has ended one way or another. Returns the message to show, or None."""
+    if state == DONE:
+        app.store.download_remove(download["transfer_id"])
+        return kodi.text("cache_ready", title=download["title"])
+    if state == GONE:
+        app.store.download_remove(download["transfer_id"])
+        return None
+    reason = (transfer or {}).get("message") or ""
+    kodi.log(f"Caching assistant: {download['release']} {state}: {reason}")
+    _give_up(app, download)
+    return kodi.text("cache_stuck" if state == STUCK else "cache_failed", title=download["title"])
+
+
+def follow(app, now=None):
+    """The background service's check of background downloads. A "wait" download whose window hasn't checked
+    for a while (Kodi restarted while you were waiting, say) becomes a background one. Tells you about each
+    one that has finished or failed."""
+    now = now or time.time()
+    for download in app.store.downloads():
+        if download["mode"] == "wait" and now - download["checked"] >= ORPHANED_AFTER:
+            app.store.download_update(download["transfer_id"], mode="background")
+    if not any(d["mode"] == "background" for d in app.store.downloads()):
+        return
+    for download, state, transfer in check(app, now):
+        if download["mode"] != "background" or state == DOWNLOADING:
+            continue
+        message = _ended(app, download, state, transfer)
+        if message:
+            kodi.notify(message, 8000)
+
+
+def background(app, source, title):
+    """Download in the background: start it, say so, and leave it to the background service."""
+    try:
+        start(app, source, title, "background")
+    except PremiumizeError as error:
+        _tell(error)
+        return False
+    kodi.notify(kodi.text("cache_started", title=title), 6000)
+    return True
+
+
+def wait(app, source, title, resolve):
+    """Download and wait in a progress window. resolve(source) gives the link once Premiumize has it.
+    Returns the link, or None (cancelled, failed, or Kodi closing: then it carries on in the background)."""
+    try:
+        transfer_id = start(app, source, title, "wait")
+    except PremiumizeError as error:
+        _tell(error)
+        return None
+    dialog = xbmcgui.DialogProgress()
+    dialog.create(kodi.text("cache_waiting", title=title), source.get("release_title") or "")
+    monitor = xbmc.Monitor()
+    try:
+        while True:
+            if dialog.iscanceled():
+                kodi.log(f"Caching assistant: cancelled {source.get('release_title')}")
+                _give_up(app, {"transfer_id": transfer_id})
+                return None
+            try:
+                found = check(app, only=transfer_id)
+            except PremiumizeError as error:
+                kodi.log(f"Caching assistant: couldn't check progress: {error}")
+                found = []
+            if found:
+                download, state, transfer = found[0]
+                if state == DOWNLOADING:
+                    message = (transfer or {}).get("message") or ""
+                    dialog.update(int(download["progress"] * 100),
+                                  kodi.text("cache_progress", percent=int(download["progress"] * 100),
+                                            name=source.get("release_title") or "", message=message))
+                else:
+                    text = _ended(app, download, state, transfer)
+                    if state != DONE:
+                        if text:
+                            xbmcgui.Dialog().ok(kodi.text("tools_premiumize"), text)
+                        return None
+                    dialog.close()
+                    try:
+                        return resolve(source)
+                    except PremiumizeError as error:
+                        kodi.log(f"Caching assistant: downloaded, but couldn't get the link: {error}")
+                        kodi.notify(kodi.text("cache_ready", title=title))
+                        return None
+            if monitor.waitForAbort(WAIT_CHECK_EVERY):
+                app.store.download_update(transfer_id, mode="background")   # Kodi is closing: follow it later
+                return None
+    finally:
+        dialog.close()
+
+
+def _tell(error):
+    from resources.lib.tools import premiumize_message
+    kodi.log(f"Caching assistant: couldn't start the download: {error}")
+    xbmcgui.Dialog().ok(kodi.text("tools_premiumize"), premiumize_message(error))

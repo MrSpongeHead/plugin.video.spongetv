@@ -225,6 +225,19 @@ class Premiumize:
         "progress" 0..1, "message", "folder_id", "file_id", "created_at"}."""
         return self._call("GET", "transfer/list").get("transfers") or []
 
+    def create_transfer(self, src, folder_id=None):
+        """Ask Premiumize to fetch a magnet link (or other supported link) into your cloud. Returns the transfer ID."""
+        form = {"src": src}
+        if folder_id:
+            form["folder_id"] = folder_id
+        return self._call("POST", "transfer/create", form=form).get("id")
+
+    def create_folder(self, name, parent_id=None):
+        form = {"name": name}
+        if parent_id:
+            form["parent_id"] = parent_id
+        return self._call("POST", "folder/create", form=form).get("id")
+
     def retry_transfer(self, transfer_id):
         self._call("POST", "transfer/retry", form={"id": transfer_id})
 

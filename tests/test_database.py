@@ -80,7 +80,7 @@ def test_upgrade_moves_resume_points_out_of_the_cache(tmp_path):
     db.commit()
     db.close()
     store = Store(path, clock=Clock())
-    assert store.schema_version() == database.SCHEMA_VERSION == 4
+    assert store.schema_version() == database.SCHEMA_VERSION >= 4
     assert store.resume_get("movie:7") == point
     assert store.resume_get("episode:50:1:2") == {"position": 600}
     assert store.cache_get("resume:movie:7") is None           # gone from the cache

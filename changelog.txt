@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.2.0
+  Release 2, stage 2, part 1: the caching assistant. Choosing a torrent Premiumize hasn't cached in Source Select now asks whether to download it and wait (a progress window, then it plays), download it in the background (SpongeTV tells you when it's ready, even after Kodi restarts), or cancel. Downloads go into a SpongeTV folder in your Premiumize cloud; one that makes no progress for 3 hours is cancelled. It can be turned off in Settings, Accounts, Premiumize. Uncached sources only show in Source Select with Hide sources Premiumize hasn't cached turned off.
+
 1.1.0
   Release 2, stage 1. Tools now has a Premiumize menu: a line with your premium days left and fair-use points used, and Transfers, listing what Premiumize is fetching into your cloud with its progress. A finished transfer opens to its videos, which play from your cloud. Each transfer's context menu can retry a failed one, delete one (asking first if it's still downloading), or clear all finished ones. Premiumize's own error messages are now shown as they are.
 

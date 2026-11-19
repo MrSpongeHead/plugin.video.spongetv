@@ -10,6 +10,8 @@
 - Checks any API key you change in Settings.
 - Once a day, checks provider packages for updates and tells you, or installs them
   (Settings, Sources, Provider packages).
+- Every minute, while the caching assistant has Premiumize downloading something in the background, checks
+  on it and tells you when it's ready (or failed). This runs during playback too: it's one light request.
 """
 
 import json
@@ -158,6 +160,19 @@ class Scheduler:
             self.next_sync = now + min(self.interval * (2 ** self.failures), MAX_BACKOFF)
 
 
+def follow_downloads(now):
+    """The caching assistant's background downloads (caching.follow), if there are any."""
+    app = App()
+    try:
+        if app.store.downloads():
+            from resources.lib import caching
+            caching.follow(app, now)
+    except Exception as error:   # never let this stop the service (Premiumize unreachable, say)
+        kodi.log_error(f"Couldn't check Premiumize downloads: {error}")
+    finally:
+        app.store.close()
+
+
 def sync_once():
     """One sync if you're signed in. Returns True on success (or nothing to do), False on failure."""
     app = App()
@@ -223,8 +238,13 @@ def run(clock=None):
     last_tidy = 0
     package_check_at = clock() + PACKAGE_CHECK_AFTER
     days_refresh_at = clock() + DAYS_REFRESH_AFTER    # the days in Settings, Accounts: fresh soon after each start
+    downloads_at = clock() + DAYS_REFRESH_AFTER
     while not monitor.abortRequested():
         now = clock()
+        if now >= downloads_at:
+            from resources.lib.caching import FOLLOW_EVERY
+            downloads_at = now + FOLLOW_EVERY
+            follow_downloads(now)
         if not player.isPlaying():
             if now - last_tidy >= MAINTENANCE_EVERY:
                 store = _store()

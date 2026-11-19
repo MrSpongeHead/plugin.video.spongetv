@@ -159,6 +159,18 @@ msgctxt "#30046"
 msgid "Specials"
 msgstr ""
 
+msgctxt "#30047"
+msgid "Download and wait"
+msgstr ""
+
+msgctxt "#30048"
+msgid "Download in the background"
+msgstr ""
+
+msgctxt "#30049"
+msgid "Cancel"
+msgstr ""
+
 msgctxt "#30050"
 msgid "Clear cache"
 msgstr ""
@@ -227,6 +239,10 @@ msgctxt "#30066"
 msgid "SpongeTV needs your own free TMDB API key for titles, plots and artwork. To get one, sign up at themoviedb.org, then open Settings, API and copy the short \"API Key\" (not the long Read Access Token)."
 msgstr ""
 
+msgctxt "#30067"
+msgid "Not cached on Premiumize: {name}"
+msgstr ""
+
 msgctxt "#30068"
 msgid "All set. You can change any of this later in Settings."
 msgstr ""
@@ -239,12 +255,40 @@ msgctxt "#30070"
 msgid "No"
 msgstr ""
 
+msgctxt "#30071"
+msgid "Ready to play: {title}"
+msgstr ""
+
+msgctxt "#30072"
+msgid "Premiumize couldn't download {title}"
+msgstr ""
+
 msgctxt "#30073"
 msgid "That looks like the long Read Access Token. Please copy the shorter \"API Key\" instead."
 msgstr ""
 
+msgctxt "#30074"
+msgid "Premiumize's download of {title} stopped making progress, so it was cancelled"
+msgstr ""
+
 msgctxt "#30075"
 msgid "No TMDB key saved. Films and TV won't load until you add one in Settings, Accounts, or run the setup wizard again from Tools."
+msgstr ""
+
+msgctxt "#30076"
+msgid "Premiumize is downloading {title}. SpongeTV will tell you when it's ready."
+msgstr ""
+
+msgctxt "#30077"
+msgid "Premiumize is downloading {title}"
+msgstr ""
+
+msgctxt "#30078"
+msgid "{percent}% · {name}[CR]{message}"
+msgstr ""
+
+msgctxt "#30079"
+msgid "Offer to download sources Premiumize hasn't cached"
 msgstr ""
 
 msgctxt "#30080"
@@ -261,6 +305,10 @@ msgstr ""
 
 msgctxt "#30083"
 msgid "Nothing found"
+msgstr ""
+
+msgctxt "#30084"
+msgid "Choosing a source Premiumize hasn't cached asks whether to download it and wait, or download it in the background and be told when it's ready. Downloads go into a SpongeTV folder in your Premiumize cloud. Torrents only."
 msgstr ""
 
 msgctxt "#30100"

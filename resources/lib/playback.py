@@ -14,7 +14,7 @@ import time
 import xbmc
 import xbmcgui
 
-from resources.lib import airtime, artwork, choose, kodi, listing, options, ranking, windows
+from resources.lib import airtime, artwork, caching, choose, kodi, listing, options, ranking, windows
 from resources.lib.premiumize import PremiumizeError
 from resources.lib.sources import movie_request
 
@@ -226,6 +226,18 @@ def pick_and_resolve(app, target, found):
             return None, None
         shown = chooser.visible()
         rest = shown[shown.index(picked) + 1:] if picked in shown else []
+        if caching.offered(picked):
+            # The caching assistant: have Premiumize download it, and wait or carry on in the background
+            choice = caching.ask(picked)
+            if choice == caching.WAIT:
+                link = caching.wait(app, picked, title, lambda s: resolve_link(app, target, s))
+                if link:
+                    return picked, link
+                continue
+            if choice == caching.BACKGROUND:
+                caching.background(app, picked, title)
+                return None, None
+            continue
         if picked.get("debrid") == "uncached":
             # It can't play until the service downloads it, so say which way SpongeTV goes instead
             if not any(s.get("debrid") != "uncached" for s in rest):

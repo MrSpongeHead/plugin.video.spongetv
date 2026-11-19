@@ -749,6 +749,11 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="premiumize.assist" help="30084" type="boolean" label="30079">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="action.premiumize_status" help="30924" type="action" label="30770">
                     <level>0</level>
                     <dependencies>

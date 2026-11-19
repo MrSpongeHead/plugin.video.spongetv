@@ -51,6 +51,12 @@ MIGRATIONS = {
         "SELECT substr(key, 8), value, created FROM cache WHERE key LIKE 'resume:%'",
         "DELETE FROM cache WHERE key LIKE 'resume:%'",
     ],
+    # 1.2.0: downloads the caching assistant asked Premiumize for, followed until they finish
+    5: [
+        "CREATE TABLE IF NOT EXISTS downloads (transfer_id TEXT PRIMARY KEY, title TEXT NOT NULL, release TEXT, "
+        "mode TEXT NOT NULL, progress REAL NOT NULL DEFAULT 0, changed REAL NOT NULL, checked REAL NOT NULL, "
+        "started REAL NOT NULL)",
+    ],
 }
 SCHEMA_VERSION = max(MIGRATIONS)
 RESUME_KEPT_FOR = 365 * 86400     # a resume point not touched for a year is forgotten
@@ -171,6 +177,33 @@ class Store:
     def resume_tidy(self):
         with self._lock, self._db:
             self._db.execute("DELETE FROM resume_points WHERE saved < ?", (self.clock() - RESUME_KEPT_FOR,))
+
+    # -- downloads the caching assistant is following ---------------------------------------------
+    DOWNLOAD_FIELDS = ("transfer_id", "title", "release", "mode", "progress", "changed", "checked", "started")
+
+    def download_add(self, transfer_id, title, release, mode):
+        now = self.clock()
+        with self._lock, self._db:
+            self._db.execute("INSERT OR REPLACE INTO downloads (transfer_id, title, release, mode, progress, changed, "
+                             "checked, started) VALUES (?, ?, ?, ?, 0, ?, ?, ?)",
+                             (transfer_id, title, release, mode, now, now, now))
+
+    def downloads(self):
+        with self._lock:
+            rows = self._db.execute(f"SELECT {', '.join(self.DOWNLOAD_FIELDS)} FROM downloads ORDER BY started").fetchall()
+        return [dict(zip(self.DOWNLOAD_FIELDS, row)) for row in rows]
+
+    def download_update(self, transfer_id, **fields):
+        fields = {k: v for k, v in fields.items() if k in self.DOWNLOAD_FIELDS and k != "transfer_id"}
+        if not fields:
+            return
+        with self._lock, self._db:
+            self._db.execute(f"UPDATE downloads SET {', '.join(f'{k} = ?' for k in fields)} WHERE transfer_id = ?",
+                             (*fields.values(), transfer_id))
+
+    def download_remove(self, transfer_id):
+        with self._lock, self._db:
+            self._db.execute("DELETE FROM downloads WHERE transfer_id = ?", (transfer_id,))
 
     # -- search history -----------------------------------------------------------
     def add_search(self, kind, query):

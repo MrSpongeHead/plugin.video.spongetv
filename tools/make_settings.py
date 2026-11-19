@@ -170,6 +170,7 @@ def render():
                       + boolean("premiumize.torrents", "set_pm_torrents", True)
                       + boolean("premiumize.hosters", "set_pm_hosters", True)
                       + boolean("premiumize.cloud", "set_pm_cloud", True)
+                      + boolean("premiumize.assist", "set_pm_assist", True)
                       + action("action.premiumize_status", "premiumize_status", "premiumize_status",
                                extra=visible_if("premiumize.signed_in", "true"))
                       # Expert level: an API key instead of signing in, or your own registered client ID
