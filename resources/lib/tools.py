@@ -20,6 +20,7 @@ def _item(plugin, label_key, action, is_folder=False):
 def menu(plugin, app):
     items = [
         _item(plugin, "tools_accounts", "tools_accounts", True),
+        _item(plugin, "tools_premiumize", "pm_menu", True),
         _item(plugin, "tools_sync", "tools_sync", True),
         _item(plugin, "tools_providers", "tools_providers", True),
         _item(plugin, "tools_caches", "tools_caches", True),
@@ -94,6 +95,10 @@ def premiumize_sign_out(plugin, app):
 
 
 def premiumize_message(error):
+    if getattr(error, "code", "") == "account_limit_reached":
+        return kodi.text("pm_account_limit")
+    if error.kind == "failed" and error.detail:
+        return error.detail          # Premiumize's own words, such as "Transfer not found"
     return kodi.text({"no_key": "pm_no_key", "bad_key": "pm_bad_key"}.get(error.kind, "pm_unreachable"))
 
 

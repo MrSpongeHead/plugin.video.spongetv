@@ -31,6 +31,26 @@ msgctxt "#30014"
 msgid "Settings"
 msgstr ""
 
+msgctxt "#30015"
+msgid "Premiumize"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Transfers"
+msgstr ""
+
+msgctxt "#30017"
+msgid "No transfers on Premiumize"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Premium for {days} more days · fair use {used}% used"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Not a premium account · fair use {used}% used"
+msgstr ""
+
 msgctxt "#30020"
 msgid "Trending this week"
 msgstr ""
@@ -59,6 +79,30 @@ msgctxt "#30026"
 msgid "Years"
 msgstr ""
 
+msgctxt "#30027"
+msgid "Queued"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Downloading"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Finished"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Failed"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Retry"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Delete transfer"
+msgstr ""
+
 msgctxt "#30033"
 msgid "Airing today"
 msgstr ""
@@ -67,8 +111,36 @@ msgctxt "#30034"
 msgid "On TV this week"
 msgstr ""
 
+msgctxt "#30035"
+msgid "Clear finished transfers"
+msgstr ""
+
+msgctxt "#30036"
+msgid "Refresh"
+msgstr ""
+
+msgctxt "#30037"
+msgid "{name} is still downloading. Delete it and stop the download?"
+msgstr ""
+
+msgctxt "#30038"
+msgid "Transfer deleted"
+msgstr ""
+
+msgctxt "#30039"
+msgid "Transfer restarted"
+msgstr ""
+
 msgctxt "#30040"
 msgid "Next page ({page} of {total})"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Finished transfers cleared"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Premiumize says your fair-use points or download slots have run out."
 msgstr ""
 
 msgctxt "#30043"

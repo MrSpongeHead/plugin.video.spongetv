@@ -435,7 +435,7 @@ def test_tools_cannot_be_hidden(ready):
 
 def test_tools_are_grouped_and_clear_all_clears_everything(ready):
     call("?action=tools")
-    assert labels() == ["Accounts and API keys", "Trakt sync", "Providers and sources", "Caches", "Customise home menu",
+    assert labels() == ["Accounts and API keys", "Premiumize", "Trakt sync", "Providers and sources", "Caches", "Customise home menu",
                         "Clean install", "Settings"]
     call("?action=tools_caches")
     assert labels() == ["Clear cache", "Clear search history", "Clear all caches"]

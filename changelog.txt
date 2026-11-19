@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.1.0
+  Release 2, stage 1. Tools now has a Premiumize menu: a line with your premium days left and fair-use points used, and Transfers, listing what Premiumize is fetching into your cloud with its progress. A finished transfer opens to its videos, which play from your cloud. Each transfer's context menu can retry a failed one, delete one (asking first if it's still downloading), or clear all finished ones. Premiumize's own error messages are now shown as they are.
+
 1.0.10
   Shows have Drop show (stopped watching) in their Trakt menu, matching Trakt's own Drop: your watch history stays, and the show leaves Next up, progress and the lists of your shows. Show in Next up and progress again now also undoes a drop on Trakt, including one made on the Trakt website; before, the next sync dropped the show again.
 

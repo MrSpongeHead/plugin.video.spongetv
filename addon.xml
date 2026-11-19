@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="1.0.10" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="1.1.0" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,9 +17,9 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>1.0.10: Shows have Drop show (stopped watching) in their Trakt menu, matching Trakt&apos;s own Drop: your watch history stays, and the show leaves Next up, progress and the lists of your shows. Show in Next up and progress again now also undoes a drop on Trakt, including one made on the Trakt website; before, the next sync dropped the show again.
+        <news>1.1.0: Release 2, stage 1. Tools now has a Premiumize menu: a line with your premium days left and fair-use points used, and Transfers, listing what Premiumize is fetching into your cloud with its progress. A finished transfer opens to its videos, which play from your cloud. Each transfer&apos;s context menu can retry a failed one, delete one (asking first if it&apos;s still downloading), or clear all finished ones. Premiumize&apos;s own error messages are now shown as they are.
+1.0.10: Shows have Drop show (stopped watching) in their Trakt menu, matching Trakt&apos;s own Drop: your watch history stays, and the show leaves Next up, progress and the lists of your shows. Show in Next up and progress again now also undoes a drop on Trakt, including one made on the Trakt website; before, the next sync dropped the show again.
 1.0.9: Two new lists under My TV shows: Still airing (shows you&apos;ve watched that are still being made, those with a date for what&apos;s next first) and Ended or cancelled. Shows now have a line at the top of their plot, and their seasons&apos;, saying when the next season or episode airs, or that the show has ended or been cancelled (from TMDB; can be turned off in Settings). Each saved search has Remove from search history in its context menu.
-1.0.8: Sources for older seasons of shows still running. SpongeTV told providers every season of such a show was still airing, so a4kScrapers searched only for the single episode and skipped season and complete-series packs; it now says so only of a season with episodes still to come, as Seren does. Providers are also given the other titles Trakt lists for a film or show, which they match release names against.
 Earlier changes: changelog.txt</news>
         <assets>
             <icon>resources/media/icon.png</icon>

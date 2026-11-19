@@ -22,10 +22,11 @@ SAMPLE = re.compile(r"(^|[\W_])(sample|trailer|extras?|featurettes?)([\W_]|$)", 
 class PremiumizeError(Exception):
     """kind: no_key, bad_key, not_premium, unreachable, failed, no_file, no_client_id, bad_client_id, denied"""
 
-    def __init__(self, kind, detail=""):
+    def __init__(self, kind, detail="", code=""):
         super().__init__(f"{kind}: {detail}" if detail else kind)
         self.kind = kind
         self.detail = detail
+        self.code = code      # Premiumize's own error code, such as account_limit_reached
 
 
 def magnet_for(source):
@@ -92,7 +93,7 @@ class Premiumize:
         if response.status >= 500 or response.status == 429:
             raise PremiumizeError("unreachable", f"HTTP {response.status}")
         if data.get("status") != "success":
-            raise PremiumizeError("failed", data.get("message") or f"HTTP {response.status}")
+            raise PremiumizeError("failed", data.get("message") or f"HTTP {response.status}", data.get("code") or "")
         return data
 
     # -- account ---------------------------------------------------------------------------------------
@@ -212,6 +213,26 @@ class Premiumize:
             found.append({"id": f.get("id"), "name": f.get("name") or path.rsplit("/", 1)[-1],
                           "size": int(f.get("size") or 0)})
         return found
+
+    def folder(self, folder_id=None):
+        """{"name", "content": [{"id", "name", "type": "folder"|"file", "size", "created_at", ...}]}; the root without an id."""
+        data = self._call("GET", "folder/list", params={"id": folder_id} if folder_id else None)
+        return {"name": data.get("name") or "", "content": data.get("content") or []}
+
+    # -- transfers (Release 2) ----------------------------------------------------------------------------
+    def transfers(self):
+        """Every transfer, newest first: {"id", "name", "status" (queued, running, seeding, finished, error),
+        "progress" 0..1, "message", "folder_id", "file_id", "created_at"}."""
+        return self._call("GET", "transfer/list").get("transfers") or []
+
+    def retry_transfer(self, transfer_id):
+        self._call("POST", "transfer/retry", form={"id": transfer_id})
+
+    def delete_transfer(self, transfer_id):
+        self._call("POST", "transfer/delete", form={"id": transfer_id})
+
+    def clear_finished(self):
+        self._call("POST", "transfer/clearfinished", form={})
 
     def cloud_link(self, item_id):
         data = self._call("GET", "item/details", params={"id": item_id})
