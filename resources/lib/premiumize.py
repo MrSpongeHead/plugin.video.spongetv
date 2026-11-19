@@ -194,7 +194,7 @@ class Premiumize:
         words = [w for w in re.split(r"[\W_]+", title.lower()) if w]
         if not words:
             return []
-        files = self._call("GET", "item/listall").get("files") or []
+        files = self.all_files()
         found = []
         season, episode = info.get("season_number"), info.get("episode_number")
         pattern = episode_pattern(season, episode) if season and episode else None
@@ -218,6 +218,17 @@ class Premiumize:
         """{"name", "content": [{"id", "name", "type": "folder"|"file", "size", "created_at", ...}]}; the root without an id."""
         data = self._call("GET", "folder/list", params={"id": folder_id} if folder_id else None)
         return {"name": data.get("name") or "", "content": data.get("content") or []}
+
+    def all_files(self):
+        """Every file in your cloud: {"id", "name", "path" (from the top, slash-joined), "size", "created_at"}."""
+        return self._call("GET", "item/listall").get("files") or []
+
+    def delete_item(self, item_id):
+        self._call("POST", "item/delete", form={"id": item_id})
+
+    def delete_folder(self, folder_id):
+        """Deletes the folder and everything in it."""
+        self._call("POST", "folder/delete", form={"id": folder_id})
 
     # -- transfers (Release 2) ----------------------------------------------------------------------------
     def transfers(self):

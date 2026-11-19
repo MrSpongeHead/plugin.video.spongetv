@@ -303,7 +303,6 @@
                     <left>162</left><top>6</top><width>470</width><height>38</height>
                     <font>font25_title</font><textcolor>FFEAF2FB</textcolor><aligny>center</aligny>
                     <label>$INFO[ListItem.Label]</label>
-                    <scroll>true</scroll>
                 </control>
                 <control type="label">
                     <left>162</left><top>42</top><width>470</width><height>30</height>

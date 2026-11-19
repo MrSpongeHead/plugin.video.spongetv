@@ -93,6 +93,7 @@ ACTIONS = {
     "pm_delete": "pm_menu.delete",
     "pm_clear": "pm_menu.clear_finished",
     "pm_refresh": "pm_menu.refresh",
+    "pm_remove": "pm_menu.remove",
     "tools_caches": "tools.caches",
     "clear_cache": "tools.clear_cache",
     "clear_search": "tools.clear_search",
@@ -110,7 +111,7 @@ NOT_DIRECTORIES = {"play", "new_search", "remove_search", "set_sort", "clear_cac
                    "providers_open", "clear_resume", "save_view", "reset_views", "premiumize_status", "premiumize_sign_in", "premiumize_sign_out", "install_url", "install_zip", "install_test", "providers_all", "provider_toggle",
                    "package_toggle", "package_settings", "package_update", "package_updates", "package_rollback",
                    "package_uninstall", "sort_rules", "clear_results", "window_test",
-                   "pm_play", "pm_retry", "pm_delete", "pm_clear", "pm_refresh"}
+                   "pm_play", "pm_retry", "pm_delete", "pm_clear", "pm_refresh", "pm_remove"}
 DIRECTORY_ACTIONS = set(ACTIONS) - NOT_DIRECTORIES
 
 

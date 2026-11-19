@@ -754,6 +754,30 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="premiumize.tidy" help="30099" type="boolean" label="30092">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="premiumize.tidy_days" help="30108" type="integer" label="30093">
+                    <level>0</level>
+                    <default>2</default>
+                    <constraints>
+                        <options>
+                            <option label="30094">0</option>
+                            <option label="30095">1</option>
+                            <option label="30096">2</option>
+                            <option label="30097">3</option>
+                            <option label="30098">4</option>
+                        </options>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition operator="is" setting="premiumize.tidy">true</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="list" format="string"/>
+                </setting>
                 <setting id="action.premiumize_status" help="30924" type="action" label="30770">
                     <level>0</level>
                     <dependencies>

@@ -69,7 +69,7 @@ def test_tools_has_premiumize_with_the_account_line(pm):
     call("?action=tools")
     assert "Premiumize" in _labels()
     call("?action=pm_menu")
-    assert _labels() == ["Premium for 30 more days · fair use 25% used", "Transfers"]
+    assert _labels() == ["Premium for 30 more days · fair use 25% used", "Transfers", "My Premiumize cloud"]
 
 
 def test_transfers_list(pm):

@@ -76,6 +76,16 @@ def folder_id(app, fresh=False):
     return found
 
 
+def existing_folder_id(app):
+    """The SpongeTV folder's ID if it exists, without making one (for the tidy-up and the space line)."""
+    known = app.store.cache_get("premiumize:spongetv_folder")
+    content = app.premiumize.folder()["content"]
+    ids = {c.get("id") for c in content if c.get("type") == "folder" and c.get("name") == FOLDER}
+    if known in ids:
+        return known
+    return next(iter(ids), None)
+
+
 def start(app, source, title, mode):
     """Start the transfer and record it. Returns its transfer ID. Raises PremiumizeError."""
     client = app.premiumize
@@ -233,3 +243,66 @@ def _tell(error):
     from resources.lib.tools import premiumize_message
     kodi.log(f"Caching assistant: couldn't start the download: {error}")
     xbmcgui.Dialog().ok(kodi.text("tools_premiumize"), premiumize_message(error))
+
+
+# -- the tidy-up (Release 2, stage 3) -----------------------------------------------------------------------------
+TIDY_DAYS = (7, 14, 30, 60, 90)       # the choices in Settings, in order
+TIDY_EVERY = 86400
+
+
+def tidy_days():
+    index = kodi.setting_int("premiumize.tidy_days")
+    return TIDY_DAYS[index] if 0 <= index < len(TIDY_DAYS) else 30
+
+
+def tidy(app, now=None, days=None):
+    """Delete what's in the SpongeTV folder (files and folders, a season pack's say) older than the given days,
+    then clear the finished transfers that went into it. Only ever touches the SpongeTV folder and its transfers;
+    downloads still in progress have nothing in the folder yet, and their transfers are left alone.
+    Returns how many things were deleted."""
+    now = now or time.time()
+    days = days or tidy_days()
+    client = app.premiumize
+    folder = existing_folder_id(app)
+    if not folder:
+        return 0
+    content = client.folder(folder)["content"]
+    cutoff = now - days * 86400
+    deleted = 0
+    for entry in content:
+        created = entry.get("created_at")
+        if not created or float(created) >= cutoff:
+            continue
+        try:
+            if entry.get("type") == "folder":
+                client.delete_folder(entry["id"])
+            else:
+                client.delete_item(entry["id"])
+            deleted += 1
+            kodi.log(f"Tidy-up: deleted {entry.get('name')} from the SpongeTV folder")
+        except PremiumizeError as error:
+            kodi.log(f"Tidy-up: couldn't delete {entry.get('name')}: {error}")
+    ours = {folder} | {e.get("id") for e in content if e.get("type") == "folder"}
+    following = {d["transfer_id"] for d in app.store.downloads()}
+    for transfer in client.transfers():
+        if (transfer.get("status") in ("finished", "seeding") and transfer.get("folder_id") in ours
+                and transfer.get("id") not in following):
+            try:
+                client.delete_transfer(transfer["id"])
+            except PremiumizeError as error:
+                kodi.log(f"Tidy-up: couldn't clear transfer {transfer.get('name')}: {error}")
+    return deleted
+
+
+def daily_tidy(app, now=None):
+    """The background service's call: at most once a day, and only with the setting on."""
+    now = now or time.time()
+    if not kodi.setting_bool("premiumize.tidy") or not app.premiumize.ready:
+        return None
+    if now - float(app.store.get_meta("premiumize:last_tidy") or 0) < TIDY_EVERY:
+        return None
+    app.store.set_meta("premiumize:last_tidy", str(now))
+    deleted = tidy(app, now)
+    if deleted:
+        kodi.notify(kodi.text("pm_tidied", count=deleted), 6000)
+    return deleted

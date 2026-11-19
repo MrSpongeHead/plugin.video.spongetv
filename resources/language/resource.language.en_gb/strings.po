@@ -315,6 +315,62 @@ msgctxt "#30085"
 msgid "Nothing is ready to play. Best not cached: {name}"
 msgstr ""
 
+msgctxt "#30086"
+msgid "My Premiumize cloud"
+msgstr ""
+
+msgctxt "#30087"
+msgid "Space used: {total} · SpongeTV folder: {ours}"
+msgstr ""
+
+msgctxt "#30088"
+msgid "Delete"
+msgstr ""
+
+msgctxt "#30089"
+msgid "Delete {name} from your Premiumize cloud?"
+msgstr ""
+
+msgctxt "#30090"
+msgid "Delete the folder {name} and everything in it from your Premiumize cloud?"
+msgstr ""
+
+msgctxt "#30091"
+msgid "Deleted from your Premiumize cloud"
+msgstr ""
+
+msgctxt "#30092"
+msgid "Tidy up the SpongeTV folder automatically"
+msgstr ""
+
+msgctxt "#30093"
+msgid "Delete downloads older than"
+msgstr ""
+
+msgctxt "#30094"
+msgid "7 days"
+msgstr ""
+
+msgctxt "#30095"
+msgid "14 days"
+msgstr ""
+
+msgctxt "#30096"
+msgid "30 days"
+msgstr ""
+
+msgctxt "#30097"
+msgid "60 days"
+msgstr ""
+
+msgctxt "#30098"
+msgid "90 days"
+msgstr ""
+
+msgctxt "#30099"
+msgid "Once a day, deletes anything in the SpongeTV folder in your Premiumize cloud older than the number of days below, and clears that folder's finished transfers from Transfers. Nothing outside the SpongeTV folder is touched. What Premiumize has cached usually still plays as a ready source afterwards."
+msgstr ""
+
 msgctxt "#30100"
 msgid "General"
 msgstr ""
@@ -345,6 +401,14 @@ msgstr ""
 
 msgctxt "#30107"
 msgid "Maintenance"
+msgstr ""
+
+msgctxt "#30108"
+msgid "How long downloads stay in the SpongeTV folder before the tidy-up deletes them."
+msgstr ""
+
+msgctxt "#30109"
+msgid "Tidy-up: {count} old downloads deleted from the SpongeTV folder"
 msgstr ""
 
 msgctxt "#30110"

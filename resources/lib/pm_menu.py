@@ -60,6 +60,7 @@ def menu(plugin, app):
         (plugin.url(action="premiumize_status"),
          listing.folder_item(_account_line(app), kodi.ICON, kodi.FANART), False),
         (plugin.url(action="pm_transfers"), listing.folder_item(kodi.text("pm_transfers"), kodi.ICON, kodi.FANART), True),
+        (plugin.url(action="pm_folder"), listing.folder_item(kodi.text("pm_cloud"), kodi.ICON, kodi.FANART), True),
     ]
     plugin.finish(items, category=kodi.text("tools_premiumize"), cache=False)
 
@@ -111,8 +112,30 @@ def transfers(plugin, app):
     plugin.finish(items, category=kodi.text("pm_transfers"), cache=False)
 
 
+def _space_line(app):
+    """"Space used: 812.4 GB · SpongeTV folder: 23.1 GB", added up from your files (Premiumize's own figure is
+    documented as unreliable), or None if they can't be listed."""
+    from resources.lib.caching import FOLDER
+    try:
+        files = app.premiumize.all_files()
+    except PremiumizeError as error:
+        kodi.log(f"Couldn't add up the space used: {error}")
+        return None
+    total = sum(int(f.get("size") or 0) for f in files)
+    ours = sum(int(f.get("size") or 0) for f in files if (f.get("path") or "").startswith(FOLDER + "/"))
+    return kodi.text("pm_space", total=size_text(total), ours=size_text(ours))
+
+
+def _delete_entry(plugin, entry):
+    kind = "folder" if entry.get("type") == "folder" else "file"
+    return (kodi.text("pm_delete"),
+            f"RunPlugin({plugin.url(action='pm_remove', id=entry.get('id'), kind=kind, name=entry.get('name') or '')})")
+
+
 def folder(plugin, app):
-    """A folder in your cloud: subfolders, then the videos in it (other files, such as subtitles, are left out)."""
+    """A folder in your cloud (the top without an id): subfolders, then the videos in it (other files, such as
+    subtitles, are left out). At the top, a line with the space used. Each can be deleted from its context menu."""
+    top = not plugin.params.get("id")
     try:
         found = app.premiumize.folder(plugin.params.get("id"))
     except PremiumizeError as error:
@@ -123,14 +146,36 @@ def folder(plugin, app):
     folders = [c for c in content if c.get("type") == "folder"]
     videos = [c for c in content if c.get("type") == "file" and is_video(c.get("name") or "")]
     items = []
+    space = _space_line(app) if top else None
+    if space:
+        items.append((plugin.url(action="pm_refresh"), listing.folder_item(space, kodi.ICON, kodi.FANART), False))
     for sub in sorted(folders, key=lambda c: (c.get("name") or "").lower()):
-        items.append((plugin.url(action="pm_folder", id=sub.get("id")),
-                      listing.folder_item(sub.get("name") or "?", kodi.ICON, kodi.FANART), True))
+        item = listing.folder_item(sub.get("name") or "?", kodi.ICON, kodi.FANART)
+        listing.add_to_menu(item, [_delete_entry(plugin, sub)])
+        items.append((plugin.url(action="pm_folder", id=sub.get("id")), item, True))
     for video in sorted(videos, key=lambda c: (c.get("name") or "").lower()):
         item = listing.folder_item(video.get("name") or "?", kodi.ICON, kodi.FANART, plot=size_text(video.get("size")))
         item.setProperty("IsPlayable", "true")
+        listing.add_to_menu(item, [_delete_entry(plugin, video)])
         items.append((plugin.url(action="pm_play", id=video.get("id")), item, False))
-    plugin.finish(items, category=found["name"] or kodi.text("tools_premiumize"), cache=False)
+    name = kodi.text("pm_cloud") if top else (found["name"] or kodi.text("tools_premiumize"))
+    plugin.finish(items, category=name, cache=False)
+
+
+def remove(plugin, app):
+    """Delete a file, or a folder and everything in it, after asking."""
+    params = plugin.params
+    is_folder = params.get("kind") == "folder"
+    question = kodi.text("pm_delete_folder" if is_folder else "pm_delete_file", name=params.get("name") or "")
+    if not xbmcgui.Dialog().yesno(kodi.text("tools_premiumize"), question):
+        return
+    client = app.premiumize
+    if is_folder:
+        if app.store.cache_get("premiumize:spongetv_folder") == params.get("id"):
+            app.store.cache_delete("premiumize:spongetv_folder")     # made again when next needed
+        _act(lambda: client.delete_folder(params.get("id")), "pm_done_deleted")
+    else:
+        _act(lambda: client.delete_item(params.get("id")), "pm_done_deleted")
 
 
 def play(plugin, app):

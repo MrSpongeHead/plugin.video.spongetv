@@ -12,6 +12,7 @@
   (Settings, Sources, Provider packages).
 - Every minute, while the caching assistant has Premiumize downloading something in the background, checks
   on it and tells you when it's ready (or failed). This runs during playback too: it's one light request.
+- Once a day, if you've turned it on, tidies the SpongeTV folder in your Premiumize cloud (caching.tidy).
 """
 
 import json
@@ -173,6 +174,18 @@ def follow_downloads(now):
         app.store.close()
 
 
+def tidy_premiumize(now):
+    """The daily tidy-up of the SpongeTV folder, if it's on (caching.daily_tidy decides)."""
+    app = App()
+    try:
+        from resources.lib import caching
+        caching.daily_tidy(app, now)
+    except Exception as error:   # never let this stop the service
+        kodi.log_error(f"Premiumize tidy-up failed: {error}")
+    finally:
+        app.store.close()
+
+
 def sync_once():
     """One sync if you're signed in. Returns True on success (or nothing to do), False on failure."""
     app = App()
@@ -266,6 +279,7 @@ def run(clock=None):
                     store.close()
             if now >= package_check_at:
                 package_check_at = now + 3600   # look again in an hour; the check itself runs daily
+                tidy_premiumize(now)
                 store = _store()
                 try:
                     check_premiumize(store, Http(f"SpongeTV/{kodi.VERSION}"), now)
