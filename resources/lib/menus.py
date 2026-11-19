@@ -103,7 +103,8 @@ def trakt_entry(plugin, **params):
 def play_entries(plugin, has_resume, **ids):
     """'Search for sources again' and, when there's a resume point, 'Clear resume point'.
     ids: media="movie", tmdb_id=… or media="episode", tmdb_id=<show>, season=…, episode=…"""
-    entries = [(kodi.text("search_again"), f"PlayMedia({plugin.url(action='play', fresh='1', **ids)})")]
+    # "noresume": PlayMedia would otherwise ask "Resume from…" from Kodi's own record, before SpongeTV asks
+    entries = [(kodi.text("search_again"), f"PlayMedia({plugin.url(action='play', fresh='1', **ids)},noresume)")]
     if has_resume:
         entries.append((kodi.text("clear_progress"), f"RunPlugin({plugin.url(action='clear_resume', **ids)})"))
     return entries
@@ -120,7 +121,8 @@ def context_menu(plugin, media, tmdb_id, signed_in=False, has_resume=False):
     if media == "movie":
         entries += play_entries(plugin, has_resume, media="movie", tmdb_id=tmdb_id)
     if media == "tv":
-        entries.append((kodi.text("play_next_episode"), f"PlayMedia({plugin.url(action='play_show', tmdb_id=tmdb_id)})"))
+        entries.append((kodi.text("play_next_episode"),
+                        f"PlayMedia({plugin.url(action='play_show', tmdb_id=tmdb_id)},noresume)"))
     return entries + [(kodi.text("related_titles"), f"Container.Update({related})"),
                       (kodi.text("cast_and_crew"), f"Container.Update({cast})")]
 

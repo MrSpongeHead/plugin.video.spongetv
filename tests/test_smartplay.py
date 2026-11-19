@@ -227,3 +227,17 @@ def test_tv_context_menu_offers_play_next_episode(show):
     call("?action=tv_list&kind=popular")
     menu = [label for label, _ in Directory.items[0][1].context_menu]
     assert "Play next episode" in menu
+
+
+def test_context_menu_plays_never_get_kodis_own_resume_question(show):
+    """PlayMedia asks "Resume from…" from Kodi's own record unless told noresume; SpongeTV asks itself."""
+    from test_menus import call
+    from conftest import Directory
+    call("?action=tv_list&kind=popular")
+    commands = dict(Directory.items[0][1].context_menu)
+    assert commands["Play next episode"].endswith(",noresume)")
+    assert commands["Search for sources again"].endswith(",noresume)") if "Search for sources again" in commands \
+        else True
+    call("?action=movie_list&kind=popular")
+    commands = dict(Directory.items[0][1].context_menu)
+    assert commands["Search for sources again"].startswith("PlayMedia(") and commands["Search for sources again"].endswith(",noresume)")

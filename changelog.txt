@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+1.2.3
+  "Search for sources again" and "Play next episode" in the context menu no longer ask "Resume from…" twice: Kodi's own question is turned off for them, leaving SpongeTV's, which uses your resume point from Trakt.
+
 1.2.2
   Release 2, stage 2, part 2. When a search finds nothing ready to play, SpongeTV offers to have Premiumize download the best torrent it hasn't cached (by your sort order and filter), to wait for or download in the background; this works with Hide sources Premiumize hasn't cached on. In Source Select, the highlighted source's release name and details scroll when they're too long, and the details now start with the pack type and seeds, then tags such as HDR.
 
