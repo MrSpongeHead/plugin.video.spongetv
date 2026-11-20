@@ -62,6 +62,10 @@ def menu(plugin, app):
         (plugin.url(action="pm_transfers"), listing.folder_item(kodi.text("pm_transfers"), kodi.ICON, kodi.FANART), True),
         (plugin.url(action="pm_folder"), listing.folder_item(kodi.text("pm_cloud"), kodi.ICON, kodi.FANART), True),
     ]
+    if kodi.setting_bool("premiumize.tidy"):
+        from resources.lib.caching import last_tidy_line
+        items.append((plugin.url(action="pm_refresh"),
+                      listing.folder_item(last_tidy_line(app), kodi.ICON, kodi.FANART), False))
     plugin.finish(items, category=kodi.text("tools_premiumize"), cache=False)
 
 

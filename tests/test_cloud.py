@@ -136,3 +136,25 @@ def test_only_the_details_line_scrolls():
     focused = xml[xml.index("<focusedlayout"):]
     assert "<label>$INFO[ListItem.Label2]</label>\n                    <scroll>true</scroll>" in focused
     assert "<label>$INFO[ListItem.Label]</label>\n                    <scroll>" not in focused
+
+
+def test_last_tidy_line_and_one_download_in_the_singular(pm):
+    import datetime
+    app = context.App()
+    FakeAddon.settings.update({"premiumize.tidy": True, "premiumize.tidy_days": 2})
+    call("?action=pm_menu")
+    assert _labels()[-1] == "Last tidy-up: not run yet"
+    pm.folders["sp"] = [f for f in pm.folders["sp"] if f["id"] != "old-pack"]     # only the film is old
+    assert caching.daily_tidy(app, now=NOW) == 1
+    assert ("notification", "Tidy-up: 1 old download deleted from the SpongeTV folder") in FakeDialog.shown
+    call("?action=pm_menu")
+    when = datetime.datetime.fromtimestamp(NOW)
+    assert _labels()[-1] == f"Last tidy-up: {when.day} {when:%B} {when.year}, {when:%H:%M} · 1 deleted"
+    # nothing to delete the next day: still recorded
+    pm.folders["sp"] = [f for f in pm.folders["sp"] if f["id"] != "old-film"]     # it went yesterday
+    caching.daily_tidy(app, now=NOW + DAY + 1)
+    call("?action=pm_menu")
+    assert _labels()[-1].endswith("· 0 deleted")
+    FakeAddon.settings["premiumize.tidy"] = False
+    call("?action=pm_menu")
+    assert not any(label.startswith("Last tidy-up") for label in _labels())

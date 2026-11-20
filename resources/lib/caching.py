@@ -14,6 +14,7 @@ Once Premiumize has finished, the source is cached, so it plays like any other r
 A download that makes no progress for STUCK_AFTER is given up: its transfer is deleted, as Seren does.
 """
 
+import json
 import time
 
 import xbmc
@@ -303,6 +304,22 @@ def daily_tidy(app, now=None):
         return None
     app.store.set_meta("premiumize:last_tidy", str(now))
     deleted = tidy(app, now)
+    app.store.set_meta("premiumize:last_tidy_result", json.dumps({"at": now, "deleted": deleted}))
     if deleted:
-        kodi.notify(kodi.text("pm_tidied", count=deleted), 6000)
+        kodi.notify(kodi.text("pm_tidied_one") if deleted == 1 else kodi.text("pm_tidied", count=deleted), 6000)
     return deleted
+
+
+def last_tidy_line(app):
+    """For Tools > Premiumize while the tidy-up is on: "Last tidy-up: 20 November 2026, 00:12 · 1 deleted"."""
+    try:
+        last = json.loads(app.store.get_meta("premiumize:last_tidy_result") or "null")
+    except ValueError:
+        last = None
+    if not last:
+        return kodi.text("pm_last_tidy_none")
+    import datetime
+    from resources.lib import status
+    when = datetime.datetime.fromtimestamp(float(last["at"]))
+    return kodi.text("pm_last_tidy", when=f"{status.nice_date(when.date().isoformat())}, {when:%H:%M}",
+                     count=int(last.get("deleted") or 0))

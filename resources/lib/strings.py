@@ -715,6 +715,10 @@ STRINGS = {
     "help_premiumize_tidy": (30099, "Once a day, deletes anything in the SpongeTV folder in your Premiumize cloud older than the number of days below, and clears that folder's finished transfers from Transfers. Nothing outside the SpongeTV folder is touched. What Premiumize has cached usually still plays as a ready source afterwards."),
     "help_premiumize_tidy_days": (30108, "How long downloads stay in the SpongeTV folder before the tidy-up deletes them."),
     "pm_tidied": (30109, "Tidy-up: {count} old downloads deleted from the SpongeTV folder"),
+    # 1.3.1: the tidy-up's last run, and one download in the singular
+    "pm_tidied_one": (30116, "Tidy-up: 1 old download deleted from the SpongeTV folder"),
+    "pm_last_tidy": (30117, "Last tidy-up: {when} · {count} deleted"),
+    "pm_last_tidy_none": (30118, "Last tidy-up: not run yet"),
     # 1.0.10: Trakt's "Drop show"
     "drop_show": (30982, "Drop show (stopped watching)"),
     "done_drop_show": (30983, "Dropped on Trakt"),

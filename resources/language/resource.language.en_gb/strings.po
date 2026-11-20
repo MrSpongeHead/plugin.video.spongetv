@@ -435,6 +435,18 @@ msgctxt "#30115"
 msgid "Show all episodes in one list instead of seasons"
 msgstr ""
 
+msgctxt "#30116"
+msgid "Tidy-up: 1 old download deleted from the SpongeTV folder"
+msgstr ""
+
+msgctxt "#30117"
+msgid "Last tidy-up: {when} · {count} deleted"
+msgstr ""
+
+msgctxt "#30118"
+msgid "Last tidy-up: not run yet"
+msgstr ""
+
 msgctxt "#30120"
 msgid "Artwork quality"
 msgstr ""
