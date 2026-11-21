@@ -458,7 +458,7 @@ STRINGS = {
     "pm_status_ok": (30771, "Premium for {days} more days. Fair use: {used}% used."),
     "pm_status_free": (30772, "This Premiumize account isn't premium, so it can't play sources."),
     "pm_no_key": (30773, "Sign in to Premiumize in Tools, Accounts, or in Settings, Accounts."),
-    "pm_bad_key": (30774, "Premiumize didn't accept SpongeTV's sign-in or API key. Sign in again in Tools, Accounts."),
+    "pm_bad_key": (30774, "Premiumize didn't accept SpongeTV's sign-in or API key. Sign in again in Tools, Accounts and API keys."),
     "pm_unreachable": (30775, "Couldn't reach Premiumize. Try again in a moment."),
     "pm_expiring": (30776, "Your Premiumize account expires in {days} days"),
     "ready_now": (30777, "{count} ready to play now"),
@@ -723,6 +723,9 @@ STRINGS = {
     "pm_tidy_now": (30119, "Tidy up now"),
     "pm_tidy_now_ask": (30125, "Delete everything in the SpongeTV folder older than {days} days, now?"),
     "pm_tidied_none": (30126, "Tidy-up: nothing in the SpongeTV folder is older than {days} days"),
+    # 1.3.3: a sign-in Premiumize no longer accepts
+    "status_pm_refused": (30127, "Sign-in no longer accepted"),
+    "pm_sign_in_retry": (30128, "Sign in to Premiumize again"),
     # 1.0.10: Trakt's "Drop show"
     "drop_show": (30982, "Drop show (stopped watching)"),
     "done_drop_show": (30983, "Dropped on Trakt"),

@@ -479,6 +479,14 @@ msgctxt "#30126"
 msgid "Tidy-up: nothing in the SpongeTV folder is older than {days} days"
 msgstr ""
 
+msgctxt "#30127"
+msgid "Sign-in no longer accepted"
+msgstr ""
+
+msgctxt "#30128"
+msgid "Sign in to Premiumize again"
+msgstr ""
+
 msgctxt "#30130"
 msgid "TMDB API key"
 msgstr ""
@@ -1972,7 +1980,7 @@ msgid "Sign in to Premiumize in Tools, Accounts, or in Settings, Accounts."
 msgstr ""
 
 msgctxt "#30774"
-msgid "Premiumize didn't accept SpongeTV's sign-in or API key. Sign in again in Tools, Accounts."
+msgid "Premiumize didn't accept SpongeTV's sign-in or API key. Sign in again in Tools, Accounts and API keys."
 msgstr ""
 
 msgctxt "#30775"

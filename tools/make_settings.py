@@ -163,6 +163,7 @@ def render():
                      + hidden_text("trakt.token") + hidden_text("trakt.username"))
     accounts += group("premiumize", "grp_premiumize",
                       status("premiumize.status", "set_account_status") + hidden_flag("premiumize.signed_in")
+                      + hidden_flag("premiumize.refused")
                       + action("action.pm_sign_in", "pm_sign_in", "premiumize_sign_in",
                                extra=visible_if("premiumize.signed_in", "false"))
                       + action("action.pm_sign_out", "pm_sign_out", "premiumize_sign_out",

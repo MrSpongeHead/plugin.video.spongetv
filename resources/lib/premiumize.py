@@ -67,12 +67,14 @@ def pick_file(content, season=None, episode=None):
 
 
 class Premiumize:
-    def __init__(self, http, api_key, store=None, clock=None):
+    def __init__(self, http, api_key, store=None, clock=None, on_answer=None):
         self.http = http
         self.api_key = (api_key or "").strip()
         self.store = store
         import time
         self.clock = clock or time.time
+        # told True when Premiumize accepts the sign-in, False when it refuses it (accounts.premiumize_answered)
+        self.on_answer = on_answer or (lambda accepted: None)
 
     @property
     def ready(self):
@@ -89,9 +91,11 @@ class Premiumize:
             raise PremiumizeError("unreachable", str(error)) from error
         data = response.data if isinstance(response.data, dict) else {}
         if response.status in (401, 403) or _is_auth_error(data):
+            self.on_answer(False)
             raise PremiumizeError("bad_key", data.get("message", ""))
         if response.status >= 500 or response.status == 429:
             raise PremiumizeError("unreachable", f"HTTP {response.status}")
+        self.on_answer(True)
         if data.get("status") != "success":
             raise PremiumizeError("failed", data.get("message") or f"HTTP {response.status}", data.get("code") or "")
         return data

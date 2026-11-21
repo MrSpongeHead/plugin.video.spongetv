@@ -121,7 +121,8 @@ class App:
         """Signed in with a code wins; otherwise the API key from Settings (Expert level)."""
         from resources.lib.premiumize import Premiumize
         bearer = self.premiumize_token.get("access_token") or kodi.setting_str("premiumize.api_key")
-        return Premiumize(self.http, bearer, self.store)
+        from resources.lib.accounts import premiumize_answered
+        return Premiumize(self.http, bearer, self.store, on_answer=premiumize_answered)
 
     @property
     def fanart(self):

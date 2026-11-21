@@ -56,9 +56,13 @@ def menu(plugin, app):
                   listing.folder_item(kodi.text("pm_sign_in"), kodi.ICON, kodi.FANART), False)]
         plugin.finish(items, category=kodi.text("tools_premiumize"), cache=False)
         return
-    items = [
-        (plugin.url(action="premiumize_status"),
-         listing.folder_item(_account_line(app), kodi.ICON, kodi.FANART), False),
+    from resources.lib.accounts import is_refused
+    line = _account_line(app)           # asks Premiumize, so a refusal is noticed here
+    items = [] if not is_refused() else [
+        (plugin.url(action="premiumize_sign_in"),
+         listing.folder_item(kodi.text("pm_sign_in_retry"), kodi.ICON, kodi.FANART), False)]
+    items += [
+        (plugin.url(action="premiumize_status"), listing.folder_item(line, kodi.ICON, kodi.FANART), False),
         (plugin.url(action="pm_transfers"), listing.folder_item(kodi.text("pm_transfers"), kodi.ICON, kodi.FANART), True),
         (plugin.url(action="pm_folder"), listing.folder_item(kodi.text("pm_cloud"), kodi.ICON, kodi.FANART), True),
     ]

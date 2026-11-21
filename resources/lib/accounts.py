@@ -67,15 +67,19 @@ def account_status(days=None):
     name = kodi.setting_str("trakt.username")
     trakt_text = ((kodi.text("status_trakt_as", name=name) if name else kodi.text("status_signed_in"))
                   if trakt_on else kodi.text("status_not_signed_in"))
-    pm_on = bool(_token("premiumize.token", "access_token") or kodi.setting_str("premiumize.api_key").strip())
+    pm_saved = bool(_token("premiumize.token", "access_token") or kodi.setting_str("premiumize.api_key").strip())
+    refused = pm_saved and kodi.setting_bool("premiumize.refused")
+    pm_on = pm_saved and not refused      # refused: Settings offers Sign in again, which replaces it
     shown = kodi.setting_str("premiumize.status")
-    if not pm_on:
+    if refused:
+        pm_text = kodi.text("status_pm_refused")
+    elif not pm_on:
         pm_text = kodi.text("status_not_signed_in")
     elif days == NO_PREMIUM:
         pm_text = kodi.text("status_pm_free")
     elif days is not None:
         pm_text = kodi.text("status_pm_days", days=days)
-    elif shown and shown != kodi.text("status_not_signed_in"):
+    elif shown and shown not in (kodi.text("status_not_signed_in"), kodi.text("status_pm_refused")):
         pm_text = shown                      # keep the days left from the last check
     else:
         pm_text = kodi.text("status_signed_in")
@@ -85,6 +89,22 @@ def account_status(days=None):
     for setting_id, value in (("trakt.signed_in", trakt_on), ("premiumize.signed_in", pm_on)):
         if kodi.setting_bool(setting_id) != value:
             kodi.set_setting_bool(setting_id, value)
+
+
+def premiumize_answered(accepted):
+    """Premiumize accepted (True) or refused (False) the saved sign-in or API key. A refusal is remembered, so
+    Settings says so and Tools offers Sign in again without signing out first; the next acceptance clears it.
+    Only writes when it changes, as every call to Premiumize reports here."""
+    refused = not accepted
+    if kodi.setting_bool("premiumize.refused") == refused:
+        return
+    kodi.log("Premiumize " + ("refused SpongeTV's sign-in or API key" if refused else "accepts the sign-in again"))
+    kodi.set_setting_bool("premiumize.refused", refused)
+    account_status()
+
+
+def is_refused():
+    return kodi.setting_bool("premiumize.refused")
 
 
 def sign_in(app, dialog=None):
@@ -190,6 +210,7 @@ def premiumize_sign_in(app, dialog=None):
     if not token:
         return False
     kodi.set_setting_str("premiumize.token", json.dumps(token))
+    kodi.set_setting_bool("premiumize.refused", False)
     app.store.set_meta("premiumize:last_check", "0")      # the daily check looks at the new sign-in straight away
     try:
         client = app.premiumize
@@ -206,6 +227,7 @@ def premiumize_sign_out(app, dialog=None):
     if not dialog.yesno(kodi.text("grp_premiumize"), kodi.text("pm_sign_out_confirm")):
         return False
     kodi.set_setting_str("premiumize.token", "")
+    kodi.set_setting_bool("premiumize.refused", False)
     app.store.cache_delete("premiumize:days_left")
     account_status()
     kodi.notify(kodi.text("pm_signed_out"))

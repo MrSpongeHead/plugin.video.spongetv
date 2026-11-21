@@ -704,6 +704,12 @@
                     <visible>false</visible>
                     <control type="toggle"/>
                 </setting>
+                <setting id="premiumize.refused" type="boolean">
+                    <level>4</level>
+                    <default>false</default>
+                    <visible>false</visible>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="action.pm_sign_in" help="30919" type="action" label="30812">
                     <level>0</level>
                     <dependencies>

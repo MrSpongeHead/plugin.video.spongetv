@@ -114,7 +114,8 @@ def check_premiumize(store, http, now, refresh_only=False):
     except ValueError:
         token = {}
     bearer = token.get("access_token") or kodi.setting_str("premiumize.api_key")
-    client = Premiumize(http, bearer, clock=lambda: now)
+    from resources.lib.accounts import premiumize_answered
+    client = Premiumize(http, bearer, clock=lambda: now, on_answer=premiumize_answered)
     daily = now - float(store.get_meta("premiumize:last_check") or 0) >= PACKAGE_CHECK_EVERY
     if not client.ready or not (daily or refresh_only):
         return None

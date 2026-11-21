@@ -127,3 +127,38 @@ def test_not_signed_in(monkeypatch):
     FakeAddon.settings["premiumize.api_key"] = ""
     call("?action=pm_menu")
     assert _labels() == ["Sign in to Premiumize"]
+
+
+class RefusingPm(TransfersPm):
+    refusing = True
+
+    def send(self, method, url, params=None, json_body=None, headers=None, max_wait=None, form=None):
+        if self.refusing and "/api/" in url:
+            return Response(401, {"status": "error", "message": "Not logged in."}, {})
+        return super().send(method, url, params, json_body, headers, max_wait, form)
+
+
+def test_a_refused_sign_in_offers_sign_in_again_everywhere(monkeypatch):
+    import json
+    from resources.lib import accounts
+    fake = RefusingPm()
+    monkeypatch.setattr(context.App, "premiumize", property(lambda app: Premiumize(
+        fake, "good", app.store, clock=lambda: 1000, on_answer=accounts.premiumize_answered)))
+    FakeAddon.settings.update({"premiumize.token": json.dumps({"access_token": "old-token", "expires_at": 10 ** 10}),
+                               "premiumize.api_key": "", "premiumize.status": "Premium for 30 more days"})
+    call("?action=pm_menu")
+    labels = _labels()
+    assert labels[0] == "Sign in to Premiumize again"
+    assert labels[1] == "Premiumize didn't accept SpongeTV's sign-in or API key. Sign in again in Tools, Accounts and API keys."
+    assert FakeAddon.settings["premiumize.refused"] is True
+    assert FakeAddon.settings["premiumize.status"] == "Sign-in no longer accepted"
+    assert FakeAddon.settings.get("premiumize.signed_in", False) is False   # Settings shows its Sign in button
+    call("?action=tools_accounts")
+    assert "Sign in to Premiumize again" in _labels() and "Sign out of Premiumize" in _labels()
+    # Premiumize accepts it again (or a new sign-in): back to normal
+    fake.refusing = False
+    call("?action=pm_menu")
+    assert _labels()[0].startswith("Premium for")
+    assert FakeAddon.settings["premiumize.refused"] is False
+    assert FakeAddon.settings["premiumize.signed_in"] is True
+    assert FakeAddon.settings["premiumize.status"] != "Sign-in no longer accepted"

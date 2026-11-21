@@ -51,7 +51,11 @@ def accounts_menu(plugin, app):
     else:
         trakt_item = _item(plugin, "trakt_sign_in", "trakt_sign_in")
     token = app.premiumize_token
-    if token:
+    from resources.lib.accounts import is_refused
+    if token and is_refused():
+        pm_items = [_item(plugin, "pm_sign_in_retry", "premiumize_sign_in"),
+                    _item(plugin, "pm_sign_out", "premiumize_sign_out")]
+    elif token:
         days = premium_days_left(app)
         label = kodi.text("pm_signed_in_status", days=days) if days is not None else kodi.text("pm_signed_in")
         pm_items = [(plugin.url(action="premiumize_status"), listing.folder_item(label, kodi.ICON, kodi.FANART), False),
