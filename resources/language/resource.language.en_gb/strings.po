@@ -447,6 +447,10 @@ msgctxt "#30118"
 msgid "Last tidy-up: not run yet"
 msgstr ""
 
+msgctxt "#30119"
+msgid "Tidy up now"
+msgstr ""
+
 msgctxt "#30120"
 msgid "Artwork quality"
 msgstr ""
@@ -465,6 +469,14 @@ msgstr ""
 
 msgctxt "#30124"
 msgid "Advanced (choose sizes yourself)"
+msgstr ""
+
+msgctxt "#30125"
+msgid "Delete everything in the SpongeTV folder older than {days} days, now?"
+msgstr ""
+
+msgctxt "#30126"
+msgid "Tidy-up: nothing in the SpongeTV folder is older than {days} days"
 msgstr ""
 
 msgctxt "#30130"

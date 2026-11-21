@@ -66,6 +66,8 @@ def menu(plugin, app):
         from resources.lib.caching import last_tidy_line
         items.append((plugin.url(action="pm_refresh"),
                       listing.folder_item(last_tidy_line(app), kodi.ICON, kodi.FANART), False))
+        items.append((plugin.url(action="pm_tidy_now"),
+                      listing.folder_item(kodi.text("pm_tidy_now"), kodi.ICON, kodi.FANART), False))
     plugin.finish(items, category=kodi.text("tools_premiumize"), cache=False)
 
 
@@ -221,4 +223,18 @@ def clear_finished(plugin, app):
 
 
 def refresh(plugin, app):
+    xbmc.executebuiltin("Container.Refresh")
+
+
+def tidy_now(plugin, app):
+    """Tidy up now (Tools > Premiumize, while the tidy-up is on), after asking. Uses your days setting."""
+    from resources.lib import caching
+    if not xbmcgui.Dialog().yesno(kodi.text("tools_premiumize"),
+                                  kodi.text("pm_tidy_now_ask", days=caching.tidy_days())):
+        return
+    try:
+        caching.run_tidy(app, say_nothing_deleted=True)
+    except PremiumizeError as error:
+        _error(error)
+        return
     xbmc.executebuiltin("Container.Refresh")

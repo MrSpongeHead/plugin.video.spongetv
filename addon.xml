@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.spongetv" name="SpongeTV" version="1.3.1" provider-name="MrSpongeHead">
+<addon id="plugin.video.spongetv" name="SpongeTV" version="1.3.2" provider-name="MrSpongeHead">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.27.0"/>
@@ -17,7 +17,8 @@
         <license>GPL-3.0-or-later</license>
         <source>https://github.com/MrSpongeHead/plugin.video.spongetv</source>
         <reuselanguageinvoker>false</reuselanguageinvoker>
-        <news>1.3.1: The tidy-up now says &quot;1 old download&quot; rather than &quot;1 old downloads&quot;. While the tidy-up is on, Tools, Premiumize shows when it last ran and how many it deleted, so a notification missed while Kodi wasn't on screen doesn't matter.
+        <news>1.3.2: While the tidy-up is on, Tools, Premiumize has Tidy up now: it asks first, then deletes anything in the SpongeTV folder older than your days setting straight away, and says what went (or that nothing was old enough). The daily run carries on as usual.
+1.3.1: The tidy-up now says &quot;1 old download&quot; rather than &quot;1 old downloads&quot;. While the tidy-up is on, Tools, Premiumize shows when it last ran and how many it deleted, so a notification missed while Kodi wasn't on screen doesn't matter.
 1.3.0: Release 2, stage 3. Tools, Premiumize now has My Premiumize cloud: browse your folders and videos, play them, delete them from the context menu (after asking), with the space used by your cloud and the SpongeTV folder at the top. A new tidy-up, off by default (Settings, Accounts, Premiumize), deletes anything in the SpongeTV folder older than 7 to 90 days (30 unless changed) once a day, and clears that folder&apos;s finished transfers; nothing outside it is touched. In Source Select only the details line now scrolls.
 1.2.3: &quot;Search for sources again&quot; and &quot;Play next episode&quot; in the context menu no longer ask &quot;Resume from…&quot; twice: Kodi&apos;s own question is turned off for them, leaving SpongeTV&apos;s, which uses your resume point from Trakt.
 Earlier changes: changelog.txt</news>

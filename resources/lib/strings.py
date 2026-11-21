@@ -719,6 +719,10 @@ STRINGS = {
     "pm_tidied_one": (30116, "Tidy-up: 1 old download deleted from the SpongeTV folder"),
     "pm_last_tidy": (30117, "Last tidy-up: {when} · {count} deleted"),
     "pm_last_tidy_none": (30118, "Last tidy-up: not run yet"),
+    # 1.3.2: Tidy up now
+    "pm_tidy_now": (30119, "Tidy up now"),
+    "pm_tidy_now_ask": (30125, "Delete everything in the SpongeTV folder older than {days} days, now?"),
+    "pm_tidied_none": (30126, "Tidy-up: nothing in the SpongeTV folder is older than {days} days"),
     # 1.0.10: Trakt's "Drop show"
     "drop_show": (30982, "Drop show (stopped watching)"),
     "done_drop_show": (30983, "Dropped on Trakt"),

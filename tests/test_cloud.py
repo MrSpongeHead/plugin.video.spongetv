@@ -143,18 +143,47 @@ def test_last_tidy_line_and_one_download_in_the_singular(pm):
     app = context.App()
     FakeAddon.settings.update({"premiumize.tidy": True, "premiumize.tidy_days": 2})
     call("?action=pm_menu")
-    assert _labels()[-1] == "Last tidy-up: not run yet"
+    assert _labels()[-2] == "Last tidy-up: not run yet"
     pm.folders["sp"] = [f for f in pm.folders["sp"] if f["id"] != "old-pack"]     # only the film is old
     assert caching.daily_tidy(app, now=NOW) == 1
     assert ("notification", "Tidy-up: 1 old download deleted from the SpongeTV folder") in FakeDialog.shown
     call("?action=pm_menu")
     when = datetime.datetime.fromtimestamp(NOW)
-    assert _labels()[-1] == f"Last tidy-up: {when.day} {when:%B} {when.year}, {when:%H:%M} · 1 deleted"
+    assert _labels()[-2] == f"Last tidy-up: {when.day} {when:%B} {when.year}, {when:%H:%M} · 1 deleted"
     # nothing to delete the next day: still recorded
     pm.folders["sp"] = [f for f in pm.folders["sp"] if f["id"] != "old-film"]     # it went yesterday
     caching.daily_tidy(app, now=NOW + DAY + 1)
     call("?action=pm_menu")
-    assert _labels()[-1].endswith("· 0 deleted")
+    assert _labels()[-2].endswith("· 0 deleted")
     FakeAddon.settings["premiumize.tidy"] = False
     call("?action=pm_menu")
     assert not any(label.startswith("Last tidy-up") for label in _labels())
+
+
+def test_tidy_up_now(pm, monkeypatch):
+    monkeypatch.setattr(caching.time, "time", lambda: NOW)
+    FakeAddon.settings.update({"premiumize.tidy": True, "premiumize.tidy_days": 2})
+    app = context.App()
+    app.store.set_meta("premiumize:last_tidy", str(NOW))      # the daily run has just happened
+    call("?action=pm_menu")
+    assert _labels()[-2:] == ["Last tidy-up: not run yet", "Tidy up now"]
+    FakeDialog.script = [False]
+    call("?action=pm_tidy_now")
+    assert pm.deleted == []
+    FakeDialog.script = [True]
+    call("?action=pm_tidy_now")
+    asked = [m for k, m in FakeDialog.shown if k == "yesno"]
+    assert "older than 30 days, now?" in asked[-1]
+    assert ("folder/delete", "old-pack") in pm.deleted and ("item/delete", "old-film") in pm.deleted
+    assert ("notification", "Tidy-up: 2 old downloads deleted from the SpongeTV folder") in FakeDialog.shown
+    assert context.App().store.get_meta("premiumize:last_tidy") == str(NOW)   # the daily timing is left alone
+    call("?action=pm_menu")
+    assert _labels()[-2].endswith("· 2 deleted")
+    # nothing old enough: says so
+    pm.folders["sp"] = [f for f in pm.folders["sp"] if f["id"] == "new-film"]
+    FakeDialog.script = [True]
+    call("?action=pm_tidy_now")
+    assert ("notification", "Tidy-up: nothing in the SpongeTV folder is older than 30 days") in FakeDialog.shown
+    FakeAddon.settings["premiumize.tidy"] = False
+    call("?action=pm_menu")
+    assert "Tidy up now" not in _labels()

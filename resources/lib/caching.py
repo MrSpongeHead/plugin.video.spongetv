@@ -303,10 +303,19 @@ def daily_tidy(app, now=None):
     if now - float(app.store.get_meta("premiumize:last_tidy") or 0) < TIDY_EVERY:
         return None
     app.store.set_meta("premiumize:last_tidy", str(now))
+    return run_tidy(app, now)
+
+
+def run_tidy(app, now=None, say_nothing_deleted=False):
+    """Tidy now, record it for the "Last tidy-up" line and say what went. Used by the daily run and by
+    Tidy up now (which leaves the daily run's timing alone)."""
+    now = now or time.time()
     deleted = tidy(app, now)
     app.store.set_meta("premiumize:last_tidy_result", json.dumps({"at": now, "deleted": deleted}))
     if deleted:
         kodi.notify(kodi.text("pm_tidied_one") if deleted == 1 else kodi.text("pm_tidied", count=deleted), 6000)
+    elif say_nothing_deleted:
+        kodi.notify(kodi.text("pm_tidied_none", days=tidy_days()))
     return deleted
 
 
