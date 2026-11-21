@@ -1,5 +1,8 @@
 SpongeTV changes, newest first.
 
+2.0.0
+  Release 2, the Premiumize extras: the code of 1.3.3. Tools, Premiumize (account, Transfers, My Premiumize cloud with the space used); the caching assistant (download and wait, or in the background; an offer when nothing is ready; a SpongeTV folder in your cloud); the optional tidy-up of that folder, daily or now; a refused Premiumize sign-in shown with Sign in again. Built in stages from 1.1.0 to 1.3.3, listed below.
+
 1.3.3
   When Premiumize stops accepting SpongeTV's sign-in (revoked on the Premiumize website, say), SpongeTV now notices: Settings, Accounts says Sign-in no longer accepted and offers Sign in, and Tools, Accounts and API keys and Tools, Premiumize offer Sign in to Premiumize again, without signing out first. The error message names the menu in full.
 

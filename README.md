@@ -21,6 +21,13 @@ you choose to install, in one place.
   own sort order.
 - **Premiumize:** sign in with a code. SpongeTV checks what Premiumize already has ready, picks the
   right file from season packs, and can play from your Premiumize cloud.
+- **Caching assistant:** a torrent Premiumize hasn't cached can be downloaded to your cloud, waiting
+  for it or in the background (you're told when it's ready). When nothing is ready, SpongeTV offers the
+  best one. Downloads go into a SpongeTV folder.
+- **Tools, Premiumize:** your account, your transfers, and your cloud to browse, play and delete from,
+  with the space used. An optional daily tidy-up deletes old downloads from the SpongeTV folder only.
+- **Your TV shows:** Next up, Shows in progress, Still airing, and Ended or cancelled, with a line on
+  each show saying when it's back.
 - **Playback:** resume where you left off (on any device, through Trakt). Smart Play finds a source
   for the next episode while you watch, shows Playing Next near the end, or when the end credits start
   if the episode's chapters mark them, and asks if you're still watching after a few episodes.
